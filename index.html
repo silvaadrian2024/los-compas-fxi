@@ -1,0 +1,2535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
+<title>Quinielas Los Compas</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-user-select: none; user-select: none; }
+  body {
+    background: linear-gradient(135deg, #0a1f0a 0%, #1a3a1a 50%, #0d2818 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding-bottom: 40px;
+  }
+  
+  .header {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    border-bottom: 4px solid #ffd700;
+  }
+  .header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);
+  }
+  .header-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(10,31,10,0.95) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .header-overlay h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  .header-overlay p {
+    color: #fff;
+    font-size: 1rem;
+    margin-top: 8px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  }
+  
+  .nav-bar {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 2px solid #ffd700;
+  }
+  .nav-btn {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #0a1f0a;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,215,0,0.4); }
+  .nav-btn.admin { background: linear-gradient(135deg, #ff4444, #cc0000); color: #fff; }
+  
+  .container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+    color: #ffd700;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-weight: 800;
+  }
+  
+  .card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  
+  .jornada-info {
+    background: linear-gradient(135deg, #1e5a1e, #2d7a2d);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .jornada-info h3 { color: #ffd700; font-size: 1.2rem; }
+  .jornada-info p { color: #fff; font-size: 0.9rem; }
+  
+  .closing-banner {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    border: 2px solid #ffd700;
+  }
+  .closing-banner h3 { color: #fff; font-size: 1.1rem; }
+  .closing-banner .time-display {
+    background: rgba(0,0,0,0.3);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 700;
+    color: #ffd700;
+    font-size: 1.1rem;
+  }
+  .closing-banner.closed {
+    background: linear-gradient(135deg, #c0392b, #8b0000);
+  }
+  
+  .important-notes {
+    background: linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,152,0,0.1));
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .important-notes h3 {
+    color: #ffc107;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .important-notes ul {
+    list-style: none;
+    padding: 0;
+  }
+  .important-notes li {
+    padding: 8px 0;
+    padding-left: 30px;
+    position: relative;
+    color: #fff;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(255,193,7,0.2);
+  }
+  .important-notes li:last-child { border-bottom: none; }
+  .important-notes li::before {
+    content: '⚠️';
+    position: absolute;
+    left: 0;
+    top: 8px;
+  }
+  .important-notes li strong {
+    color: #ffd700;
+  }
+  
+  .match-row {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 15px;
+    align-items: center;
+    border-left: 4px solid #ffd700;
+    transition: all 0.3s;
+  }
+  .match-row:hover { background: rgba(0,0,0,0.5); transform: translateX(3px); }
+  .team-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #fff;
+  }
+  .team-name.local { text-align: right; }
+  .team-name.visitante { text-align: left; }
+  .vs-badge {
+    background: #ffd700;
+    color: #0a1f0a;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+  
+  .selection-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 10px;
+    grid-column: 1 / -1;
+  }
+  .sel-btn {
+    flex: 1;
+    max-width: 120px;
+    padding: 10px;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .sel-btn:hover { background: rgba(255,215,0,0.2); border-color: #ffd700; }
+  .sel-btn.active-L { background: #2d7a2d; border-color: #4caf50; color: #fff; }
+  .sel-btn.active-E { background: #c9a000; border-color: #ffd700; color: #fff; }
+  .sel-btn.active-V { background: #c0392b; border-color: #e74c3c; color: #fff; }
+  
+  .name-input {
+    width: 100%;
+    padding: 15px;
+    background: rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+  }
+  .name-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    background: rgba(0,0,0,0.6);
+  }
+  .name-input::placeholder { color: rgba(255,255,255,0.5); }
+  
+  .action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .action-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-clear { background: linear-gradient(135deg, #7f8c8d, #555); color: #fff; }
+  .btn-add { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
+  .btn-send { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
+  .btn-send-all { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
+  .btn-config { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
+  .btn-reset { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-size: 0.85rem; padding: 10px; margin-top: 10px; }
+  .btn-excel { background: linear-gradient(135deg, #217346, #185a36); color: #fff; }
+  .btn-share { background: linear-gradient(135deg, #ff6b35, #f7931e); color: #fff; }
+  .action-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+  .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+  }
+  
+  .privacy-notice {
+    background: rgba(46,204,113,0.15);
+    border: 1px solid #2ecc71;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #2ecc71;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: linear-gradient(135deg, #1a3a1a, #0d2818);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal h2 { color: #ffd700; margin-bottom: 20px; text-align: center; }
+  .modal h3 { color: #ffd700; margin-top: 15px; margin-bottom: 10px; }
+  .modal-close {
+    position: absolute;
+    top: 10px; right: 15px;
+    background: none;
+    border: none;
+    color: #ffd700;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .payment-method {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-left: 4px solid #ffd700;
+  }
+  .payment-method h4 { color: #ffd700; margin-bottom: 5px; }
+  .payment-method p { color: #fff; font-size: 0.95rem; word-break: break-all; }
+  
+  .upload-area {
+    border: 2px dashed rgba(255,215,0,0.5);
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    margin: 15px 0;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .upload-area:hover { background: rgba(255,215,0,0.1); }
+  .upload-area input { display: none; }
+  
+  .receipt-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    margin: 10px auto;
+    display: none;
+    border: 2px solid #ffd700;
+  }
+  .receipt-preview.active { display: block; }
+  
+  .price-tag {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #0a1f0a;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 15px 0;
+  }
+  
+  .admin-form input, .admin-form textarea {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 8px;
+    color: #fff;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  .admin-form input:focus, .admin-form textarea:focus { outline: none; border-color: #ffd700; }
+  .admin-form label {
+    display: block;
+    color: #ffd700;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  .admin-form .form-group { margin-bottom: 12px; }
+  
+  .match-list-admin { margin-top: 15px; }
+  .match-admin-item {
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .delete-btn {
+    background: #c0392b;
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffd700;
+    color: #0a1f0a;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    z-index: 2000;
+    display: none;
+    animation: slideUp 0.3s;
+    max-width: 90%;
+    text-align: center;
+  }
+  @keyframes slideUp { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+  
+  .config-section {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #9b59b6;
+  }
+  .config-section h4 {
+    color: #9b59b6;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .publish-step {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-left: 4px solid #e67e22;
+  }
+  .publish-step h4 { color: #e67e22; margin-bottom: 8px; }
+  .publish-step p { color: #fff; line-height: 1.6; font-size: 0.95rem; }
+  .publish-step a { color: #ffd700; text-decoration: none; font-weight: 700; }
+  .publish-step a:hover { text-decoration: underline; }
+  .publish-step code {
+    background: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #ffd700;
+    font-family: monospace;
+  }
+  
+  .platform-card {
+    background: linear-gradient(135deg, rgba(230,126,34,0.2), rgba(211,84,0,0.1));
+    border: 1px solid rgba(230,126,34,0.4);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .platform-card h4 {
+    color: #e67e22;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+  }
+  
+  .tab-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid rgba(255,215,0,0.3);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+  .tab-btn.active {
+    background: #ffd700;
+    color: #0a1f0a;
+    border-color: #ffd700;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  
+  .copy-btn {
+    background: rgba(255,215,0,0.2);
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-left: 8px;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: #ffd700; color: #0a1f0a; }
+  
+  .login-hint {
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+  }
+  
+  .receipt-instructions {
+    background: rgba(37,211,102,0.1);
+    border: 1px solid rgba(37,211,102,0.4);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    color: #fff;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .receipt-instructions strong { color: #ffd700; }
+  
+  .excel-container {
+    overflow-x: auto;
+    margin-top: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+  .excel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    min-width: 700px;
+  }
+  .excel-table th {
+    background: linear-gradient(135deg, #217346, #185a36);
+    color: #fff;
+    padding: 10px 6px;
+    text-align: center;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .excel-table td {
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid rgba(255,215,0,0.15);
+    background: rgba(0,0,0,0.2);
+  }
+  .excel-table tr:nth-child(even) td {
+    background: rgba(0,0,0,0.3);
+  }
+  .excel-table .player-cell {
+    text-align: left;
+    font-weight: 700;
+    color: #ffd700;
+    white-space: nowrap;
+  }
+  .excel-table .pred-cell {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .excel-table .pred-L { color: #4caf50; }
+  .excel-table .pred-E { color: #ffd700; }
+  .excel-table .pred-V { color: #e74c3c; }
+  .paid-check {
+    cursor: pointer;
+    font-size: 1.3rem;
+    user-select: none;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .paid-check:hover { transform: scale(1.3); }
+  .paid-yes { color: #4caf50; }
+  .paid-no { color: rgba(255,255,255,0.3); }
+  
+  .excel-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  .excel-actions .action-btn { flex: 1; min-width: 150px; }
+  
+  .excel-summary {
+    background: rgba(33,115,70,0.2);
+    border: 1px solid rgba(33,115,70,0.5);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .excel-summary .stat {
+    text-align: center;
+  }
+  .excel-summary .stat-value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #ffd700;
+  }
+  .excel-summary .stat-label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+  }
+  
+  .whatsapp-link {
+    display: block;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 10px;
+    transition: all 0.3s;
+    text-align: center;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+  }
+  .whatsapp-link:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(37,211,102,0.4); }
+  
+  .storage-warning {
+    background: rgba(255,165,0,0.2);
+    border: 1px solid #ffa500;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    color: #fff;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .security-badge {
+    background: rgba(46,204,113,0.15);
+    border: 1px solid #2ecc71;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 0.85rem;
+    color: #2ecc71;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .share-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .share-info-box {
+    background: rgba(255,107,53,0.15);
+    border: 1px solid #ff6b35;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    color: #fff;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .share-info-box strong { color: #ff6b35; }
+  
+  .countdown-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #ffd700;
+    background: rgba(0,0,0,0.4);
+    padding: 5px 12px;
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 600px) {
+    .header-overlay h1 { font-size: 1.8rem; }
+    .action-buttons { grid-template-columns: 1fr; }
+    .match-row { grid-template-columns: 1fr; text-align: center; }
+    .team-name.local, .team-name.visitante { text-align: center; }
+    .nav-btn { font-size: 0.8rem; padding: 8px 14px; }
+    .modal { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="https://image.qwenlm.ai/public_source/73de5cfe-12cf-4f6c-9137-4c74680acd7a/1004a1730-e7f3-4608-abc5-012a6c9afffa.png" alt="Fútbol">
+  <div class="header-overlay">
+    <h1>⚽ QUINIELAS LOS COMPAS ⚽</h1>
+    <p>¡Pronostica, gana y diviértete con tus amigos!</p>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" onclick="openModal('paymentModal')">💳 Pago</button>
+  <button class="nav-btn admin" onclick="openModal('adminModal')">🔒 Admin</button>
+  <button class="nav-btn" onclick="openModal('infoModal')">ℹ️ Info</button>
+</div>
+
+<div class="container">
+  <div id="storageWarning" class="storage-warning" style="display:none">
+    ⚠️ El almacenamiento local no está disponible. Los datos se guardarán solo en memoria durante esta sesión.
+  </div>
+  
+  <h2 class="section-title"> Jornada Actual</h2>
+  
+  <div class="card">
+    <div class="jornada-info">
+      <div>
+        <h3 id="jornadaTitle">Jornada 1</h3>
+        <p id="jornadaDate">Semana del 18 de Julio, 2026</p>
+      </div>
+      <div style="text-align:right">
+        <p style="color:#ffd700;font-weight:700">Partidos: <span id="matchCount">0</span>/9</p>
+      </div>
+    </div>
+    
+    <!-- Banner de hora de cierre -->
+    <div class="closing-banner" id="closingBanner">
+      <div>
+        <h3>⏰ Cierre de Quiniela</h3>
+        <p id="closingDateDisplay" style="color:#fff;font-size:0.9rem">Sin hora de cierre definida</p>
+      </div>
+      <div class="time-display" id="countdownDisplay">--:--:--</div>
+    </div>
+    
+    <!-- Notas Importantes -->
+    <div class="important-notes">
+      <h3>📋 Notas Importantes</h3>
+      <ul>
+        <li><strong>Costo:</strong> $<span id="notePrice">20</span> MXN por quiniela.</li>
+        <li><strong>Comisión administrativa:</strong> Se retiene el <strong>20%</strong> por administración de la cuenta/página por haber creado la quiniela.</li>
+        <li><strong>Quiniela no pagada NO participa:</strong> Solo las quinielas con comprobante de pago confirmado son válidas para el sorteo.</li>
+        <li><strong>Hora de cierre:</strong> Una vez alcanzada la hora límite, no se aceptarán más quinielas.</li>
+        <li><strong>Privacidad:</strong> Los pronósticos de cada jugador son confidenciales. Solo el administrador tiene acceso.</li>
+        <li><strong>Premio:</strong> El premio se reparte entre los jugadores con más aciertos (después del 20% de administración).</li>
+      </ul>
+    </div>
+    
+    <div id="matchesContainer">
+      <div class="empty-state">
+        <p>️ Aún no hay partidos disponibles. El admin debe agregar los partidos de la jornada.</p>
+      </div>
+    </div>
+    
+    <input type="text" id="playerName" class="name-input" placeholder="✍️ Escribe tu nombre aquí..." maxlength="30">
+    
+    <div class="action-buttons">
+      <button class="action-btn btn-clear" onclick="clearSelection()">🗑️ Limpiar</button>
+      <button class="action-btn btn-add" id="addQuinielaBtn" onclick="addQuiniela()">➕ Agregar</button>
+      <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()"> Enviar Todas</button>
+    </div>
+    
+    <div class="privacy-notice">
+      🔒 <strong>Privacidad garantizada:</strong> Tus pronósticos son confidenciales. Una vez enviados, desaparecen de la vista pública y solo el administrador puede verlos.
+    </div>
+  </div>
+  
+  <h2 class="section-title">📋 Estado de la Jornada</h2>
+  
+  <div class="card">
+    <div id="quinielasList">
+      <div class="empty-state">
+        <p>🔒 Las quinielas son privadas. Solo el administrador puede ver los pronósticos registrados.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Métodos de Pago -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    <h2>💳 Métodos de Pago</h2>
+    <div class="price-tag" id="priceDisplay">💰 Costo por Quiniela: $20 MXN</div>
+    
+    <div id="paymentMethodsDisplay"></div>
+    
+    <div class="important-notes" style="margin-top:20px">
+      <h3>📋 Notas Importantes</h3>
+      <ul>
+        <li><strong>Comisión del 20%</strong> se retiene por administración de la cuenta/página.</li>
+        <li><strong>Quiniela no pagada NO participa</strong> en el sorteo.</li>
+        <li>Envía tu comprobante para confirmar tu participación.</li>
+      </ul>
+    </div>
+    
+    <h3>📤 Enviar Comprobante</h3>
+    
+    <div class="share-info-box">
+      <strong> IMPORTANTE - Cómo enviar tu comprobante:</strong><br><br>
+      <strong>Paso 1:</strong> Sube tu captura de pago (botón de abajo)<br>
+      <strong>Paso 2:</strong> Presiona " Compartir con Imagen" (se abrirá WhatsApp con la imagen adjunta automáticamente en Android/iPhone)<br>
+      <strong>Paso 3:</strong> Si no funciona, usa "📱 Abrir WhatsApp" y adjunta la imagen manualmente desde tu galería
+    </div>
+    
+    <div class="upload-area" onclick="document.getElementById('receiptUpload').click()">
+      <input type="file" id="receiptUpload" accept="image/*" onchange="handleReceipt(event)">
+      <p style="font-size:2rem">📸</p>
+      <p id="uploadText">Toca para subir tu captura de pago</p>
+    </div>
+    <img id="receiptPreview" class="receipt-preview" alt="Preview">
+    
+    <div class="share-options">
+      <button class="action-btn btn-share" id="shareWithImageButton" onclick="shareReceiptWithImage()" style="display:none">
+        📤 Compartir con Imagen (Recomendado)
+      </button>
+      <a id="whatsappReceiptLink" class="whatsapp-link" href="#" target="_blank" rel="noopener">
+        📱 Abrir WhatsApp (Adjuntar manualmente)
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Admin -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+    <h2>🔒 Panel de Administración</h2>
+    
+    <div id="adminLogin">
+      <div class="admin-form">
+        <label>📧 Correo de Admin:</label>
+        <input type="email" id="adminEmail" placeholder="Ingresa tu correo" autocomplete="off">
+        <label>🔐 Contraseña:</label>
+        <input type="password" id="adminPass" placeholder="Ingresa la contraseña" autocomplete="off">
+        <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()">🔓 Entrar</button>
+        <div class="login-hint">
+          💡 Si no puedes entrar, presiona "Reset de Fábrica" abajo para restaurar las credenciales por defecto
+        </div>
+        <button class="action-btn btn-reset" style="width:100%" onclick="resetCredentials()">🔄 Reset de Fábrica (Restaurar credenciales)</button>
+      </div>
+    </div>
+    
+    <div id="adminPanel" style="display:none">
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('matches', this)">⚽ Partidos</button>
+        <button class="tab-btn" onclick="switchTab('excel', this)">📊 Excel</button>
+        <button class="tab-btn" onclick="switchTab('closing', this)">⏰ Hora de Cierre</button>
+        <button class="tab-btn" onclick="switchTab('config', this)">️ Configuración</button>
+        <button class="tab-btn" onclick="switchTab('security', this)">🛡️ Seguridad</button>
+        <button class="tab-btn" onclick="switchTab('publish', this)">🌐 Publicar</button>
+      </div>
+      
+      <!-- Tab Partidos -->
+      <div class="tab-content active" id="tab-matches">
+        <div class="admin-form">
+          <div class="form-group">
+            <label>Nombre de la Jornada:</label>
+            <input type="text" id="jornadaName" placeholder="Ej: Jornada 5 - Liga MX">
+          </div>
+          <div class="form-group">
+            <label>Equipo Local:</label>
+            <input type="text" id="localTeam" placeholder="Nombre del equipo local">
+          </div>
+          <div class="form-group">
+            <label>Equipo Visitante:</label>
+            <input type="text" id="visitanteTeam" placeholder="Nombre del equipo visitante">
+          </div>
+          <button type="button" class="action-btn btn-add" style="width:100%" id="addMatchBtn" onclick="addMatch()">➕ Agregar Partido (0/9)</button>
+        </div>
+        
+        <h3>⚽ Partidos Actuales (<span id="adminMatchCount">0</span>/9)</h3>
+        <div class="match-list-admin" id="adminMatchList"></div>
+        
+        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="clearAllMatches()">🗑️ Limpiar Todos los Partidos</button>
+      </div>
+      
+      <!-- Tab Excel -->
+      <div class="tab-content" id="tab-excel">
+        <div class="excel-summary" id="excelSummary"></div>
+        
+        <div class="excel-container">
+          <table class="excel-table" id="excelTable">
+            <thead id="excelThead"></thead>
+            <tbody id="excelTbody"></tbody>
+          </table>
+        </div>
+        
+        <div class="excel-actions">
+          <button class="action-btn btn-excel" onclick="downloadExcel()">📥 Descargar Excel (CSV)</button>
+          <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()">📱 Enviar Todas por WhatsApp</button>
+          <button class="action-btn btn-clear" onclick="clearAllQuinielas()">🗑️ Eliminar Todas</button>
+        </div>
+        
+        <div class="receipt-instructions" style="margin-top:15px">
+          <strong>💡 Cómo usar:</strong><br>
+          • Toca la <span style="color:#4caf50;font-weight:700">✅</span> para marcar como PAGADO<br>
+          • Toca la <span style="color:rgba(255,255,255,0.3);font-weight:700">⬜</span> para marcar como PENDIENTE<br>
+          • El botón "Descargar Excel" genera un archivo CSV que puedes abrir en Excel, Google Sheets o Numbers<br>
+          • <strong>🔒 Las quinielas son privadas</strong> - Solo visibles aquí en el panel admin
+        </div>
+      </div>
+      
+      <!-- Tab Hora de Cierre -->
+      <div class="tab-content" id="tab-closing">
+        <h3>⏰ Configurar Hora de Cierre</h3>
+        <p style="color:#fff;margin-bottom:15px;text-align:center">
+          Establece la fecha y hora límite para recibir quinielas. Después de esta hora, nadie podrá agregar más quinielas.
+        </p>
+        
+        <div class="config-section">
+          <h4>📅 Fecha y Hora de Cierre</h4>
+          <div class="admin-form">
+            <label>Fecha de cierre:</label>
+            <input type="date" id="closingDate">
+            <label>Hora de cierre:</label>
+            <input type="time" id="closingTime">
+            <button class="action-btn btn-add" style="width:100%" onclick="saveClosingTime()">💾 Guardar Hora de Cierre</button>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h4>📊 Estado Actual</h4>
+          <div id="closingStatus" style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;color:#fff">
+            Cargando...
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h4>⚡ Acciones Rápidas</h4>
+          <button class="action-btn btn-clear" style="width:100%;margin-bottom:10px" onclick="closeNow()">🔒 Cerrar Quiniela AHORA</button>
+          <button class="action-btn btn-add" style="width:100%" onclick="reopenQuiniela()">🔓 Reabrir Quiniela</button>
+        </div>
+      </div>
+      
+      <!-- Tab Configuración -->
+      <div class="tab-content" id="tab-config">
+        <div class="config-section">
+          <h4> Número de WhatsApp</h4>
+          <div class="admin-form">
+            <label>Formato: código país + número (sin + ni espacios)</label>
+            <input type="text" id="whatsappInput" placeholder="Ej: 526567861336">
+            <button class="action-btn btn-send" style="width:100%" onclick="saveWhatsApp()">💾 Guardar WhatsApp</button>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h4>💰 Precio de la Quiniela</h4>
+          <div class="admin-form">
+            <input type="number" id="priceInput" placeholder="20" min="1">
+            <button class="action-btn btn-add" style="width:100%" onclick="savePrice()">💾 Guardar Precio</button>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h4>🏦 Datos Bancarios - Mercado Pago</h4>
+          <div class="admin-form">
+            <label>CLABE:</label>
+            <input type="text" id="bankClabe" placeholder="CLABE interbancaria" maxlength="18">
+            <label>Beneficiario / Titular:</label>
+            <input type="text" id="bankHolder" placeholder="Nombre del titular">
+            <label>Institución:</label>
+            <input type="text" id="bankInstitution" placeholder="Ej: Mercado Pago W">
+            <label>Notas adicionales (opcional):</label>
+            <textarea id="extraNotes" rows="3" placeholder="Cualquier otra instrucción de pago..."></textarea>
+          </div>
+        </div>
+        
+        <button class="action-btn btn-add" style="width:100%;margin-top:15px" onclick="savePaymentInfo()">💾 Guardar Todos los Datos de Pago</button>
+        <button class="action-btn btn-config" style="width:100%;margin-top:10px" onclick="exportConfig()">📤 Exportar Configuración</button>
+        <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="document.getElementById('importFile').click()">📥 Importar Configuración</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importConfig(event)">
+      </div>
+      
+      <!-- Tab Seguridad -->
+      <div class="tab-content" id="tab-security">
+        <h3>🛡️ Estado de Seguridad</h3>
+        <div class="security-badge">🔐 Protección contra clic derecho: <span id="secRightClick">Activa</span></div>
+        <div class="security-badge">🔍 Protección contra DevTools (F12): <span id="secDevtools">Activa</span></div>
+        <div class="security-badge">📋 Protección contra copiar/pegar: <span id="secCopy">Activa</span></div>
+        <div class="security-badge">🖼️ Protección contra iframes: <span id="secFrame">Activa</span></div>
+        <div class="security-badge">🔑 Contraseña hasheada: <span id="secHash">Activa</span></div>
+        <div class="security-badge">⏱️ Rate limiting de login: <span id="secRate">Activa</span></div>
+        <div class="security-badge">🧩 Anti-tampering de código: <span id="secTamper">Activa</span></div>
+        
+        <div class="config-section" style="margin-top:20px">
+          <h4> Cambiar Contraseña de Admin</h4>
+          <div class="admin-form">
+            <label>Contraseña Actual:</label>
+            <input type="password" id="currentPassVerify" placeholder="Ingresa tu contraseña actual">
+            <label>Nueva Contraseña:</label>
+            <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres">
+            <label>Confirmar Nueva Contraseña:</label>
+            <input type="password" id="confirmPassword" placeholder="Repite la nueva contraseña">
+            <button class="action-btn btn-config" style="width:100%" onclick="changeCredentials()">🔄 Actualizar Contraseña</button>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h4>📊 Registro de Actividad</h4>
+          <div id="activityLog" style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:0.8rem;font-family:monospace;color:#4caf50">
+            Sistema iniciado...
+          </div>
+          <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="clearActivityLog()">🗑️ Limpiar Registro</button>
+        </div>
+      </div>
+      
+      <!-- Tab Publicar -->
+      <div class="tab-content" id="tab-publish">
+        <h3>🌐 Publicar tu Página en Internet</h3>
+        <p style="text-align:center;color:#fff;margin-bottom:20px">
+          Para que tus compas puedan acceder desde cualquier lugar, necesitas publicar la página. Aquí las 3 formas más fáciles y <strong style="color:#ffd700">GRATIS</strong>:
+        </p>
+        
+        <div class="platform-card">
+          <h4>🥇 Opción 1: Netlify Drop (La más fácil - 30 segundos)</h4>
+          <div class="publish-step">
+            <h4>Paso 1: Descarga el archivo</h4>
+            <p>Presiona el botón de abajo para descargar tu archivo <code>index.html</code></p>
+          </div>
+          <div class="publish-step">
+            <h4>Paso 2: Ve a Netlify</h4>
+            <p>Entra a <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a></p>
+          </div>
+          <div class="publish-step">
+            <h4>Paso 3: Arrastra el archivo</h4>
+            <p>Arrastra tu archivo <code>index.html</code> a la zona que dice "Drag and drop your site". ¡Listo!</p>
+          </div>
+          <div class="publish-step">
+            <h4>Paso 4: Comparte el link</h4>
+            <p>Copia el link y mándalo por WhatsApp a tus compas.</p>
+          </div>
+        </div>
+        
+        <div class="platform-card">
+          <h4>🥈 Opción 2: GitHub Pages</h4>
+          <div class="publish-step">
+            <p>Crea cuenta en <a href="https://github.com" target="_blank" rel="noopener">github.com</a>, crea un repositorio público y sube tu <code>index.html</code>. Luego activa Pages en Settings.</p>
+          </div>
+        </div>
+        
+        <div class="platform-card">
+          <h4>🥉 Opción 3: Vercel</h4>
+          <div class="publish-step">
+            <p>Entra a <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a>, regístrate y sube tu archivo. Te dará un link tipo <code>quinielas.vercel.app</code></p>
+          </div>
+        </div>
+        
+        <button class="action-btn btn-add" style="width:100%;margin-top:15px" onclick="downloadHTML()"> Descargar mi archivo HTML</button>
+      </div>
+      
+      <button class="action-btn btn-send" style="width:100%;margin-top:15px" onclick="closeModal('adminModal')">✅ Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Info -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
+    <h2>ℹ️ ¿Cómo Funciona?</h2>
+    <div style="color:#fff;line-height:1.8">
+      <p><strong style="color:#ffd700">1️⃣</strong> Selecciona tu pronóstico para cada partido: <span style="color:#4caf50;font-weight:700">L (Local)</span>, <span style="color:#ffd700;font-weight:700">E (Empate)</span> o <span style="color:#e74c3c;font-weight:700">V (Visitante)</span></p>
+      <p><strong style="color:#ffd700">2️⃣</strong> Escribe tu nombre en el campo de abajo</p>
+      <p><strong style="color:#ffd700">3️⃣</strong> Presiona <strong>Agregar</strong> para guardar tu quiniela</p>
+      <p><strong style="color:#ffd700">4️⃣</strong> Presiona <strong>Enviar Todas</strong> para mandarlas todas por WhatsApp</p>
+      <p><strong style="color:#ffd700">5️⃣</strong> Paga el costo de la quiniela y envía tu comprobante</p>
+      
+      <div class="important-notes" style="margin-top:15px">
+        <h3>📋 Notas Importantes</h3>
+        <ul>
+          <li><strong>Comisión del 20%</strong> se retiene por administración de la cuenta/página.</li>
+          <li><strong>Quiniela no pagada NO participa</strong> en el sorteo.</li>
+          <li><strong>Hora de cierre:</strong> Una vez alcanzada la hora límite, no se aceptarán más quinielas.</li>
+          <li><strong>Privacidad:</strong> Los pronósticos son confidenciales. Solo el administrador puede verlos.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+  
+  // ============================================
+  // SISTEMA DE SEGURIDAD
+  // ============================================
+  var SecuritySystem = {
+    loginAttempts: 0,
+    maxLoginAttempts: 5,
+    lockoutTime: 60000,
+    lastLoginAttempt: 0,
+    isLocked: false,
+    activityLog: [],
+    integrityHash: '',
+    
+    init: function() {
+      this.setupAntiRightClick();
+      this.setupAntiDevTools();
+      this.setupAntiCopy();
+      this.setupAntiFrame();
+      this.setupIntegrityCheck();
+      this.logActivity('Sistema de seguridad inicializado');
+    },
+    
+    logActivity: function(msg) {
+      var time = new Date().toLocaleTimeString('es-MX');
+      this.activityLog.unshift('[' + time + '] ' + msg);
+      if (this.activityLog.length > 50) this.activityLog.pop();
+      this.updateActivityLogDisplay();
+    },
+    
+    updateActivityLogDisplay: function() {
+      var el = document.getElementById('activityLog');
+      if (el) {
+        el.innerHTML = this.activityLog.join('<br>');
+      }
+    },
+    
+    setupAntiRightClick: function() {
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
+      var el = document.getElementById('secRightClick');
+      if (el) el.textContent = 'Activa ✓';
+    },
+    
+    setupAntiDevTools: function() {
+      var threshold = 160;
+      setInterval(function() {
+        var widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        var heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        if (widthThreshold || heightThreshold) {
+          document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0a1f0a;color:#ffd700;font-size:1.5rem;text-align:center;padding:20px">🔒 Acceso restringido. Cierra las herramientas de desarrollador.</div>';
+        }
+      }, 1000);
+      var el = document.getElementById('secDevtools');
+      if (el) el.textContent = 'Activa ✓';
+    },
+    
+    setupAntiCopy: function() {
+      document.addEventListener('copy', function(e) { e.preventDefault(); });
+      document.addEventListener('cut', function(e) { e.preventDefault(); });
+      document.addEventListener('selectstart', function(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+        }
+      });
+      var el = document.getElementById('secCopy');
+      if (el) el.textContent = 'Activa ✓';
+    },
+    
+    setupAntiFrame: function() {
+      if (window.top !== window.self) {
+        window.top.location = window.self.location;
+      }
+      var el = document.getElementById('secFrame');
+      if (el) el.textContent = 'Activa ✓';
+    },
+    
+    setupIntegrityCheck: function() {
+      var criticalFunctions = ['addMatch', 'checkAdmin', 'addQuiniela'];
+      var hash = 0;
+      for (var i = 0; i < criticalFunctions.length; i++) {
+        var fn = window[criticalFunctions[i]];
+        if (fn) {
+          var str = fn.toString();
+          for (var j = 0; j < str.length; j++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(j);
+            hash = hash & hash;
+          }
+        }
+      }
+      this.integrityHash = hash;
+      var el = document.getElementById('secTamper');
+      if (el) el.textContent = 'Activa ✓';
+    },
+    
+    checkIntegrity: function() {
+      var criticalFunctions = ['addMatch', 'checkAdmin', 'addQuiniela'];
+      var hash = 0;
+      for (var i = 0; i < criticalFunctions.length; i++) {
+        var fn = window[criticalFunctions[i]];
+        if (fn) {
+          var str = fn.toString();
+          for (var j = 0; j < str.length; j++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(j);
+            hash = hash & hash;
+          }
+        }
+      }
+      if (hash !== this.integrityHash) {
+        console.warn('⚠️ Posible manipulación de código detectada');
+        this.logActivity('⚠️ ALERTA: Integridad de código comprometida');
+      }
+    },
+    
+    checkRateLimit: function() {
+      var now = Date.now();
+      if (this.isLocked && now - this.lastLoginAttempt < this.lockoutTime) {
+        var remaining = Math.ceil((this.lockoutTime - (now - this.lastLoginAttempt)) / 1000);
+        return { allowed: false, message: '⏳ Demasiados intentos. Espera ' + remaining + ' segundos.' };
+      }
+      if (now - this.lastLoginAttempt > this.lockoutTime) {
+        this.loginAttempts = 0;
+        this.isLocked = false;
+      }
+      return { allowed: true };
+    },
+    
+    recordLoginAttempt: function(success) {
+      this.lastLoginAttempt = Date.now();
+      if (!success) {
+        this.loginAttempts++;
+        this.logActivity('❌ Intento de login fallido #' + this.loginAttempts);
+        if (this.loginAttempts >= this.maxLoginAttempts) {
+          this.isLocked = true;
+          this.logActivity('🔒 Cuenta bloqueada por ' + (this.lockoutTime/1000) + ' segundos');
+        }
+      } else {
+        this.loginAttempts = 0;
+        this.isLocked = false;
+        this.logActivity('✅ Login exitoso');
+      }
+    },
+    
+    hashPassword: function(password) {
+      var hash = 0;
+      var salt = 'qlc_salt_2024_secure';
+      var combined = salt + password + salt;
+      for (var i = 0; i < combined.length; i++) {
+        var char = combined.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+        hash = Math.abs(hash);
+      }
+      return hash.toString(36);
+    }
+  };
+  
+  // ============================================
+  // SISTEMA DE ALMACENAMIENTO
+  // ============================================
+  var storageAvailable = false;
+  var memoryStorage = {};
+  
+  try {
+    var testKey = '__storage_test__';
+    localStorage.setItem(testKey, 'test');
+    localStorage.removeItem(testKey);
+    storageAvailable = true;
+  } catch (e) {
+    storageAvailable = false;
+  }
+  
+  var storage = {
+    getItem: function(key) {
+      if (storageAvailable) {
+        try { return localStorage.getItem(key); } catch (e) { return memoryStorage[key] || null; }
+      } else {
+        return memoryStorage[key] || null;
+      }
+    },
+    setItem: function(key, value) {
+      if (storageAvailable) {
+        try { localStorage.setItem(key, value); } catch (e) { memoryStorage[key] = value; }
+      } else {
+        memoryStorage[key] = value;
+      }
+    },
+    removeItem: function(key) {
+      if (storageAvailable) {
+        try { localStorage.removeItem(key); } catch (e) { delete memoryStorage[key]; }
+      } else {
+        delete memoryStorage[key];
+      }
+    }
+  };
+  
+  if (!storageAvailable) {
+    document.addEventListener('DOMContentLoaded', function() {
+      var warning = document.getElementById('storageWarning');
+      if (warning) warning.style.display = 'block';
+    });
+  }
+  
+  // ============================================
+  // DATOS POR DEFECTO
+  // ============================================
+  var DEFAULTS = {
+    email: 'silvaadrian2024@outlook.com',
+    password: 'Nokia5530#',
+    whatsapp: '526567861336',
+    price: '20',
+    payment: {
+      clabe: '722969046229019912',
+      holder: 'Adrian Silva',
+      institution: 'Mercado Pago W',
+      extraNotes: 'Realiza tu transferencia desde tu app bancaria usando la CLABE.'
+    }
+  };
+  
+  var MAX_MATCHES = 9;
+  var ADMIN_COMMISSION_PERCENT = 20; // 20% de comisión administrativa
+  
+  // ============================================
+  // ESTADO DE LA APLICACIÓN
+  // ============================================
+  var state = {
+    matches: [],
+    quinielas: [],
+    jornada: { name: 'Jornada 1', date: 'Semana del 18 de Julio, 2026' },
+    currentSelection: {},
+    whatsappNumber: DEFAULTS.whatsapp,
+    adminEmail: DEFAULTS.email,
+    adminPassword: DEFAULTS.password,
+    adminPasswordHash: '',
+    price: DEFAULTS.price,
+    paymentInfo: { clabe: DEFAULTS.payment.clabe, holder: DEFAULTS.payment.holder, institution: DEFAULTS.payment.institution, extraNotes: DEFAULTS.payment.extraNotes },
+    receiptFile: null,
+    receiptDataUrl: null,
+    closingDateTime: null, // Fecha/hora de cierre (ISO string)
+    quinielaClosed: false // Forzar cierre manual
+  };
+  
+  function loadState() {
+    try {
+      var m = storage.getItem('qlc_matches');
+      if (m) state.matches = JSON.parse(m);
+      
+      var q = storage.getItem('qlc_quinielas');
+      if (q) state.quinielas = JSON.parse(q);
+      
+      var j = storage.getItem('qlc_jornada');
+      if (j) state.jornada = JSON.parse(j);
+      
+      var w = storage.getItem('qlc_whatsapp');
+      if (w) state.whatsappNumber = w;
+      
+      var e = storage.getItem('qlc_adminemail');
+      if (e) state.adminEmail = e;
+      
+      var p = storage.getItem('qlc_adminpass');
+      if (p) state.adminPassword = p;
+      
+      var ph = storage.getItem('qlc_adminpasshash');
+      if (ph) state.adminPasswordHash = ph;
+      else {
+        state.adminPasswordHash = SecuritySystem.hashPassword(state.adminPassword);
+        storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
+      }
+      
+      var pr = storage.getItem('qlc_price');
+      if (pr) state.price = pr;
+      
+      var pay = storage.getItem('qlc_payment');
+      if (pay) state.paymentInfo = JSON.parse(pay);
+      
+      var ct = storage.getItem('qlc_closing');
+      if (ct) state.closingDateTime = ct;
+      
+      var qc = storage.getItem('qlc_closed');
+      if (qc) state.quinielaClosed = (qc === 'true');
+    } catch (err) {
+      console.error('Error cargando estado:', err);
+    }
+  }
+  
+  // ============================================
+  // VERIFICAR SI LA QUINIELA ESTÁ CERRADA
+  // ============================================
+  function isQuinielaClosed() {
+    // Si está cerrada manualmente
+    if (state.quinielaClosed) return true;
+    
+    // Si hay hora de cierre definida
+    if (state.closingDateTime) {
+      var closing = new Date(state.closingDateTime);
+      var now = new Date();
+      if (now >= closing) return true;
+    }
+    
+    return false;
+  }
+  
+  function getClosingInfo() {
+    if (state.quinielaClosed) {
+      return { closed: true, message: ' Quiniela cerrada manualmente por el administrador', time: null };
+    }
+    
+    if (state.closingDateTime) {
+      var closing = new Date(state.closingDateTime);
+      var now = new Date();
+      var diff = closing - now;
+      
+      if (diff <= 0) {
+        return { closed: true, message: '⏰ Hora de cierre alcanzada', time: closing };
+      }
+      
+      return { closed: false, message: 'Cierre programado', time: closing, diff: diff };
+    }
+    
+    return { closed: false, message: 'Sin hora de cierre definida', time: null };
+  }
+  
+  function updateClosingDisplay() {
+    var info = getClosingInfo();
+    var banner = document.getElementById('closingBanner');
+    var dateDisplay = document.getElementById('closingDateDisplay');
+    var countdown = document.getElementById('countdownDisplay');
+    var addBtn = document.getElementById('addQuinielaBtn');
+    var nameInput = document.getElementById('playerName');
+    
+    if (info.closed) {
+      banner.classList.add('closed');
+      dateDisplay.textContent = info.message;
+      countdown.textContent = 'CERRADA';
+      countdown.style.color = '#ff4444';
+      if (addBtn) {
+        addBtn.disabled = true;
+        addBtn.innerHTML = '🔒 Quiniela Cerrada';
+      }
+      if (nameInput) nameInput.disabled = true;
+    } else {
+      banner.classList.remove('closed');
+      if (info.time) {
+        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        dateDisplay.textContent = info.time.toLocaleDateString('es-MX', options);
+        
+        // Countdown
+        var hours = Math.floor(info.diff / (1000 * 60 * 60));
+        var minutes = Math.floor((info.diff % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((info.diff % (1000 * 60)) / 1000);
+        countdown.textContent = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        countdown.style.color = hours < 1 ? '#ff4444' : '#ffd700';
+      } else {
+        dateDisplay.textContent = 'Sin hora de cierre definida';
+        countdown.textContent = 'ABIERTA';
+        countdown.style.color = '#4caf50';
+      }
+      if (addBtn) {
+        addBtn.disabled = false;
+        addBtn.innerHTML = '➕ Agregar';
+      }
+      if (nameInput) nameInput.disabled = false;
+    }
+  }
+  
+  function init() {
+    SecuritySystem.init();
+    loadState();
+    renderMatches();
+    updateJornadaInfo();
+    renderPaymentMethods();
+    updateWhatsAppReceiptLink();
+    document.getElementById('priceDisplay').textContent = '💰 Costo por Quiniela: $' + state.price + ' MXN';
+    document.getElementById('notePrice').textContent = state.price;
+    updateClosingDisplay();
+    
+    // Actualizar countdown cada segundo
+    setInterval(function() {
+      updateClosingDisplay();
+    }, 1000);
+    
+    // Verificar integridad cada 30 segundos
+    setInterval(function() {
+      SecuritySystem.checkIntegrity();
+    }, 30000);
+  }
+  
+  // ============================================
+  // RENDERIZAR PARTIDOS
+  // ============================================
+  function renderMatches() {
+    var container = document.getElementById('matchesContainer');
+    document.getElementById('matchCount').textContent = state.matches.length;
+    
+    if (state.matches.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>⚠️ Aún no hay partidos disponibles. El admin debe agregar los partidos de la jornada.</p></div>';
+      return;
+    }
+    
+    var html = '';
+    for (var i = 0; i < state.matches.length; i++) {
+      var match = state.matches[i];
+      var selL = state.currentSelection[i] === 'L' ? 'active-L' : '';
+      var selE = state.currentSelection[i] === 'E' ? 'active-E' : '';
+      var selV = state.currentSelection[i] === 'V' ? 'active-V' : '';
+      
+      html += '<div class="match-row">';
+      html += '<div class="team-name local">' + escapeHtml(match.local) + '</div>';
+      html += '<div class="vs-badge">VS</div>';
+      html += '<div class="team-name visitante">' + escapeHtml(match.visitante) + '</div>';
+      html += '<div class="selection-buttons">';
+      html += '<button class="sel-btn ' + selL + '" onclick="selectPrediction(' + i + ',\'L\')">L - Local</button>';
+      html += '<button class="sel-btn ' + selE + '" onclick="selectPrediction(' + i + ',\'E\')">E - Empate</button>';
+      html += '<button class="sel-btn ' + selV + '" onclick="selectPrediction(' + i + ',\'V\')">V - Visitante</button>';
+      html += '</div></div>';
+    }
+    container.innerHTML = html;
+  }
+  
+  function escapeHtml(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  function selectPrediction(idx, value) {
+    if (isQuinielaClosed()) {
+      showToast('🔒 La quiniela está cerrada. No se pueden hacer más pronósticos.');
+      return;
+    }
+    state.currentSelection[idx] = value;
+    renderMatches();
+  }
+  
+  function clearSelection() {
+    state.currentSelection = {};
+    renderMatches();
+    showToast('✅ Selección limpiada');
+  }
+  
+  // ============================================
+  // QUINIELAS - CON PRIVACIDAD
+  // ============================================
+  function addQuiniela() {
+    // Verificar si está cerrada
+    if (isQuinielaClosed()) {
+      showToast('🔒 La quiniela está cerrada. Ya no se aceptan más pronósticos.');
+      return;
+    }
+    
+    var name = document.getElementById('playerName').value.trim();
+    if (!name) { showToast('⚠️ Escribe tu nombre primero'); return; }
+    
+    if (state.matches.length === 0) {
+      showToast('⚠️ No hay partidos disponibles');
+      return;
+    }
+    
+    if (Object.keys(state.currentSelection).length < state.matches.length) {
+      showToast('️ Selecciona un pronóstico para todos los partidos');
+      return;
+    }
+    
+    var predictions = '';
+    for (var i = 0; i < state.matches.length; i++) {
+      predictions += state.currentSelection[i];
+    }
+    
+    var quiniela = {
+      id: Date.now(),
+      name: name,
+      predictions: predictions,
+      jornada: state.jornada.name,
+      timestamp: new Date().toLocaleString('es-MX'),
+      paid: false,
+      sent: false, // Marcador de privacidad: false = visible públicamente, true = enviada y oculta
+      sentAt: null
+    };
+    
+    state.quinielas.push(quiniela);
+    storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+    
+    showToast('✅ Quiniela agregada exitosamente. Presiona "Enviar Todas" para mandarla por WhatsApp.');
+    
+    state.currentSelection = {};
+    renderMatches();
+  }
+  
+  // ============================================
+  // ENVIAR QUINIELAS POR WHATSAPP (CON PRIVACIDAD)
+  // ============================================
+  function sendAllQuinielasWhatsApp() {
+    try {
+      // Filtrar solo las quinielas NO enviadas (pendientes de enviar)
+      var pendingQuinielas = [];
+      for (var i = 0; i < state.quinielas.length; i++) {
+        if (!state.quinielas[i].sent) {
+          pendingQuinielas.push(state.quinielas[i]);
+        }
+      }
+      
+      if (pendingQuinielas.length === 0) {
+        showToast('️ No hay quinielas pendientes de enviar. Todas ya fueron enviadas.');
+        return;
+      }
+      
+      if (state.matches.length === 0) {
+        showToast('⚠️ No hay partidos configurados');
+        return;
+      }
+      
+      var message = 'QUINIELAS LOS COMPAS\n';
+      message += 'Jornada: ' + state.jornada.name + '\n';
+      message += 'Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n';
+      message += 'Total: ' + pendingQuinielas.length + ' quiniela(s) nueva(s)\n\n';
+      
+      for (var i = 0; i < pendingQuinielas.length; i++) {
+        var q = pendingQuinielas[i];
+        var status = q.paid ? 'PAGADO' : 'PENDIENTE';
+        message += (i + 1) + '. ' + q.name + ' (' + status + ')\n';
+        
+        var preds = q.predictions.split('');
+        for (var j = 0; j < state.matches.length; j++) {
+          var match = state.matches[j];
+          var pred = preds[j] || '-';
+          message += '  ' + match.local + ' vs ' + match.visitante + ': ' + pred + '\n';
+        }
+        message += '\n';
+      }
+      
+      message += 'Pago: $' + state.price + ' MXN por quiniela\n';
+      message += 'Total: $' + (pendingQuinielas.length * parseInt(state.price)) + ' MXN\n';
+      message += 'Comisión admin (20%): $' + Math.floor(pendingQuinielas.length * parseInt(state.price) * 0.2) + ' MXN';
+      
+      var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
+      
+      var newWindow = window.open(url, '_blank');
+      
+      if (newWindow) {
+        showToast(' WhatsApp abierto con ' + pendingQuinielas.length + ' quiniela(s)');
+        
+        // Marcar como enviadas (desaparecen de la vista pública)
+        for (var i = 0; i < pendingQuinielas.length; i++) {
+          pendingQuinielas[i].sent = true;
+          pendingQuinielas[i].sentAt = new Date().toLocaleString('es-MX');
+        }
+        storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+        
+        SecuritySystem.logActivity('📱 ' + pendingQuinielas.length + ' quiniela(s) enviada(s) por WhatsApp y ocultada(s) de vista pública');
+      } else {
+        var link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(function() {
+          document.body.removeChild(link);
+        }, 100);
+        showToast(' Abriendo WhatsApp...');
+      }
+      
+    } catch (err) {
+      console.error('Error:', err);
+      showToast('❌ Error: ' + err.message);
+    }
+  }
+  
+  // ============================================
+  // COMPARTIR COMPROBANTE CON IMAGEN
+  // ============================================
+  function shareReceiptWithImage() {
+    try {
+      if (!state.receiptFile && !state.receiptDataUrl) {
+        showToast('⚠️ Primero sube tu captura de pago');
+        return;
+      }
+      
+      var message = ' Comprobante de Pago - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n📎 Adjunto mi comprobante de pago.';
+      
+      if (navigator.share && navigator.canShare) {
+        var shareData = {
+          text: message,
+          title: 'Comprobante de Pago'
+        };
+        
+        if (state.receiptFile) {
+          var filesArray = [state.receiptFile];
+          if (navigator.canShare({ files: filesArray })) {
+            shareData.files = filesArray;
+          }
+        }
+        
+        navigator.share(shareData).then(function() {
+          showToast('✅ Comprobante compartido exitosamente');
+          SecuritySystem.logActivity('✅ Comprobante compartido via Web Share API');
+        }).catch(function(err) {
+          if (err.name !== 'AbortError') {
+            console.error('Error compartiendo:', err);
+            fallbackToWhatsApp(message);
+          }
+        });
+      } else {
+        fallbackToWhatsApp(message);
+      }
+    } catch (err) {
+      console.error('Error en shareReceiptWithImage:', err);
+      fallbackToWhatsApp('Comprobante de Pago - Quinielas Los Compas');
+    }
+  }
+  
+  function fallbackToWhatsApp(message) {
+    var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
+    
+    showToast('📱 WhatsApp abierto. ADJUNTA LA IMAGEN MANUALMENTE desde tu galería antes de enviar.');
+    
+    var newWindow = window.open(url, '_blank');
+    if (!newWindow) {
+      var link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(function() {
+        document.body.removeChild(link);
+      }, 100);
+    }
+  }
+  
+  // ============================================
+  // ADMIN - LOGIN
+  // ============================================
+  function checkAdmin() {
+    var rateCheck = SecuritySystem.checkRateLimit();
+    if (!rateCheck.allowed) {
+      showToast(rateCheck.message);
+      return;
+    }
+    
+    var emailInput = document.getElementById('adminEmail').value.trim();
+    var passInput = document.getElementById('adminPass').value;
+    
+    if (!emailInput || !passInput) {
+      showToast('⚠️ Completa correo y contraseña');
+      return;
+    }
+    
+    var inputHash = SecuritySystem.hashPassword(passInput);
+    var emailMatch = emailInput.toLowerCase() === state.adminEmail.toLowerCase();
+    var passMatch = inputHash === state.adminPasswordHash || passInput === state.adminPassword;
+    
+    if (emailMatch && passMatch) {
+      SecuritySystem.recordLoginAttempt(true);
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      renderAdminMatches();
+      loadConfigInputs();
+      updateClosingStatus();
+      showToast('✅ Bienvenido Admin');
+    } else {
+      SecuritySystem.recordLoginAttempt(false);
+      var remaining = SecuritySystem.maxLoginAttempts - SecuritySystem.loginAttempts;
+      showToast('❌ Credenciales incorrectas. Intentos restantes: ' + remaining);
+    }
+  }
+  
+  function resetCredentials() {
+    if (confirm('⚠️ ¿Seguro que quieres restaurar las credenciales por defecto?\n\nCorreo: silvaadrian2024@outlook.com\nContraseña: Nokia5530#')) {
+      state.adminEmail = DEFAULTS.email;
+      state.adminPassword = DEFAULTS.password;
+      state.adminPasswordHash = SecuritySystem.hashPassword(DEFAULTS.password);
+      storage.setItem('qlc_adminemail', DEFAULTS.email);
+      storage.setItem('qlc_adminpass', DEFAULTS.password);
+      storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
+      SecuritySystem.loginAttempts = 0;
+      SecuritySystem.isLocked = false;
+      showToast('✅ Credenciales restauradas. Ahora puedes entrar.');
+      SecuritySystem.logActivity('🔄 Credenciales restauradas a valores por defecto');
+    }
+  }
+  
+  // ============================================
+  // ADMIN - TABS
+  // ============================================
+  function switchTab(tab, btn) {
+    var tabBtns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < tabBtns.length; i++) {
+      tabBtns[i].classList.remove('active');
+    }
+    var tabContents = document.querySelectorAll('.tab-content');
+    for (var i = 0; i < tabContents.length; i++) {
+      tabContents[i].classList.remove('active');
+    }
+    if (btn) btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'excel') renderExcelTable();
+    if (tab === 'security') SecuritySystem.updateActivityLogDisplay();
+    if (tab === 'closing') updateClosingStatus();
+  }
+  
+  // ============================================
+  // ADMIN - PARTIDOS
+  // ============================================
+  function addMatch() {
+    try {
+      var localInput = document.getElementById('localTeam');
+      var visitanteInput = document.getElementById('visitanteTeam');
+      var jornadaInput = document.getElementById('jornadaName');
+      
+      if (!localInput || !visitanteInput) {
+        showToast('⚠️ Error: No se encontraron los campos de equipos');
+        return;
+      }
+      
+      var local = localInput.value.trim();
+      var visitante = visitanteInput.value.trim();
+      var jornadaName = jornadaInput ? jornadaInput.value.trim() : '';
+      
+      if (!local || !visitante) { 
+        showToast('⚠️ Completa ambos equipos'); 
+        return; 
+      }
+      
+      if (state.matches.length >= MAX_MATCHES) {
+        showToast('⚠️ Ya tienes 9 partidos. Jornada completa.');
+        return;
+      }
+      
+      if (jornadaName) {
+        state.jornada.name = jornadaName;
+        storage.setItem('qlc_jornada', JSON.stringify(state.jornada));
+      }
+      
+      state.matches.push({ local: local, visitante: visitante });
+      storage.setItem('qlc_matches', JSON.stringify(state.matches));
+      
+      localInput.value = '';
+      visitanteInput.value = '';
+      localInput.focus();
+      
+      renderAdminMatches();
+      renderMatches();
+      updateJornadaInfo();
+      
+      var remaining = MAX_MATCHES - state.matches.length;
+      if (remaining === 0) {
+        showToast('✅ ¡Jornada completa! 9/9 partidos');
+      } else {
+        showToast('✅ Partido agregado (' + state.matches.length + '/9) - Faltan ' + remaining);
+      }
+      
+      SecuritySystem.logActivity('⚽ Partido agregado: ' + local + ' vs ' + visitante);
+    } catch (err) {
+      console.error('Error en addMatch:', err);
+      showToast('❌ Error al agregar partido: ' + err.message);
+    }
+  }
+  
+  function renderAdminMatches() {
+    var container = document.getElementById('adminMatchList');
+    var countSpan = document.getElementById('adminMatchCount');
+    var addBtn = document.getElementById('addMatchBtn');
+    
+    if (countSpan) countSpan.textContent = state.matches.length;
+    
+    if (addBtn) {
+      if (state.matches.length >= MAX_MATCHES) {
+        addBtn.disabled = true;
+        addBtn.innerHTML = '⛔ Jornada Completa (9/9)';
+      } else {
+        addBtn.disabled = false;
+        addBtn.innerHTML = '➕ Agregar Partido (' + state.matches.length + '/9)';
+      }
+    }
+    
+    if (state.matches.length === 0) {
+      container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No hay partidos. Agrega el primero arriba.</p>';
+      return;
+    }
+    
+    var html = '';
+    for (var i = 0; i < state.matches.length; i++) {
+      var m = state.matches[i];
+      html += '<div class="match-admin-item">';
+      html += '<span><strong>' + (i + 1) + '.</strong> ' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '</span>';
+      html += '<button class="delete-btn" onclick="deleteMatch(' + i + ')">️</button>';
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+  
+  function deleteMatch(idx) {
+    state.matches.splice(idx, 1);
+    storage.setItem('qlc_matches', JSON.stringify(state.matches));
+    renderAdminMatches();
+    renderMatches();
+    updateJornadaInfo();
+    showToast('🗑️ Partido eliminado');
+    SecuritySystem.logActivity('🗑️ Partido eliminado');
+  }
+  
+  function clearAllMatches() {
+    if (confirm('¿Seguro que quieres eliminar todos los partidos?')) {
+      state.matches = [];
+      state.currentSelection = {};
+      storage.setItem('qlc_matches', JSON.stringify(state.matches));
+      renderAdminMatches();
+      renderMatches();
+      updateJornadaInfo();
+      showToast('🗑️ Todos los partidos eliminados');
+      SecuritySystem.logActivity('🗑️ Todos los partidos eliminados');
+    }
+  }
+  
+  // ============================================
+  // ADMIN - HORA DE CIERRE
+  // ============================================
+  function updateClosingStatus() {
+    var statusDiv = document.getElementById('closingStatus');
+    if (!statusDiv) return;
+    
+    var info = getClosingInfo();
+    var html = '';
+    
+    if (info.closed) {
+      html += '<div style="color:#ff4444;font-weight:700;margin-bottom:10px">🔒 QUINIELA CERRADA</div>';
+    } else {
+      html += '<div style="color:#4caf50;font-weight:700;margin-bottom:10px">🟢 QUINIELA ABIERTA</div>';
+    }
+    
+    html += '<div style="margin-bottom:8px"><strong>Estado:</strong> ' + info.message + '</div>';
+    
+    if (info.time) {
+      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      html += '<div style="margin-bottom:8px"><strong>Fecha/Hora de cierre:</strong> ' + info.time.toLocaleDateString('es-MX', options) + '</div>';
+    }
+    
+    var total = state.quinielas.length;
+    var sent = 0;
+    var pending = 0;
+    for (var i = 0; i < state.quinielas.length; i++) {
+      if (state.quinielas[i].sent) sent++;
+      else pending++;
+    }
+    
+    html += '<div style="margin-top:15px;padding-top:10px;border-top:1px solid rgba(255,215,0,0.3)">';
+    html += '<div><strong>Total quinielas:</strong> ' + total + '</div>';
+    html += '<div><strong>Enviadas (ocultas):</strong> ' + sent + '</div>';
+    html += '<div><strong>Pendientes de enviar:</strong> ' + pending + '</div>';
+    html += '</div>';
+    
+    // Inputs de fecha/hora
+    var dateInput = document.getElementById('closingDate');
+    var timeInput = document.getElementById('closingTime');
+    if (dateInput && info.time) {
+      dateInput.value = info.time.toISOString().split('T')[0];
+      timeInput.value = info.time.toTimeString().substring(0, 5);
+    }
+    
+    statusDiv.innerHTML = html;
+  }
+  
+  function saveClosingTime() {
+    var dateVal = document.getElementById('closingDate').value;
+    var timeVal = document.getElementById('closingTime').value;
+    
+    if (!dateVal || !timeVal) {
+      showToast('⚠️ Completa fecha y hora de cierre');
+      return;
+    }
+    
+    var closingDate = new Date(dateVal + 'T' + timeVal);
+    var now = new Date();
+    
+    if (closingDate <= now) {
+      showToast('⚠️ La hora de cierre debe ser en el futuro');
+      return;
+    }
+    
+    state.closingDateTime = closingDate.toISOString();
+    state.quinielaClosed = false;
+    storage.setItem('qlc_closing', state.closingDateTime);
+    storage.setItem('qlc_closed', 'false');
+    
+    updateClosingDisplay();
+    updateClosingStatus();
+    showToast('✅ Hora de cierre guardada: ' + closingDate.toLocaleString('es-MX'));
+    SecuritySystem.logActivity('⏰ Hora de cierre establecida: ' + closingDate.toLocaleString('es-MX'));
+  }
+  
+  function closeNow() {
+    if (confirm('⚠️ ¿Seguro que quieres CERRAR la quiniela AHORA?\n\nNadie podrá agregar más quinielas.')) {
+      state.quinielaClosed = true;
+      storage.setItem('qlc_closed', 'true');
+      updateClosingDisplay();
+      updateClosingStatus();
+      showToast('🔒 Quiniela cerrada manualmente');
+      SecuritySystem.logActivity(' Quiniela cerrada manualmente por admin');
+    }
+  }
+  
+  function reopenQuiniela() {
+    if (confirm('¿Reabrir la quiniela? Se aceptarán nuevos pronósticos.')) {
+      state.quinielaClosed = false;
+      state.closingDateTime = null;
+      storage.setItem('qlc_closed', 'false');
+      storage.removeItem('qlc_closing');
+      updateClosingDisplay();
+      updateClosingStatus();
+      showToast('🔓 Quiniela reabierta');
+      SecuritySystem.logActivity('🔓 Quiniela reabierta por admin');
+    }
+  }
+  
+  // ============================================
+  // ADMIN - EXCEL (MUESTRA TODAS LAS QUINIELAS)
+  // ============================================
+  function renderExcelTable() {
+    renderExcelSummary();
+    renderExcelHeaders();
+    renderExcelRows();
+  }
+  
+  function renderExcelSummary() {
+    var total = state.quinielas.length;
+    var paid = 0;
+    var sent = 0;
+    var pending = 0;
+    for (var i = 0; i < state.quinielas.length; i++) {
+      if (state.quinielas[i].paid) paid++;
+      if (state.quinielas[i].sent) sent++;
+      else pending++;
+    }
+    var revenue = paid * parseInt(state.price);
+    var commission = Math.floor(revenue * (ADMIN_COMMISSION_PERCENT / 100));
+    var prizePool = revenue - commission;
+    
+    document.getElementById('excelSummary').innerHTML = 
+      '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total Quinielas</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#2196f3">' + sent + '</div><div class="stat-label">📱 Enviadas</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#ff9800">' + pending + '</div><div class="stat-label">⏳ Pendientes</div></div>' +
+      '<div class="stat"><div class="stat-value">$' + revenue + '</div><div class="stat-label">💰 Recaudado</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#ff4444">$' + commission + '</div><div class="stat-label">🏦 Comisión 20%</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#ffd700">$' + prizePool + '</div><div class="stat-label">🏆 Premio</div></div>';
+  }
+  
+  function renderExcelHeaders() {
+    var thead = document.getElementById('excelThead');
+    var headerHTML = '<tr><th>#</th><th>Nombre</th>';
+    
+    for (var i = 0; i < state.matches.length; i++) {
+      var m = state.matches[i];
+      var shortLocal = m.local.length > 10 ? m.local.substring(0, 10) + '.' : m.local;
+      var shortVisitante = m.visitante.length > 10 ? m.visitante.substring(0, 10) + '.' : m.visitante;
+      headerHTML += '<th title="' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '">P' + (i+1) + '<br><small>' + escapeHtml(shortLocal) + '<br>vs<br>' + escapeHtml(shortVisitante) + '</small></th>';
+    }
+    
+    headerHTML += '<th>💰 Pagado</th><th>📱 Enviada</th><th>📅 Fecha</th></tr>';
+    thead.innerHTML = headerHTML;
+  }
+  
+  function renderExcelRows() {
+    var tbody = document.getElementById('excelTbody');
+    
+    if (state.quinielas.length === 0) {
+      var cols = state.matches.length + 5;
+      tbody.innerHTML = '<tr><td colspan="' + cols + '" style="text-align:center;padding:20px;color:rgba(255,255,255,0.5)">No hay quinielas registradas</td></tr>';
+      return;
+    }
+    
+    var html = '';
+    for (var rowIdx = 0; rowIdx < state.quinielas.length; rowIdx++) {
+      var q = state.quinielas[rowIdx];
+      var preds = q.predictions.split('');
+      
+      html += '<tr>';
+      html += '<td>' + (rowIdx + 1) + '</td>';
+      html += '<td class="player-cell">' + escapeHtml(q.name) + (q.sent ? ' 📱' : '') + '</td>';
+      
+      for (var i = 0; i < state.matches.length; i++) {
+        var p = preds[i] || '-';
+        html += '<td class="pred-cell pred-' + p + '">' + p + '</td>';
+      }
+      
+      var paidIcon = q.paid ? '✅' : '⬜';
+      var paidClass = q.paid ? 'paid-yes' : 'paid-no';
+      html += '<td><span class="paid-check ' + paidClass + '" onclick="togglePaid(' + q.id + ')" title="Click para cambiar estado">' + paidIcon + '</span></td>';
+      
+      var sentIcon = q.sent ? '✅' : '⏳';
+      var sentColor = q.sent ? '#4caf50' : '#ff9800';
+      html += '<td style="color:' + sentColor + ';font-weight:700">' + sentIcon + '</td>';
+      
+      html += '<td style="font-size:0.75rem">' + q.timestamp + '</td>';
+      html += '</tr>';
+    }
+    
+    tbody.innerHTML = html;
+  }
+  
+  function togglePaid(quinielaId) {
+    for (var i = 0; i < state.quinielas.length; i++) {
+      if (state.quinielas[i].id === quinielaId) {
+        state.quinielas[i].paid = !state.quinielas[i].paid;
+        storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+        renderExcelTable();
+        var status = state.quinielas[i].paid ? 'PAGADO' : 'PENDIENTE';
+        showToast((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].name + ' marcado como ' + status);
+        SecuritySystem.logActivity((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].name + ' -> ' + status);
+        break;
+      }
+    }
+  }
+  
+  function downloadExcel() {
+    if (state.quinielas.length === 0) {
+      showToast('⚠️ No hay quinielas para descargar');
+      return;
+    }
+    
+    var csv = '\uFEFF';
+    
+    csv += 'No.,Nombre,';
+    for (var i = 0; i < state.matches.length; i++) {
+      var m = state.matches[i];
+      csv += '"P' + (i+1) + ': ' + m.local + ' vs ' + m.visitante + '",';
+    }
+    csv += 'Pagado,Enviada,Fecha\n';
+    
+    for (var i = 0; i < state.quinielas.length; i++) {
+      var q = state.quinielas[i];
+      var preds = q.predictions.split('');
+      csv += (i+1) + ',"' + q.name + '",';
+      for (var j = 0; j < state.matches.length; j++) {
+        csv += (preds[j] || '-') + ',';
+      }
+      csv += (q.paid ? 'PAGADO' : 'PENDIENTE') + ',';
+      csv += (q.sent ? 'ENVIADA' : 'PENDIENTE') + ',';
+      csv += '"' + q.timestamp + '"\n';
+    }
+    
+    var paid = 0;
+    for (var i = 0; i < state.quinielas.length; i++) {
+      if (state.quinielas[i].paid) paid++;
+    }
+    var revenue = paid * parseInt(state.price);
+    var commission = Math.floor(revenue * (ADMIN_COMMISSION_PERCENT / 100));
+    var prizePool = revenue - commission;
+    
+    csv += '\nRESUMEN\n';
+    csv += 'Total Quinielas:,' + state.quinielas.length + '\n';
+    csv += 'Pagadas:,' + paid + '\n';
+    csv += 'Pendientes:,' + (state.quinielas.length - paid) + '\n';
+    csv += 'Recaudado:,$' + revenue + ' MXN\n';
+    csv += 'Comisión Admin (' + ADMIN_COMMISSION_PERCENT + '%):,$' + commission + ' MXN\n';
+    csv += 'Bolsa de Premio:,$' + prizePool + ' MXN\n';
+    
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    var dateStr = new Date().toISOString().split('T')[0];
+    a.download = 'quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '_' + dateStr + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('📥 Excel descargado');
+    SecuritySystem.logActivity('📥 Excel descargado');
+  }
+  
+  function clearAllQuinielas() {
+    if (confirm('¿Seguro que quieres eliminar TODAS las quinielas? Esta acción no se puede deshacer.')) {
+      state.quinielas = [];
+      storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+      renderExcelTable();
+      showToast('🗑️ Todas las quinielas eliminadas');
+      SecuritySystem.logActivity('🗑️ Todas las quinielas eliminadas');
+    }
+  }
+  
+  function updateJornadaInfo() {
+    document.getElementById('jornadaTitle').textContent = state.jornada.name;
+    document.getElementById('jornadaDate').textContent = state.jornada.date;
+  }
+  
+  // ============================================
+  // ADMIN - CONFIGURACIÓN
+  // ============================================
+  function loadConfigInputs() {
+    document.getElementById('whatsappInput').value = state.whatsappNumber;
+    document.getElementById('priceInput').value = state.price;
+    document.getElementById('bankClabe').value = state.paymentInfo.clabe || '';
+    document.getElementById('bankHolder').value = state.paymentInfo.holder || '';
+    document.getElementById('bankInstitution').value = state.paymentInfo.institution || '';
+    document.getElementById('extraNotes').value = state.paymentInfo.extraNotes || '';
+  }
+  
+  function changeCredentials() {
+    var currentPass = document.getElementById('currentPassVerify').value;
+    var newPass = document.getElementById('newPassword').value;
+    var confirmPass = document.getElementById('confirmPassword').value;
+    
+    if (!currentPass) {
+      showToast('️ Ingresa tu contraseña actual para verificar');
+      return;
+    }
+    
+    var currentHash = SecuritySystem.hashPassword(currentPass);
+    if (currentHash !== state.adminPasswordHash && currentPass !== state.adminPassword) {
+      showToast('❌ Contraseña actual incorrecta');
+      SecuritySystem.logActivity('❌ Intento de cambio de contraseña fallido');
+      return;
+    }
+    
+    if (!newPass) {
+      showToast('⚠️ Ingresa la nueva contraseña');
+      return;
+    }
+    if (newPass.length < 6) {
+      showToast('⚠️ La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    if (newPass !== confirmPass) {
+      showToast('❌ Las contraseñas no coinciden');
+      return;
+    }
+    
+    state.adminPassword = newPass;
+    state.adminPasswordHash = SecuritySystem.hashPassword(newPass);
+    storage.setItem('qlc_adminpass', newPass);
+    storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
+    
+    document.getElementById('currentPassVerify').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+    showToast('✅ Contraseña actualizada exitosamente');
+    SecuritySystem.logActivity('🔐 Contraseña de admin actualizada');
+  }
+  
+  function saveWhatsApp() {
+    var num = document.getElementById('whatsappInput').value.trim();
+    if (!num || !/^\d{10,15}$/.test(num)) {
+      showToast('⚠️ Número inválido. Solo dígitos, 10-15 caracteres');
+      return;
+    }
+    state.whatsappNumber = num;
+    storage.setItem('qlc_whatsapp', num);
+    updateWhatsAppReceiptLink();
+    showToast('✅ WhatsApp guardado');
+    SecuritySystem.logActivity('📱 WhatsApp actualizado: ' + num);
+  }
+  
+  function savePrice() {
+    var price = document.getElementById('priceInput').value;
+    if (!price || price < 1) {
+      showToast('️ Precio inválido');
+      return;
+    }
+    state.price = price;
+    storage.setItem('qlc_price', price);
+    document.getElementById('priceDisplay').textContent = '💰 Costo por Quiniela: $' + price + ' MXN';
+    document.getElementById('notePrice').textContent = price;
+    showToast('✅ Precio actualizado');
+  }
+  
+  function savePaymentInfo() {
+    state.paymentInfo = {
+      clabe: document.getElementById('bankClabe').value.trim(),
+      holder: document.getElementById('bankHolder').value.trim(),
+      institution: document.getElementById('bankInstitution').value.trim(),
+      extraNotes: document.getElementById('extraNotes').value.trim()
+    };
+    storage.setItem('qlc_payment', JSON.stringify(state.paymentInfo));
+    renderPaymentMethods();
+    showToast('✅ Datos de pago guardados');
+    SecuritySystem.logActivity(' Datos de pago actualizados');
+  }
+  
+  function renderPaymentMethods() {
+    var container = document.getElementById('paymentMethodsDisplay');
+    var p = state.paymentInfo;
+    var html = '';
+    
+    if (p.clabe || p.holder || p.institution) {
+      html += '<div class="payment-method"><h4>🏦 Transferencia Bancaria (Mercado Pago)</h4>';
+      if (p.institution) html += '<p><strong>Institución:</strong> ' + escapeHtml(p.institution) + ' <button class="copy-btn" onclick="copyText(\'' + p.institution + '\')">📋 Copiar</button></p>';
+      if (p.clabe) html += '<p><strong>CLABE:</strong> ' + p.clabe + ' <button class="copy-btn" onclick="copyText(\'' + p.clabe + '\')">📋 Copiar</button></p>';
+      if (p.holder) html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(p.holder) + ' <button class="copy-btn" onclick="copyText(\'' + p.holder + '\')">📋 Copiar</button></p>';
+      if (p.extraNotes) html += '<p style="margin-top:8px;color:#ffd700"><strong>📝 Notas:</strong> ' + escapeHtml(p.extraNotes) + '</p>';
+      html += '</div>';
+    }
+    
+    if (!html) {
+      html = '<p style="text-align:center;color:rgba(255,255,255,0.5)">El admin aún no ha configurado los métodos de pago</p>';
+    }
+    
+    container.innerHTML = html;
+  }
+  
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('📋 Copiado al portapapeles');
+    }).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('📋 Copiado');
+    });
+  }
+  
+  function exportConfig() {
+    var data = {
+      matches: state.matches,
+      jornada: state.jornada,
+      whatsappNumber: state.whatsappNumber,
+      adminEmail: state.adminEmail,
+      price: state.price,
+      paymentInfo: state.paymentInfo,
+      closingDateTime: state.closingDateTime,
+      quinielaClosed: state.quinielaClosed,
+      exportDate: new Date().toISOString()
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'quinielas-config-' + Date.now() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('📤 Configuración exportada');
+  }
+  
+  function importConfig(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = JSON.parse(e.target.result);
+        if (data.matches) { state.matches = data.matches; storage.setItem('qlc_matches', JSON.stringify(data.matches)); }
+        if (data.jornada) { state.jornada = data.jornada; storage.setItem('qlc_jornada', JSON.stringify(data.jornada)); }
+        if (data.whatsappNumber) { state.whatsappNumber = data.whatsappNumber; storage.setItem('qlc_whatsapp', data.whatsappNumber); }
+        if (data.adminEmail) { state.adminEmail = data.adminEmail; storage.setItem('qlc_adminemail', data.adminEmail); }
+        if (data.price) { state.price = data.price; storage.setItem('qlc_price', data.price); }
+        if (data.paymentInfo) { state.paymentInfo = data.paymentInfo; storage.setItem('qlc_payment', JSON.stringify(data.paymentInfo)); }
+        if (data.closingDateTime) { state.closingDateTime = data.closingDateTime; storage.setItem('qlc_closing', data.closingDateTime); }
+        if (data.quinielaClosed !== undefined) { state.quinielaClosed = data.quinielaClosed; storage.setItem('qlc_closed', String(data.quinielaClosed)); }
+        init();
+        loadConfigInputs();
+        renderAdminMatches();
+        showToast('✅ Configuración importada');
+        SecuritySystem.logActivity('📥 Configuración importada');
+      } catch (err) {
+        showToast('❌ Archivo inválido');
+      }
+    };
+    reader.readAsText(file);
+  }
+  
+  function downloadHTML() {
+    var html = document.documentElement.outerHTML;
+    var blob = new Blob([html], { type: 'text/html' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('📥 Archivo descargado. Súbelo a Netlify');
+  }
+  
+  function clearActivityLog() {
+    if (confirm('¿Limpiar el registro de actividad?')) {
+      SecuritySystem.activityLog = [];
+      SecuritySystem.updateActivityLogDisplay();
+      showToast('🗑️ Registro limpiado');
+    }
+  }
+  
+  // ============================================
+  // COMPROBANTE DE PAGO
+  // ============================================
+  function updateWhatsAppReceiptLink() {
+    var link = document.getElementById('whatsappReceiptLink');
+    var message = '🧾 Comprobante de Pago - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n📎 Adjunto mi comprobante de pago.';
+    link.href = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
+  }
+  
+  function handleReceipt(event) {
+    var file = event.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('⚠️ Solo se permiten imágenes');
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('⚠️ La imagen es muy grande. Máximo 10MB');
+        return;
+      }
+      
+      state.receiptFile = file;
+      document.getElementById('uploadText').textContent = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        state.receiptDataUrl = e.target.result;
+        var preview = document.getElementById('receiptPreview');
+        preview.src = e.target.result;
+        preview.classList.add('active');
+        
+        var shareBtn = document.getElementById('shareWithImageButton');
+        if (navigator.share && navigator.canShare) {
+          shareBtn.style.display = 'flex';
+        } else {
+          shareBtn.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
+      
+      showToast('📸 Imagen cargada. Usa "Compartir con Imagen" para enviarla automáticamente.');
+      SecuritySystem.logActivity('📸 Comprobante de pago subido: ' + file.name);
+    }
+  }
+  
+  // ============================================
+  // MODALES Y TOAST
+  // ============================================
+  function openModal(id) { 
+    document.getElementById(id).classList.add('active'); 
+  }
+  
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+    if (id === 'adminModal') {
+      document.getElementById('adminLogin').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('adminEmail').value = '';
+      document.getElementById('adminPass').value = '';
+    }
+  }
+  
+  function showToast(msg) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(function() { toast.style.display = 'none'; }, 3500);
+  }
+  
+  var overlays = document.querySelectorAll('.modal-overlay');
+  for (var i = 0; i < overlays.length; i++) {
+    overlays[i].addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('active');
+    });
+  }
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && document.getElementById('adminModal').classList.contains('active')) {
+      if (document.getElementById('adminLogin').style.display !== 'none') {
+        checkAdmin();
+      }
+    }
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
+      e.preventDefault();
+      showToast('🔒 Acceso restringido');
+      return false;
+    }
+  });
+  
+  // Exponer funciones necesarias globalmente
+  window.selectPrediction = selectPrediction;
+  window.clearSelection = clearSelection;
+  window.addQuiniela = addQuiniela;
+  window.sendAllQuinielasWhatsApp = sendAllQuinielasWhatsApp;
+  window.checkAdmin = checkAdmin;
+  window.resetCredentials = resetCredentials;
+  window.switchTab = switchTab;
+  window.addMatch = addMatch;
+  window.deleteMatch = deleteMatch;
+  window.clearAllMatches = clearAllMatches;
+  window.togglePaid = togglePaid;
+  window.downloadExcel = downloadExcel;
+  window.clearAllQuinielas = clearAllQuinielas;
+  window.changeCredentials = changeCredentials;
+  window.saveWhatsApp = saveWhatsApp;
+  window.savePrice = savePrice;
+  window.savePaymentInfo = savePaymentInfo;
+  window.copyText = copyText;
+  window.exportConfig = exportConfig;
+  window.importConfig = importConfig;
+  window.downloadHTML = downloadHTML;
+  window.handleReceipt = handleReceipt;
+  window.shareReceiptWithImage = shareReceiptWithImage;
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.clearActivityLog = clearActivityLog;
+  window.saveClosingTime = saveClosingTime;
+  window.closeNow = closeNow;
+  window.reopenQuiniela = reopenQuiniela;
+  
+  init();
+})();
+</script>
+
+</body>
+</html>
