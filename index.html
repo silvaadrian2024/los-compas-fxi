@@ -287,6 +287,40 @@
   .action-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
   .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   
+  .folio-display {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    border: 2px solid #ffd700;
+    display: none;
+    animation: slideIn 0.5s;
+  }
+  .folio-display.active { display: block; }
+  .folio-display h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  .folio-number {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #ffd700;
+    font-family: 'Courier New', monospace;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  .folio-info {
+    color: #fff;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
   .empty-state {
     text-align: center;
     padding: 40px;
@@ -589,6 +623,12 @@
     color: #ffd700;
     white-space: nowrap;
   }
+  .excel-table .folio-cell {
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    color: #2196f3;
+    font-size: 1rem;
+  }
   .excel-table .pred-cell {
     font-weight: 700;
     font-size: 0.9rem;
@@ -717,6 +757,7 @@
     .team-name.local, .team-name.visitante { text-align: center; }
     .nav-btn { font-size: 0.8rem; padding: 8px 14px; }
     .modal { padding: 20px; }
+    .folio-number { font-size: 2rem; }
   }
 </style>
 </head>
@@ -738,10 +779,10 @@
 
 <div class="container">
   <div id="storageWarning" class="storage-warning" style="display:none">
-    ⚠️ El almacenamiento local no está disponible. Los datos se guardarán solo en memoria durante esta sesión.
+    ️ El almacenamiento local no está disponible. Los datos se guardarán solo en memoria durante esta sesión.
   </div>
   
-  <h2 class="section-title"> Jornada Actual</h2>
+  <h2 class="section-title">🏆 Jornada Actual</h2>
   
   <div class="card">
     <div class="jornada-info">
@@ -765,20 +806,21 @@
     
     <!-- Notas Importantes -->
     <div class="important-notes">
-      <h3>📋 Notas Importantes</h3>
+      <h3> Notas Importantes</h3>
       <ul>
         <li><strong>Costo:</strong> $<span id="notePrice">20</span> MXN por quiniela.</li>
         <li><strong>Comisión administrativa:</strong> Se retiene el <strong>20%</strong> por administración de la cuenta/página por haber creado la quiniela.</li>
         <li><strong>Quiniela no pagada NO participa:</strong> Solo las quinielas con comprobante de pago confirmado son válidas para el sorteo.</li>
         <li><strong>Hora de cierre:</strong> Una vez alcanzada la hora límite, no se aceptarán más quinielas.</li>
         <li><strong>Privacidad:</strong> Los pronósticos de cada jugador son confidenciales. Solo el administrador tiene acceso.</li>
+        <li><strong>Folio único:</strong> Cada quiniela recibe un número de folio único para identificación y seguimiento de pagos.</li>
         <li><strong>Premio:</strong> El premio se reparte entre los jugadores con más aciertos (después del 20% de administración).</li>
       </ul>
     </div>
     
     <div id="matchesContainer">
       <div class="empty-state">
-        <p>️ Aún no hay partidos disponibles. El admin debe agregar los partidos de la jornada.</p>
+        <p>⚠️ Aún no hay partidos disponibles. El admin debe agregar los partidos de la jornada.</p>
       </div>
     </div>
     
@@ -787,7 +829,17 @@
     <div class="action-buttons">
       <button class="action-btn btn-clear" onclick="clearSelection()">🗑️ Limpiar</button>
       <button class="action-btn btn-add" id="addQuinielaBtn" onclick="addQuiniela()">➕ Agregar</button>
-      <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()"> Enviar Todas</button>
+      <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()">📱 Enviar Todas</button>
+    </div>
+    
+    <!-- Display de Folio -->
+    <div class="folio-display" id="folioDisplay">
+      <h3>✅ ¡Quiniela Registrada Exitosamente!</h3>
+      <div class="folio-number" id="folioNumber">#001</div>
+      <div class="folio-info">
+        <p>📋 Guarda este número de folio para referencia</p>
+        <p> Usa este folio al enviar tu comprobante de pago</p>
+      </div>
     </div>
     
     <div class="privacy-notice">
@@ -821,16 +873,18 @@
         <li><strong>Comisión del 20%</strong> se retiene por administración de la cuenta/página.</li>
         <li><strong>Quiniela no pagada NO participa</strong> en el sorteo.</li>
         <li>Envía tu comprobante para confirmar tu participación.</li>
+        <li><strong>Incluye tu número de folio</strong> en el mensaje de WhatsApp para identificar tu pago.</li>
       </ul>
     </div>
     
-    <h3>📤 Enviar Comprobante</h3>
+    <h3> Enviar Comprobante</h3>
     
     <div class="share-info-box">
-      <strong> IMPORTANTE - Cómo enviar tu comprobante:</strong><br><br>
+      <strong>⚠️ IMPORTANTE - Cómo enviar tu comprobante:</strong><br><br>
       <strong>Paso 1:</strong> Sube tu captura de pago (botón de abajo)<br>
       <strong>Paso 2:</strong> Presiona " Compartir con Imagen" (se abrirá WhatsApp con la imagen adjunta automáticamente en Android/iPhone)<br>
-      <strong>Paso 3:</strong> Si no funciona, usa "📱 Abrir WhatsApp" y adjunta la imagen manualmente desde tu galería
+      <strong>Paso 3:</strong> Si no funciona, usa "📱 Abrir WhatsApp" y adjunta la imagen manualmente desde tu galería<br>
+      <strong>Paso 4:</strong> <strong>INCLUYE TU NÚMERO DE FOLIO</strong> en el mensaje para identificar tu pago
     </div>
     
     <div class="upload-area" onclick="document.getElementById('receiptUpload').click()">
@@ -859,11 +913,11 @@
     
     <div id="adminLogin">
       <div class="admin-form">
-        <label>📧 Correo de Admin:</label>
+        <label> Correo de Admin:</label>
         <input type="email" id="adminEmail" placeholder="Ingresa tu correo" autocomplete="off">
         <label>🔐 Contraseña:</label>
         <input type="password" id="adminPass" placeholder="Ingresa la contraseña" autocomplete="off">
-        <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()">🔓 Entrar</button>
+        <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()"> Entrar</button>
         <div class="login-hint">
           💡 Si no puedes entrar, presiona "Reset de Fábrica" abajo para restaurar las credenciales por defecto
         </div>
@@ -873,12 +927,12 @@
     
     <div id="adminPanel" style="display:none">
       <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('matches', this)">⚽ Partidos</button>
+        <button class="tab-btn active" onclick="switchTab('matches', this)"> Partidos</button>
         <button class="tab-btn" onclick="switchTab('excel', this)">📊 Excel</button>
         <button class="tab-btn" onclick="switchTab('closing', this)">⏰ Hora de Cierre</button>
-        <button class="tab-btn" onclick="switchTab('config', this)">️ Configuración</button>
+        <button class="tab-btn" onclick="switchTab('config', this)">⚙️ Configuración</button>
         <button class="tab-btn" onclick="switchTab('security', this)">🛡️ Seguridad</button>
-        <button class="tab-btn" onclick="switchTab('publish', this)">🌐 Publicar</button>
+        <button class="tab-btn" onclick="switchTab('publish', this)"> Publicar</button>
       </div>
       
       <!-- Tab Partidos -->
@@ -902,7 +956,7 @@
         <h3>⚽ Partidos Actuales (<span id="adminMatchCount">0</span>/9)</h3>
         <div class="match-list-admin" id="adminMatchList"></div>
         
-        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="clearAllMatches()">🗑️ Limpiar Todos los Partidos</button>
+        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="clearAllMatches()">️ Limpiar Todos los Partidos</button>
       </div>
       
       <!-- Tab Excel -->
@@ -925,9 +979,10 @@
         <div class="receipt-instructions" style="margin-top:15px">
           <strong>💡 Cómo usar:</strong><br>
           • Toca la <span style="color:#4caf50;font-weight:700">✅</span> para marcar como PAGADO<br>
-          • Toca la <span style="color:rgba(255,255,255,0.3);font-weight:700">⬜</span> para marcar como PENDIENTE<br>
+          • Toca la <span style="color:rgba(255,255,255,0.3);font-weight:700"></span> para marcar como PENDIENTE<br>
           • El botón "Descargar Excel" genera un archivo CSV que puedes abrir en Excel, Google Sheets o Numbers<br>
-          • <strong>🔒 Las quinielas son privadas</strong> - Solo visibles aquí en el panel admin
+          • <strong> Las quinielas son privadas</strong> - Solo visibles aquí en el panel admin<br>
+          • <strong>🎫 Cada quiniela tiene un folio único</strong> para identificación
         </div>
       </div>
       
@@ -966,7 +1021,7 @@
       <!-- Tab Configuración -->
       <div class="tab-content" id="tab-config">
         <div class="config-section">
-          <h4> Número de WhatsApp</h4>
+          <h4>📱 Número de WhatsApp</h4>
           <div class="admin-form">
             <label>Formato: código país + número (sin + ni espacios)</label>
             <input type="text" id="whatsappInput" placeholder="Ej: 526567861336">
@@ -997,7 +1052,7 @@
         </div>
         
         <button class="action-btn btn-add" style="width:100%;margin-top:15px" onclick="savePaymentInfo()">💾 Guardar Todos los Datos de Pago</button>
-        <button class="action-btn btn-config" style="width:100%;margin-top:10px" onclick="exportConfig()">📤 Exportar Configuración</button>
+        <button class="action-btn btn-config" style="width:100%;margin-top:10px" onclick="exportConfig()"> Exportar Configuración</button>
         <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="document.getElementById('importFile').click()">📥 Importar Configuración</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importConfig(event)">
       </div>
@@ -1008,13 +1063,13 @@
         <div class="security-badge">🔐 Protección contra clic derecho: <span id="secRightClick">Activa</span></div>
         <div class="security-badge">🔍 Protección contra DevTools (F12): <span id="secDevtools">Activa</span></div>
         <div class="security-badge">📋 Protección contra copiar/pegar: <span id="secCopy">Activa</span></div>
-        <div class="security-badge">🖼️ Protección contra iframes: <span id="secFrame">Activa</span></div>
+        <div class="security-badge">️ Protección contra iframes: <span id="secFrame">Activa</span></div>
         <div class="security-badge">🔑 Contraseña hasheada: <span id="secHash">Activa</span></div>
         <div class="security-badge">⏱️ Rate limiting de login: <span id="secRate">Activa</span></div>
-        <div class="security-badge">🧩 Anti-tampering de código: <span id="secTamper">Activa</span></div>
+        <div class="security-badge"> Anti-tampering de código: <span id="secTamper">Activa</span></div>
         
         <div class="config-section" style="margin-top:20px">
-          <h4> Cambiar Contraseña de Admin</h4>
+          <h4>🔐 Cambiar Contraseña de Admin</h4>
           <div class="admin-form">
             <label>Contraseña Actual:</label>
             <input type="password" id="currentPassVerify" placeholder="Ingresa tu contraseña actual">
@@ -1076,7 +1131,7 @@
           </div>
         </div>
         
-        <button class="action-btn btn-add" style="width:100%;margin-top:15px" onclick="downloadHTML()"> Descargar mi archivo HTML</button>
+        <button class="action-btn btn-add" style="width:100%;margin-top:15px" onclick="downloadHTML()">📥 Descargar mi archivo HTML</button>
       </div>
       
       <button class="action-btn btn-send" style="width:100%;margin-top:15px" onclick="closeModal('adminModal')">✅ Listo</button>
@@ -1090,11 +1145,11 @@
     <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
     <h2>ℹ️ ¿Cómo Funciona?</h2>
     <div style="color:#fff;line-height:1.8">
-      <p><strong style="color:#ffd700">1️⃣</strong> Selecciona tu pronóstico para cada partido: <span style="color:#4caf50;font-weight:700">L (Local)</span>, <span style="color:#ffd700;font-weight:700">E (Empate)</span> o <span style="color:#e74c3c;font-weight:700">V (Visitante)</span></p>
+      <p><strong style="color:#ffd700">1️</strong> Selecciona tu pronóstico para cada partido: <span style="color:#4caf50;font-weight:700">L (Local)</span>, <span style="color:#ffd700;font-weight:700">E (Empate)</span> o <span style="color:#e74c3c;font-weight:700">V (Visitante)</span></p>
       <p><strong style="color:#ffd700">2️⃣</strong> Escribe tu nombre en el campo de abajo</p>
-      <p><strong style="color:#ffd700">3️⃣</strong> Presiona <strong>Agregar</strong> para guardar tu quiniela</p>
+      <p><strong style="color:#ffd700">3️</strong> Presiona <strong>Agregar</strong> para guardar tu quiniela y recibir tu <strong>número de folio único</strong></p>
       <p><strong style="color:#ffd700">4️⃣</strong> Presiona <strong>Enviar Todas</strong> para mandarlas todas por WhatsApp</p>
-      <p><strong style="color:#ffd700">5️⃣</strong> Paga el costo de la quiniela y envía tu comprobante</p>
+      <p><strong style="color:#ffd700">5️⃣</strong> Paga el costo de la quiniela y envía tu comprobante <strong>incluyendo tu folio</strong></p>
       
       <div class="important-notes" style="margin-top:15px">
         <h3>📋 Notas Importantes</h3>
@@ -1103,6 +1158,7 @@
           <li><strong>Quiniela no pagada NO participa</strong> en el sorteo.</li>
           <li><strong>Hora de cierre:</strong> Una vez alcanzada la hora límite, no se aceptarán más quinielas.</li>
           <li><strong>Privacidad:</strong> Los pronósticos son confidenciales. Solo el administrador puede verlos.</li>
+          <li><strong>Folio único:</strong> Cada quiniela tiene un número de folio para identificación y seguimiento de pagos.</li>
         </ul>
       </div>
     </div>
@@ -1335,7 +1391,7 @@
   };
   
   var MAX_MATCHES = 9;
-  var ADMIN_COMMISSION_PERCENT = 20; // 20% de comisión administrativa
+  var ADMIN_COMMISSION_PERCENT = 20;
   
   // ============================================
   // ESTADO DE LA APLICACIÓN
@@ -1353,8 +1409,9 @@
     paymentInfo: { clabe: DEFAULTS.payment.clabe, holder: DEFAULTS.payment.holder, institution: DEFAULTS.payment.institution, extraNotes: DEFAULTS.payment.extraNotes },
     receiptFile: null,
     receiptDataUrl: null,
-    closingDateTime: null, // Fecha/hora de cierre (ISO string)
-    quinielaClosed: false // Forzar cierre manual
+    closingDateTime: null,
+    quinielaClosed: false,
+    nextFolio: 1 // Contador de folios
   };
   
   function loadState() {
@@ -1395,19 +1452,34 @@
       
       var qc = storage.getItem('qlc_closed');
       if (qc) state.quinielaClosed = (qc === 'true');
+      
+      var nf = storage.getItem('qlc_nextfolio');
+      if (nf) state.nextFolio = parseInt(nf);
     } catch (err) {
       console.error('Error cargando estado:', err);
     }
   }
   
   // ============================================
+  // SISTEMA DE FOLIOS
+  // ============================================
+  function generateFolio() {
+    var folio = state.nextFolio;
+    state.nextFolio++;
+    storage.setItem('qlc_nextfolio', state.nextFolio.toString());
+    return '#' + String(folio).padStart(3, '0');
+  }
+  
+  function getNextFolioPreview() {
+    return '#' + String(state.nextFolio).padStart(3, '0');
+  }
+  
+  // ============================================
   // VERIFICAR SI LA QUINIELA ESTÁ CERRADA
   // ============================================
   function isQuinielaClosed() {
-    // Si está cerrada manualmente
     if (state.quinielaClosed) return true;
     
-    // Si hay hora de cierre definida
     if (state.closingDateTime) {
       var closing = new Date(state.closingDateTime);
       var now = new Date();
@@ -1419,7 +1491,7 @@
   
   function getClosingInfo() {
     if (state.quinielaClosed) {
-      return { closed: true, message: ' Quiniela cerrada manualmente por el administrador', time: null };
+      return { closed: true, message: '🔒 Quiniela cerrada manualmente por el administrador', time: null };
     }
     
     if (state.closingDateTime) {
@@ -1461,7 +1533,6 @@
         var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         dateDisplay.textContent = info.time.toLocaleDateString('es-MX', options);
         
-        // Countdown
         var hours = Math.floor(info.diff / (1000 * 60 * 60));
         var minutes = Math.floor((info.diff % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((info.diff % (1000 * 60)) / 1000);
@@ -1491,12 +1562,10 @@
     document.getElementById('notePrice').textContent = state.price;
     updateClosingDisplay();
     
-    // Actualizar countdown cada segundo
     setInterval(function() {
       updateClosingDisplay();
     }, 1000);
     
-    // Verificar integridad cada 30 segundos
     setInterval(function() {
       SecuritySystem.checkIntegrity();
     }, 30000);
@@ -1557,10 +1626,9 @@
   }
   
   // ============================================
-  // QUINIELAS - CON PRIVACIDAD
+  // QUINIELAS - CON FOLIO Y PRIVACIDAD
   // ============================================
   function addQuiniela() {
-    // Verificar si está cerrada
     if (isQuinielaClosed()) {
       showToast('🔒 La quiniela está cerrada. Ya no se aceptan más pronósticos.');
       return;
@@ -1575,7 +1643,7 @@
     }
     
     if (Object.keys(state.currentSelection).length < state.matches.length) {
-      showToast('️ Selecciona un pronóstico para todos los partidos');
+      showToast('⚠️ Selecciona un pronóstico para todos los partidos');
       return;
     }
     
@@ -1584,32 +1652,48 @@
       predictions += state.currentSelection[i];
     }
     
+    // Generar folio único
+    var folio = generateFolio();
+    
     var quiniela = {
       id: Date.now(),
+      folio: folio,
       name: name,
       predictions: predictions,
       jornada: state.jornada.name,
       timestamp: new Date().toLocaleString('es-MX'),
       paid: false,
-      sent: false, // Marcador de privacidad: false = visible públicamente, true = enviada y oculta
+      sent: false,
       sentAt: null
     };
     
     state.quinielas.push(quiniela);
     storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
     
-    showToast('✅ Quiniela agregada exitosamente. Presiona "Enviar Todas" para mandarla por WhatsApp.');
+    // Mostrar folio al usuario
+    var folioDisplay = document.getElementById('folioDisplay');
+    var folioNumber = document.getElementById('folioNumber');
+    folioNumber.textContent = folio;
+    folioDisplay.classList.add('active');
+    
+    showToast('✅ Quiniela ' + folio + ' registrada. Tu folio es: ' + folio);
+    
+    SecuritySystem.logActivity('🎫 Quiniela ' + folio + ' registrada por ' + name);
     
     state.currentSelection = {};
     renderMatches();
+    
+    // Ocultar el display de folio después de 10 segundos
+    setTimeout(function() {
+      folioDisplay.classList.remove('active');
+    }, 10000);
   }
   
   // ============================================
-  // ENVIAR QUINIELAS POR WHATSAPP (CON PRIVACIDAD)
+  // ENVIAR QUINIELAS POR WHATSAPP (CON FOLIO)
   // ============================================
   function sendAllQuinielasWhatsApp() {
     try {
-      // Filtrar solo las quinielas NO enviadas (pendientes de enviar)
       var pendingQuinielas = [];
       for (var i = 0; i < state.quinielas.length; i++) {
         if (!state.quinielas[i].sent) {
@@ -1618,53 +1702,56 @@
       }
       
       if (pendingQuinielas.length === 0) {
-        showToast('️ No hay quinielas pendientes de enviar. Todas ya fueron enviadas.');
+        showToast('📱 No hay quinielas pendientes de enviar. Todas ya fueron enviadas.');
         return;
       }
       
       if (state.matches.length === 0) {
-        showToast('⚠️ No hay partidos configurados');
+        showToast('️ No hay partidos configurados');
         return;
       }
       
-      var message = 'QUINIELAS LOS COMPAS\n';
-      message += 'Jornada: ' + state.jornada.name + '\n';
-      message += 'Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n';
-      message += 'Total: ' + pendingQuinielas.length + ' quiniela(s) nueva(s)\n\n';
+      var message = ' QUINIELAS LOS COMPAS \n';
+      message += '━━━━━━━━━━━━━━━━━━━━\n';
+      message += ' Jornada: ' + state.jornada.name + '\n';
+      message += '📅 Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n';
+      message += ' Total: ' + pendingQuinielas.length + ' quiniela(s) nueva(s)\n';
+      message += '━━━━━━━━━━━━━━━━━━━━\n\n';
       
       for (var i = 0; i < pendingQuinielas.length; i++) {
         var q = pendingQuinielas[i];
-        var status = q.paid ? 'PAGADO' : 'PENDIENTE';
-        message += (i + 1) + '. ' + q.name + ' (' + status + ')\n';
+        var status = q.paid ? '✅ PAGADO' : '⏳ PENDIENTE';
+        message += '🎫 ' + q.folio + ' - ' + q.name + ' (' + status + ')\n';
         
         var preds = q.predictions.split('');
         for (var j = 0; j < state.matches.length; j++) {
           var match = state.matches[j];
           var pred = preds[j] || '-';
-          message += '  ' + match.local + ' vs ' + match.visitante + ': ' + pred + '\n';
+          message += '  • ' + match.local + ' vs ' + match.visitante + ': ' + pred + '\n';
         }
         message += '\n';
       }
       
-      message += 'Pago: $' + state.price + ' MXN por quiniela\n';
-      message += 'Total: $' + (pendingQuinielas.length * parseInt(state.price)) + ' MXN\n';
-      message += 'Comisión admin (20%): $' + Math.floor(pendingQuinielas.length * parseInt(state.price) * 0.2) + ' MXN';
+      message += '━━━━━━━━━━━━━━━━━━━━\n';
+      message += '💰 Costo: $' + state.price + ' MXN por quiniela\n';
+      message += '💵 Total a pagar: $' + (pendingQuinielas.length * parseInt(state.price)) + ' MXN\n';
+      message += '🏦 Comisión admin (20%): $' + Math.floor(pendingQuinielas.length * parseInt(state.price) * 0.2) + ' MXN\n';
+      message += '🏆 Bolsa de premio: $' + (pendingQuinielas.length * parseInt(state.price) - Math.floor(pendingQuinielas.length * parseInt(state.price) * 0.2)) + ' MXN';
       
       var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
       
       var newWindow = window.open(url, '_blank');
       
       if (newWindow) {
-        showToast(' WhatsApp abierto con ' + pendingQuinielas.length + ' quiniela(s)');
+        showToast('📱 WhatsApp abierto con ' + pendingQuinielas.length + ' quiniela(s)');
         
-        // Marcar como enviadas (desaparecen de la vista pública)
         for (var i = 0; i < pendingQuinielas.length; i++) {
           pendingQuinielas[i].sent = true;
           pendingQuinielas[i].sentAt = new Date().toLocaleString('es-MX');
         }
         storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
         
-        SecuritySystem.logActivity('📱 ' + pendingQuinielas.length + ' quiniela(s) enviada(s) por WhatsApp y ocultada(s) de vista pública');
+        SecuritySystem.logActivity('📱 ' + pendingQuinielas.length + ' quiniela(s) enviada(s) por WhatsApp');
       } else {
         var link = document.createElement('a');
         link.href = url;
@@ -1675,7 +1762,7 @@
         setTimeout(function() {
           document.body.removeChild(link);
         }, 100);
-        showToast(' Abriendo WhatsApp...');
+        showToast('📱 Abriendo WhatsApp...');
       }
       
     } catch (err) {
@@ -1685,7 +1772,7 @@
   }
   
   // ============================================
-  // COMPARTIR COMPROBANTE CON IMAGEN
+  // COMPARTIR COMPROBANTE CON IMAGEN (CON FOLIO)
   // ============================================
   function shareReceiptWithImage() {
     try {
@@ -1694,7 +1781,11 @@
         return;
       }
       
-      var message = ' Comprobante de Pago - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n📎 Adjunto mi comprobante de pago.';
+      var message = '🧾 Comprobante de Pago - Quinielas Los Compas\n\n';
+      message += '💰 Monto: $' + state.price + ' MXN\n';
+      message += '📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n';
+      message += '📎 Adjunto mi comprobante de pago.\n\n';
+      message += '⚠️ IMPORTANTE: Incluye tu número de folio en el mensaje para identificar tu pago.';
       
       if (navigator.share && navigator.canShare) {
         var shareData = {
@@ -1730,7 +1821,7 @@
   function fallbackToWhatsApp(message) {
     var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
     
-    showToast('📱 WhatsApp abierto. ADJUNTA LA IMAGEN MANUALMENTE desde tu galería antes de enviar.');
+    showToast('📱 WhatsApp abierto. ADJUNTA LA IMAGEN MANUALMENTE desde tu galería antes de enviar. Incluye tu folio.');
     
     var newWindow = window.open(url, '_blank');
     if (!newWindow) {
@@ -1760,7 +1851,7 @@
     var passInput = document.getElementById('adminPass').value;
     
     if (!emailInput || !passInput) {
-      showToast('⚠️ Completa correo y contraseña');
+      showToast('️ Completa correo y contraseña');
       return;
     }
     
@@ -1902,7 +1993,7 @@
       var m = state.matches[i];
       html += '<div class="match-admin-item">';
       html += '<span><strong>' + (i + 1) + '.</strong> ' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '</span>';
-      html += '<button class="delete-btn" onclick="deleteMatch(' + i + ')">️</button>';
+      html += '<button class="delete-btn" onclick="deleteMatch(' + i + ')">🗑️</button>';
       html += '</div>';
     }
     container.innerHTML = html;
@@ -1915,7 +2006,7 @@
     renderMatches();
     updateJornadaInfo();
     showToast('🗑️ Partido eliminado');
-    SecuritySystem.logActivity('🗑️ Partido eliminado');
+    SecuritySystem.logActivity('️ Partido eliminado');
   }
   
   function clearAllMatches() {
@@ -1966,9 +2057,9 @@
     html += '<div><strong>Total quinielas:</strong> ' + total + '</div>';
     html += '<div><strong>Enviadas (ocultas):</strong> ' + sent + '</div>';
     html += '<div><strong>Pendientes de enviar:</strong> ' + pending + '</div>';
+    html += '<div style="margin-top:8px;color:#2196f3"><strong>Próximo folio:</strong> ' + getNextFolioPreview() + '</div>';
     html += '</div>';
     
-    // Inputs de fecha/hora
     var dateInput = document.getElementById('closingDate');
     var timeInput = document.getElementById('closingTime');
     if (dateInput && info.time) {
@@ -2014,7 +2105,7 @@
       updateClosingDisplay();
       updateClosingStatus();
       showToast('🔒 Quiniela cerrada manualmente');
-      SecuritySystem.logActivity(' Quiniela cerrada manualmente por admin');
+      SecuritySystem.logActivity('🔒 Quiniela cerrada manualmente por admin');
     }
   }
   
@@ -2026,13 +2117,13 @@
       storage.removeItem('qlc_closing');
       updateClosingDisplay();
       updateClosingStatus();
-      showToast('🔓 Quiniela reabierta');
+      showToast(' Quiniela reabierta');
       SecuritySystem.logActivity('🔓 Quiniela reabierta por admin');
     }
   }
   
   // ============================================
-  // ADMIN - EXCEL (MUESTRA TODAS LAS QUINIELAS)
+  // ADMIN - EXCEL (CON FOLIO)
   // ============================================
   function renderExcelTable() {
     renderExcelSummary();
@@ -2061,12 +2152,13 @@
       '<div class="stat"><div class="stat-value" style="color:#ff9800">' + pending + '</div><div class="stat-label">⏳ Pendientes</div></div>' +
       '<div class="stat"><div class="stat-value">$' + revenue + '</div><div class="stat-label">💰 Recaudado</div></div>' +
       '<div class="stat"><div class="stat-value" style="color:#ff4444">$' + commission + '</div><div class="stat-label">🏦 Comisión 20%</div></div>' +
-      '<div class="stat"><div class="stat-value" style="color:#ffd700">$' + prizePool + '</div><div class="stat-label">🏆 Premio</div></div>';
+      '<div class="stat"><div class="stat-value" style="color:#ffd700">$' + prizePool + '</div><div class="stat-label">🏆 Premio</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#2196f3">' + getNextFolioPreview() + '</div><div class="stat-label"> Próximo Folio</div></div>';
   }
   
   function renderExcelHeaders() {
     var thead = document.getElementById('excelThead');
-    var headerHTML = '<tr><th>#</th><th>Nombre</th>';
+    var headerHTML = '<tr><th>🎫 Folio</th><th>Nombre</th>';
     
     for (var i = 0; i < state.matches.length; i++) {
       var m = state.matches[i];
@@ -2094,7 +2186,7 @@
       var preds = q.predictions.split('');
       
       html += '<tr>';
-      html += '<td>' + (rowIdx + 1) + '</td>';
+      html += '<td class="folio-cell">' + q.folio + '</td>';
       html += '<td class="player-cell">' + escapeHtml(q.name) + (q.sent ? ' 📱' : '') + '</td>';
       
       for (var i = 0; i < state.matches.length; i++) {
@@ -2124,8 +2216,8 @@
         storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
         renderExcelTable();
         var status = state.quinielas[i].paid ? 'PAGADO' : 'PENDIENTE';
-        showToast((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].name + ' marcado como ' + status);
-        SecuritySystem.logActivity((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].name + ' -> ' + status);
+        showToast((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
+        SecuritySystem.logActivity((state.quinielas[i].paid ? '✅ ' : ' ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
         break;
       }
     }
@@ -2139,7 +2231,7 @@
     
     var csv = '\uFEFF';
     
-    csv += 'No.,Nombre,';
+    csv += 'Folio,Nombre,';
     for (var i = 0; i < state.matches.length; i++) {
       var m = state.matches[i];
       csv += '"P' + (i+1) + ': ' + m.local + ' vs ' + m.visitante + '",';
@@ -2149,7 +2241,7 @@
     for (var i = 0; i < state.quinielas.length; i++) {
       var q = state.quinielas[i];
       var preds = q.predictions.split('');
-      csv += (i+1) + ',"' + q.name + '",';
+      csv += q.folio + ',"' + q.name + '",';
       for (var j = 0; j < state.matches.length; j++) {
         csv += (preds[j] || '-') + ',';
       }
@@ -2173,6 +2265,7 @@
     csv += 'Recaudado:,$' + revenue + ' MXN\n';
     csv += 'Comisión Admin (' + ADMIN_COMMISSION_PERCENT + '%):,$' + commission + ' MXN\n';
     csv += 'Bolsa de Premio:,$' + prizePool + ' MXN\n';
+    csv += 'Próximo Folio:,' + getNextFolioPreview() + '\n';
     
     var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     var url = URL.createObjectURL(blob);
@@ -2194,7 +2287,7 @@
       state.quinielas = [];
       storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
       renderExcelTable();
-      showToast('🗑️ Todas las quinielas eliminadas');
+      showToast('️ Todas las quinielas eliminadas');
       SecuritySystem.logActivity('🗑️ Todas las quinielas eliminadas');
     }
   }
@@ -2222,13 +2315,13 @@
     var confirmPass = document.getElementById('confirmPassword').value;
     
     if (!currentPass) {
-      showToast('️ Ingresa tu contraseña actual para verificar');
+      showToast('⚠️ Ingresa tu contraseña actual para verificar');
       return;
     }
     
     var currentHash = SecuritySystem.hashPassword(currentPass);
     if (currentHash !== state.adminPasswordHash && currentPass !== state.adminPassword) {
-      showToast('❌ Contraseña actual incorrecta');
+      showToast(' Contraseña actual incorrecta');
       SecuritySystem.logActivity('❌ Intento de cambio de contraseña fallido');
       return;
     }
@@ -2262,20 +2355,20 @@
   function saveWhatsApp() {
     var num = document.getElementById('whatsappInput').value.trim();
     if (!num || !/^\d{10,15}$/.test(num)) {
-      showToast('⚠️ Número inválido. Solo dígitos, 10-15 caracteres');
+      showToast('️ Número inválido. Solo dígitos, 10-15 caracteres');
       return;
     }
     state.whatsappNumber = num;
     storage.setItem('qlc_whatsapp', num);
     updateWhatsAppReceiptLink();
     showToast('✅ WhatsApp guardado');
-    SecuritySystem.logActivity('📱 WhatsApp actualizado: ' + num);
+    SecuritySystem.logActivity(' WhatsApp actualizado: ' + num);
   }
   
   function savePrice() {
     var price = document.getElementById('priceInput').value;
     if (!price || price < 1) {
-      showToast('️ Precio inválido');
+      showToast('⚠️ Precio inválido');
       return;
     }
     state.price = price;
@@ -2305,7 +2398,7 @@
     
     if (p.clabe || p.holder || p.institution) {
       html += '<div class="payment-method"><h4>🏦 Transferencia Bancaria (Mercado Pago)</h4>';
-      if (p.institution) html += '<p><strong>Institución:</strong> ' + escapeHtml(p.institution) + ' <button class="copy-btn" onclick="copyText(\'' + p.institution + '\')">📋 Copiar</button></p>';
+      if (p.institution) html += '<p><strong>Institución:</strong> ' + escapeHtml(p.institution) + ' <button class="copy-btn" onclick="copyText(\'' + p.institution + '\')"> Copiar</button></p>';
       if (p.clabe) html += '<p><strong>CLABE:</strong> ' + p.clabe + ' <button class="copy-btn" onclick="copyText(\'' + p.clabe + '\')">📋 Copiar</button></p>';
       if (p.holder) html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(p.holder) + ' <button class="copy-btn" onclick="copyText(\'' + p.holder + '\')">📋 Copiar</button></p>';
       if (p.extraNotes) html += '<p style="margin-top:8px;color:#ffd700"><strong>📝 Notas:</strong> ' + escapeHtml(p.extraNotes) + '</p>';
@@ -2343,6 +2436,7 @@
       paymentInfo: state.paymentInfo,
       closingDateTime: state.closingDateTime,
       quinielaClosed: state.quinielaClosed,
+      nextFolio: state.nextFolio,
       exportDate: new Date().toISOString()
     };
     var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2372,6 +2466,7 @@
         if (data.paymentInfo) { state.paymentInfo = data.paymentInfo; storage.setItem('qlc_payment', JSON.stringify(data.paymentInfo)); }
         if (data.closingDateTime) { state.closingDateTime = data.closingDateTime; storage.setItem('qlc_closing', data.closingDateTime); }
         if (data.quinielaClosed !== undefined) { state.quinielaClosed = data.quinielaClosed; storage.setItem('qlc_closed', String(data.quinielaClosed)); }
+        if (data.nextFolio) { state.nextFolio = data.nextFolio; storage.setItem('qlc_nextfolio', data.nextFolio.toString()); }
         init();
         loadConfigInputs();
         renderAdminMatches();
@@ -2411,7 +2506,7 @@
   // ============================================
   function updateWhatsAppReceiptLink() {
     var link = document.getElementById('whatsappReceiptLink');
-    var message = '🧾 Comprobante de Pago - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n📎 Adjunto mi comprobante de pago.';
+    var message = '🧾 Comprobante de Pago - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n📎 Adjunto mi comprobante de pago.\n\n⚠️ IMPORTANTE: Incluye tu número de folio en el mensaje para identificar tu pago.';
     link.href = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
   }
   
