@@ -637,10 +637,10 @@
 </div>
 
 <div class="nav-bar">
-  <button class="nav-btn" onclick="openModal('paymentModal')">💳 Pago</button>
-  <button class="nav-btn pdf" onclick="generatePlayerPDF()">📄 PDF</button>
-  <button class="nav-btn admin" onclick="openModal('adminModal')">🔒 Admin</button>
-  <button class="nav-btn" onclick="openModal('infoModal')">ℹ️ Info</button>
+  <button class="nav-btn" onclick="window.openModal('paymentModal')">💳 Pago</button>
+  <button class="nav-btn pdf" onclick="window.generatePlayerPDF()">📄 PDF</button>
+  <button class="nav-btn admin" onclick="window.openModal('adminModal')">🔒 Admin</button>
+  <button class="nav-btn" onclick="window.openModal('infoModal')">ℹ️ Info</button>
 </div>
 
 <div class="container">
@@ -677,7 +677,7 @@
         <li><strong>Costo:</strong> $<span id="notePrice">20</span> MXN por quiniela.</li>
         <li><strong>Comisión administrativa:</strong> Se retiene el <strong>20%</strong> por administración.</li>
         <li><strong>Quiniela no pagada NO participa.</strong></li>
-        <li><strong>Hora de cierre:</strong> Once alcanzada, no se aceptarán más quinielas.</li>
+        <li><strong>Hora de cierre:</strong> Una vez alcanzada, no se aceptarán más quinielas.</li>
         <li><strong>Privacidad:</strong> Los pronósticos son confidenciales.</li>
         <li><strong>Folio único:</strong> Cada quiniela tiene número de folio.</li>
         <li><strong>Bolsa acumulada:</strong> Si no hay ganador, la bolsa se acumula para la siguiente jornada.</li>
@@ -690,12 +690,12 @@
       </div>
     </div>
     
-    <input type="text" id="playerName" class="name-input" placeholder="✍️ Escribe tu nombre aquí..." maxlength="30" oninput="updateMyQuinielas()">
+    <input type="text" id="playerName" class="name-input" placeholder="✍️ Escribe tu nombre aquí..." maxlength="30" oninput="window.updateMyQuinielas()">
     
     <div class="action-buttons">
-      <button class="action-btn btn-clear" onclick="clearSelection()">🗑️ Limpiar</button>
-      <button class="action-btn btn-add" id="addQuinielaBtn" onclick="addQuiniela()">➕ Agregar</button>
-      <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()" id="mainSendBtn" disabled>📱 Enviar</button>
+      <button class="action-btn btn-clear" onclick="window.clearSelection()">🗑️ Limpiar</button>
+      <button class="action-btn btn-add" id="addQuinielaBtn" onclick="window.addQuiniela()">➕ Agregar</button>
+      <button class="action-btn btn-send-all" onclick="window.sendAllQuinielasWhatsApp()" id="mainSendBtn" disabled>📱 Enviar</button>
     </div>
     
     <div class="folio-display" id="folioDisplay">
@@ -721,7 +721,7 @@
         <div class="send-all-info">
           Tienes <strong id="totalToSend">0</strong> quiniela(s) lista(s) para enviar.
         </div>
-        <button class="action-btn btn-send-all" style="width:100%" onclick="sendAllQuinielasWhatsApp()">
+        <button class="action-btn btn-send-all" style="width:100%" onclick="window.sendAllQuinielasWhatsApp()">
           📱 Enviar Todas mis Quinielas por WhatsApp
         </button>
       </div>
@@ -747,7 +747,7 @@
 <!-- Modal Pago -->
 <div class="modal-overlay" id="paymentModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    <button class="modal-close" onclick="window.closeModal('paymentModal')">✕</button>
     <h2>💳 Métodos de Pago</h2>
     <div class="price-tag" id="priceDisplay">💰 Costo por Quiniela: $20 MXN</div>
     <div id="paymentMethodsDisplay"></div>
@@ -783,7 +783,7 @@
 <!-- Modal Admin -->
 <div class="modal-overlay" id="adminModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+    <button class="modal-close" onclick="window.closeModal('adminModal')">✕</button>
     <h2>🔒 Panel de Administración</h2>
     
     <div id="adminLogin">
@@ -792,23 +792,23 @@
         <input type="email" id="adminEmail" placeholder="Ingresa tu correo" autocomplete="off">
         <label>🔐 Contraseña:</label>
         <input type="password" id="adminPass" placeholder="Ingresa la contraseña" autocomplete="off">
-        <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()">🔓 Entrar</button>
+        <button class="action-btn btn-add" style="width:100%" onclick="window.checkAdmin()">🔓 Entrar</button>
         <div class="login-hint">💡 Si no puedes entrar, presiona "Reset de Fábrica"</div>
-        <button class="action-btn btn-reset" style="width:100%" onclick="resetCredentials()">🔄 Reset de Fábrica</button>
+        <button class="action-btn btn-reset" style="width:100%" onclick="window.resetCredentials()">🔄 Reset de Fábrica</button>
       </div>
     </div>
     
     <div id="adminPanel" style="display:none">
       <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('matches', this)">⚽ Partidos</button>
-        <button class="tab-btn" onclick="switchTab('results', this)">🎯 Resultados</button>
-        <button class="tab-btn" onclick="switchTab('excel', this)">📊 Excel</button>
-        <button class="tab-btn" onclick="switchTab('payments', this)"> Pagos</button>
-        <button class="tab-btn" onclick="switchTab('history', this)">📚 Historial</button>
-        <button class="tab-btn" onclick="switchTab('jackpot', this)">🏆 Bolsa</button>
-        <button class="tab-btn" onclick="switchTab('closing', this)">⏰ Cierre</button>
-        <button class="tab-btn" onclick="switchTab('config', this)">⚙️ Config</button>
-        <button class="tab-btn" onclick="switchTab('security', this)">️ Seguridad</button>
+        <button class="tab-btn active" onclick="window.switchTab('matches', this)">⚽ Partidos</button>
+        <button class="tab-btn" onclick="window.switchTab('results', this)">🎯 Resultados</button>
+        <button class="tab-btn" onclick="window.switchTab('excel', this)">📊 Excel</button>
+        <button class="tab-btn" onclick="window.switchTab('payments', this)"> Pagos</button>
+        <button class="tab-btn" onclick="window.switchTab('history', this)">📚 Historial</button>
+        <button class="tab-btn" onclick="window.switchTab('jackpot', this)">🏆 Bolsa</button>
+        <button class="tab-btn" onclick="window.switchTab('closing', this)">⏰ Cierre</button>
+        <button class="tab-btn" onclick="window.switchTab('config', this)">⚙️ Config</button>
+        <button class="tab-btn" onclick="window.switchTab('security', this)">️ Seguridad</button>
       </div>
       
       <div class="tab-content active" id="tab-matches">
@@ -825,20 +825,20 @@
             <label>Equipo Visitante:</label>
             <input type="text" id="visitanteTeam" placeholder="Nombre del equipo visitante">
           </div>
-          <button type="button" class="action-btn btn-add" style="width:100%" id="addMatchBtn" onclick="addMatch()">➕ Agregar Partido (0/9)</button>
+          <button type="button" class="action-btn btn-add" style="width:100%" id="addMatchBtn" onclick="window.addMatch()">➕ Agregar Partido (0/9)</button>
         </div>
         <h3>⚽ Partidos Actuales (<span id="adminMatchCount">0</span>/9)</h3>
         <div class="match-list-admin" id="adminMatchList"></div>
-        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="clearAllMatches()">🗑️ Limpiar Todos</button>
+        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="window.clearAllMatches()">🗑️ Limpiar Todos</button>
       </div>
       
       <div class="tab-content" id="tab-results">
         <h3>🎯 Ingresar Resultados Reales</h3>
         <p style="color:#fff;margin-bottom:15px;text-align:center">Ingresa el resultado real de cada partido.</p>
         <div id="resultsForm"><p style="color:rgba(255,255,255,0.5);text-align:center">Agrega partidos primero</p></div>
-        <button class="action-btn btn-results" style="width:100%;margin-top:15px" onclick="calculateWinners()">🏆 Calcular Ganadores</button>
-        <button class="action-btn btn-pdf" style="width:100%;margin-top:10px" onclick="generateResultsPDF()"> PDF de Resultados</button>
-        <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="clearResults()">🗑️ Limpiar Resultados</button>
+        <button class="action-btn btn-results" style="width:100%;margin-top:15px" onclick="window.calculateWinners()">🏆 Calcular Ganadores</button>
+        <button class="action-btn btn-pdf" style="width:100%;margin-top:10px" onclick="window.generateResultsPDF()"> PDF de Resultados</button>
+        <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="window.clearResults()">🗑️ Limpiar Resultados</button>
       </div>
       
       <div class="tab-content" id="tab-excel">
@@ -850,9 +850,9 @@
           </table>
         </div>
         <div class="excel-actions">
-          <button class="action-btn btn-excel" onclick="downloadExcel()">📥 Descargar Excel</button>
-          <button class="action-btn btn-send-all" onclick="sendAllAdminQuinielas()">📱 Enviar Todas</button>
-          <button class="action-btn btn-clear" onclick="clearAllQuinielas()">🗑️ Eliminar Todas</button>
+          <button class="action-btn btn-excel" onclick="window.downloadExcel()">📥 Descargar Excel</button>
+          <button class="action-btn btn-send-all" onclick="window.sendAllAdminQuinielas()">📱 Enviar Todas</button>
+          <button class="action-btn btn-clear" onclick="window.clearAllQuinielas()">🗑️ Eliminar Todas</button>
         </div>
       </div>
       
@@ -864,7 +864,7 @@
           <h4>➕ Agregar Nuevo Método de Pago</h4>
           <div class="admin-form">
             <label>Tipo de método:</label>
-            <select id="paymentMethodType" onchange="updatePaymentForm()">
+            <select id="paymentMethodType" onchange="window.updatePaymentForm()">
               <option value="bank">🏦 Transferencia Bancaria (CLABE)</option>
               <option value="card">💳 Tarjeta de Débito/Crédito</option>
               <option value="mercadopago"> Mercado Pago</option>
@@ -883,7 +883,7 @@
               <textarea id="pmNotes" rows="2" placeholder="Instrucciones especiales"></textarea>
             </div>
             
-            <button class="action-btn btn-add" style="width:100%" onclick="addPaymentMethod()">➕ Agregar Método de Pago</button>
+            <button class="action-btn btn-add" style="width:100%" onclick="window.addPaymentMethod()">➕ Agregar Método de Pago</button>
           </div>
         </div>
         
@@ -898,7 +898,7 @@
       <div class="tab-content" id="tab-history">
         <h3>📚 Historial de Jornadas</h3>
         <div id="historyList"><p style="color:rgba(255,255,255,0.5);text-align:center">Sin historial</p></div>
-        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="clearHistory()">🗑️ Limpiar</button>
+        <button class="action-btn btn-clear" style="width:100%;margin-top:15px" onclick="window.clearHistory()">🗑️ Limpiar</button>
       </div>
       
       <div class="tab-content" id="tab-jackpot">
@@ -917,7 +917,7 @@
             <input type="number" id="commissionPercent" placeholder="20" min="0" max="50">
             <label>Monto inicial (opcional):</label>
             <input type="number" id="initialJackpot" placeholder="0" min="0">
-            <button class="action-btn btn-add" style="width:100%" onclick="saveJackpotConfig()">💾 Guardar</button>
+            <button class="action-btn btn-add" style="width:100%" onclick="window.saveJackpotConfig()">💾 Guardar</button>
           </div>
         </div>
       </div>
@@ -931,7 +931,7 @@
             <input type="date" id="closingDate">
             <label>Hora:</label>
             <input type="time" id="closingTime">
-            <button class="action-btn btn-add" style="width:100%" onclick="saveClosingTime()">💾 Guardar</button>
+            <button class="action-btn btn-add" style="width:100%" onclick="window.saveClosingTime()">💾 Guardar</button>
           </div>
         </div>
         <div class="config-section">
@@ -940,8 +940,8 @@
         </div>
         <div class="config-section">
           <h4>⚡ Acciones</h4>
-          <button class="action-btn btn-clear" style="width:100%;margin-bottom:10px" onclick="closeNow()">🔒 Cerrar AHORA</button>
-          <button class="action-btn btn-add" style="width:100%" onclick="reopenQuiniela()">🔓 Reabrir</button>
+          <button class="action-btn btn-clear" style="width:100%;margin-bottom:10px" onclick="window.closeNow()">🔒 Cerrar AHORA</button>
+          <button class="action-btn btn-add" style="width:100%" onclick="window.reopenQuiniela()">🔓 Reabrir</button>
         </div>
       </div>
       
@@ -950,14 +950,14 @@
           <h4> WhatsApp</h4>
           <div class="admin-form">
             <input type="text" id="whatsappInput" placeholder="Ej: 526567861336">
-            <button class="action-btn btn-send" style="width:100%" onclick="saveWhatsApp()">💾 Guardar</button>
+            <button class="action-btn btn-send" style="width:100%" onclick="window.saveWhatsApp()">💾 Guardar</button>
           </div>
         </div>
         <div class="config-section">
           <h4> Precio</h4>
           <div class="admin-form">
             <input type="number" id="priceInput" placeholder="20" min="1">
-            <button class="action-btn btn-add" style="width:100%" onclick="savePrice()">💾 Guardar</button>
+            <button class="action-btn btn-add" style="width:100%" onclick="window.savePrice()">💾 Guardar</button>
           </div>
         </div>
         <button class="action-btn btn-config" style="width:100%;margin-top:10px" onclick="exportConfig()">📤 Exportar Config</button>
@@ -988,11 +988,11 @@
         <div class="config-section">
           <h4>📊 Registro</h4>
           <div id="activityLog" style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:0.8rem;font-family:monospace;color:#4caf50">Sistema iniciado...</div>
-          <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="clearActivityLog()">️ Limpiar</button>
+          <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="window.clearActivityLog()">️ Limpiar</button>
         </div>
       </div>
       
-      <button class="action-btn btn-send" style="width:100%;margin-top:15px" onclick="closeModal('adminModal')">✅ Listo</button>
+      <button class="action-btn btn-send" style="width:100%;margin-top:15px" onclick="window.closeModal('adminModal')">✅ Listo</button>
     </div>
   </div>
 </div>
@@ -1000,7 +1000,7 @@
 <!-- Modal Info -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
+    <button class="modal-close" onclick="window.closeModal('infoModal')">✕</button>
     <h2>ℹ️ ¿Cómo Funciona?</h2>
     <div style="color:#fff;line-height:1.8">
       <p><strong style="color:#ffd700">1️⃣</strong> Selecciona pronóstico: <span style="color:#4caf50">L</span>, <span style="color:#ffd700">E</span> o <span style="color:#e74c3c">V</span></p>
@@ -1045,7 +1045,7 @@
   var db = firebase.firestore();
 
   // ============================================
-  // SISTEMA DE ALMACENAMIENTO (RESTAURADO)
+  // SISTEMA DE ALMACENAMIENTO LOCAL
   // ============================================
   var storageAvailable = false;
   var memoryStorage = {};
@@ -1245,7 +1245,7 @@
         if (data.accumulatedJackpot !== undefined) state.accumulatedJackpot = data.accumulatedJackpot;
         
         renderMatches();
-         // updateJornadaInfo();
+        updateJornadaInfo();
         renderPaymentMethods();
         updateClosingDisplay();
         updateJackpotDisplay();
@@ -1355,7 +1355,6 @@
     return { closed: false, message: 'Sin hora de cierre', time: null };
   }
   
-  // (Resto de la lógica interna de control de interfaz de Quinielas Los Compas)
   function updateClosingDisplay() {
     var info = getClosingInfo();
     var banner = document.getElementById('closingBanner');
@@ -1365,30 +1364,37 @@
     var nameInput = document.getElementById('playerName');
     
     if (info.closed) {
-      banner.classList.add('closed');
-      dateDisplay.textContent = info.message;
-      countdown.textContent = 'CERRADA';
-      countdown.style.color = '#ff4444';
+      if (banner) banner.classList.add('closed');
+      if (dateDisplay) dateDisplay.textContent = info.message;
+      if (countdown) { countdown.textContent = 'CERRADA'; countdown.style.color = '#ff4444'; }
       if (addBtn) { addBtn.disabled = true; addBtn.innerHTML = ' Cerrada'; }
       if (nameInput) nameInput.disabled = true;
     } else {
-      banner.classList.remove('closed');
+      if (banner) banner.classList.remove('closed');
       if (info.time) {
         var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        dateDisplay.textContent = info.time.toLocaleDateString('es-MX', options);
+        if (dateDisplay) dateDisplay.textContent = info.time.toLocaleDateString('es-MX', options);
         var hours = Math.floor(info.diff / (1000 * 60 * 60));
         var minutes = Math.floor((info.diff % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((info.diff % (1000 * 60)) / 1000);
-        countdown.textContent = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-        countdown.style.color = hours < 1 ? '#ff4444' : '#ffd700';
+        if (countdown) {
+          countdown.textContent = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+          countdown.style.color = hours < 1 ? '#ff4444' : '#ffd700';
+        }
       } else {
-        dateDisplay.textContent = 'Sin hora de cierre';
-        countdown.textContent = 'ABIERTA';
-        countdown.style.color = '#4caf50';
+        if (dateDisplay) dateDisplay.textContent = 'Sin hora de cierre';
+        if (countdown) { countdown.textContent = 'ABIERTA'; countdown.style.color = '#4caf50'; }
       }
       if (addBtn) { addBtn.disabled = false; addBtn.innerHTML = '➕ Agregar'; }
       if (nameInput) nameInput.disabled = false;
     }
+  }
+
+  function updateJornadaInfo() {
+    var titleEl = document.getElementById('jornadaTitle');
+    var dateEl = document.getElementById('jornadaDate');
+    if (titleEl) titleEl.textContent = state.jornada.name;
+    if (dateEl) dateEl.textContent = state.jornada.date;
   }
   
   function getWinners() {
@@ -1460,18 +1466,18 @@
     var section = document.getElementById('rankingSection');
     var list = document.getElementById('rankingList');
     var jornadaSpan = document.getElementById('rankingJornada');
-    if (!state.winnersCalculated) { section.style.display = 'none'; return; }
+    if (!state.winnersCalculated) { if (section) section.style.display = 'none'; return; }
     var winners = getWinners();
     var jackpot = calculateJackpot();
     if (winners.length === 0) {
-      section.style.display = 'block';
-      jornadaSpan.textContent = state.jornada.name;
-      list.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4444"><p style="font-size:1.2rem">⚠️ Sin ganadores</p><p style="margin-top:10px">Bolsa de $' + jackpot.total.toLocaleString() + ' MXN se acuula</p></div>';
+      if (section) section.style.display = 'block';
+      if (jornadaSpan) jornadaSpan.textContent = state.jornada.name;
+      if (list) list.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4444"><p style="font-size:1.2rem">⚠️ Sin ganadores</p><p style="margin-top:10px">Bolsa de $' + jackpot.total.toLocaleString() + ' MXN se acumula</p></div>';
       return;
     }
     var prizePerWinner = Math.floor(jackpot.total / winners.length);
-    section.style.display = 'block';
-    jornadaSpan.textContent = state.jornada.name;
+    if (section) section.style.display = 'block';
+    if (jornadaSpan) jornadaSpan.textContent = state.jornada.name;
     var html = '';
     for (var i = 0; i < winners.length; i++) {
       var w = winners[i];
@@ -1484,7 +1490,7 @@
       html += '<div class="ranking-prize">$' + prizePerWinner.toLocaleString() + '</div>';
       html += '</div>';
     }
-    list.innerHTML = html;
+    if (list) list.innerHTML = html;
   }
   
   function clearResults() {
@@ -1512,7 +1518,8 @@
     var playerName = session.getItem('qlc_currentplayer');
     if (playerName) {
       state.currentPlayerName = playerName;
-      document.getElementById('playerName').value = playerName;
+      var inputEl = document.getElementById('playerName');
+      if (inputEl) inputEl.value = playerName;
     }
 
     syncWithFirebase();
@@ -1521,7 +1528,9 @@
   
   function renderMatches() {
     var container = document.getElementById('matchesContainer');
-    document.getElementById('matchCount').textContent = state.matches.length;
+    var countEl = document.getElementById('matchCount');
+    if (countEl) countEl.textContent = state.matches.length;
+    if (!container) return;
     if (state.matches.length === 0) {
       container.innerHTML = '<div class="empty-state"><p>⚠️ Sin partidos disponibles.</p></div>';
       return;
@@ -1537,9 +1546,9 @@
       html += '<div class="vs-badge">VS</div>';
       html += '<div class="team-name visitante">' + escapeHtml(match.visitante) + '</div>';
       html += '<div class="selection-buttons">';
-      html += '<button class="sel-btn ' + selL + '" onclick="selectPrediction(' + i + ',\'L\')">L - Local</button>';
-      html += '<button class="sel-btn ' + selE + '" onclick="selectPrediction(' + i + ',\'E\')">E - Empate</button>';
-      html += '<button class="sel-btn ' + selV + '" onclick="selectPrediction(' + i + ',\'V\')">V - Visitante</button>';
+      html += '<button class="sel-btn ' + selL + '" onclick="window.selectPrediction(' + i + ',\'L\')">L - Local</button>';
+      html += '<button class="sel-btn ' + selE + '" onclick="window.selectPrediction(' + i + ',\'E\')">E - Empate</button>';
+      html += '<button class="sel-btn ' + selV + '" onclick="window.selectPrediction(' + i + ',\'V\')">V - Visitante</button>';
       html += '</div></div>';
     }
     container.innerHTML = html;
@@ -1566,6 +1575,7 @@
   
   function updateMyQuinielas() {
     var nameInput = document.getElementById('playerName');
+    if (!nameInput) return;
     var newName = nameInput.value.trim();
     if (newName !== state.currentPlayerName) {
       state.currentPlayerName = newName;
@@ -1584,7 +1594,7 @@
     var mainSendBtn = document.getElementById('mainSendBtn');
     
     if (!state.currentPlayerName) {
-      section.style.display = 'none';
+      if (section) section.style.display = 'none';
       if (mainSendBtn) mainSendBtn.disabled = true;
       return;
     }
@@ -1595,17 +1605,17 @@
       if (q.name.toLowerCase() === state.currentPlayerName.toLowerCase() && !q.sent) myPending.push(q);
     }
     
-    countBadge.textContent = myPending.length + ' quiniela' + (myPending.length !== 1 ? 's' : '');
+    if (countBadge) countBadge.textContent = myPending.length + ' quiniela' + (myPending.length !== 1 ? 's' : '');
     
     if (myPending.length === 0) {
-      section.style.display = 'block';
-      list.innerHTML = '<div class="no-pending"><div class="no-pending-icon">📭</div><p>Aún no has registrado quinielas en esta sesión.</p></div>';
-      sendContainer.style.display = 'none';
+      if (section) section.style.display = 'block';
+      if (list) list.innerHTML = '<div class="no-pending"><div class="no-pending-icon">📭</div><p>Aún no has registrado quinielas en esta sesión.</p></div>';
+      if (sendContainer) sendContainer.style.display = 'none';
       if (mainSendBtn) mainSendBtn.disabled = true;
       return;
     }
     
-    section.style.display = 'block';
+    if (section) section.style.display = 'block';
     var html = '';
     for (var i = 0; i < myPending.length; i++) {
       var q = myPending[i];
@@ -1614,7 +1624,7 @@
       html += '<div class="my-quiniela-card-header">';
       html += '<span class="my-quiniela-folio">🎫 ' + q.folio + '</span>';
       html += '<span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span>';
-      html += '<button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(\'' + q.id + '\')">🗑️</button>';
+      html += '<button class="action-btn btn-danger btn-small" onclick="window.deleteMyQuiniela(\'' + q.id + '\')">🗑️</button>';
       html += '</div>';
       html += '<div class="my-quiniela-preds">';
       for (var j = 0; j < state.matches.length; j++) {
@@ -1627,9 +1637,9 @@
       html += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:right">📅 ' + q.timestamp + '</div>';
       html += '</div>';
     }
-    list.innerHTML = html;
-    sendContainer.style.display = 'block';
-    totalToSend.textContent = myPending.length;
+    if (list) list.innerHTML = html;
+    if (sendContainer) sendContainer.style.display = 'block';
+    if (totalToSend) totalToSend.textContent = myPending.length;
     if (mainSendBtn) { mainSendBtn.disabled = false; mainSendBtn.innerHTML = '📱 Enviar ' + myPending.length; }
   }
   
@@ -1666,13 +1676,14 @@
     
     db.collection("quinielas").add(quiniela).then(function() {
       var folioDisplay = document.getElementById('folioDisplay');
-      document.getElementById('folioNumber').textContent = folio;
-      folioDisplay.classList.add('active');
+      var numEl = document.getElementById('folioNumber');
+      if (numEl) numEl.textContent = folio;
+      if (folioDisplay) folioDisplay.classList.add('active');
       showToast('✅ Quiniela ' + folio + ' subida a la nube');
       
       state.currentSelection = {};
       renderMatches();
-      setTimeout(function() { folioDisplay.classList.remove('active'); }, 8000);
+      setTimeout(function() { if (folioDisplay) folioDisplay.classList.remove('active'); }, 8000);
     });
   }
   
@@ -1773,7 +1784,6 @@
       var jsPDF = window.jspdf.jsPDF;
       var doc = new jsPDF('landscape', 'mm', 'a4');
       var pageWidth = doc.internal.pageSize.getWidth();
-      var pageHeight = doc.internal.pageSize.getHeight();
       var margin = 15;
       var y = margin;
       
@@ -1837,7 +1847,6 @@
         doc.setTextColor(255, 0, 0);
         doc.setFontSize(14);
         doc.text('⚠️ Aún no hay participantes que hayan pagado', pageWidth / 2, y, { align: 'center' });
-        y += 20;
       } else {
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(14);
@@ -1891,8 +1900,6 @@
             }
           }
         });
-        
-        y = doc.lastAutoTable.finalY + 15;
       }
       
       doc.save('quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '.pdf');
@@ -2024,13 +2031,14 @@
       if (state.matches.length >= MAX_MATCHES) { addBtn.disabled = true; addBtn.innerHTML = '⛔ Completa (9/9)'; }
       else { addBtn.disabled = false; addBtn.innerHTML = '➕ Agregar (' + state.matches.length + '/9)'; }
     }
+    if (!container) return;
     if (state.matches.length === 0) { container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">Sin partidos</p>'; return; }
     var html = '';
     for (var i = 0; i < state.matches.length; i++) {
       var m = state.matches[i];
       html += '<div class="match-admin-item">';
       html += '<span><strong>' + (i + 1) + '.</strong> ' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '</span>';
-      html += '<button class="delete-btn" onclick="deleteMatch(' + i + ')">🗑️</button>';
+      html += '<button class="delete-btn" onclick="window.deleteMatch(' + i + ')">🗑️</button>';
       html += '</div>';
     }
     container.innerHTML = html;
@@ -2058,7 +2066,7 @@
       html += '<div class="match-admin-item">';
       html += '<span style="flex:1"><strong>' + (i + 1) + '.</strong> ' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '</span>';
       html += '<div class="result-select">';
-      html += '<select onchange="setMatchResult(' + i + ', this.value)">';
+      html += '<select onchange="window.setMatchResult(' + i + ', this.value)">';
       html += '<option value="">Resultado...</option>';
       html += '<option value="L"' + (currentResult === 'L' ? ' selected' : '') + '>L - Local</option>';
       html += '<option value="E"' + (currentResult === 'E' ? ' selected' : '') + '>E - Empate</option>';
@@ -2100,6 +2108,7 @@
   function updatePaymentForm() {
     var type = document.getElementById('paymentMethodType').value;
     var fields = document.getElementById('paymentFormFields');
+    if (!fields) return;
     if (type === 'bank') {
       fields.innerHTML = `<label>Nombre del banco:</label><input type="text" id="pmBank" placeholder="Ej: BBVA"><label>CLABE (18 dígitos):</label><input type="text" id="pmAccount" placeholder="CLABE" maxlength="18"><label>Nombre del beneficiario:</label><input type="text" id="pmHolder" placeholder="Nombre completo"><label>Notas (opcional):</label><textarea id="pmNotes" rows="2"></textarea>`;
     } else {
@@ -2112,7 +2121,7 @@
     var bank = document.getElementById('pmBank').value.trim();
     var account = document.getElementById('pmAccount').value.trim();
     var holder = document.getElementById('pmHolder').value.trim();
-    var notes = document.getElementById('pmNotes').value.trim();
+    var notes = document.getElementById('pmNotes') ? document.getElementById('pmNotes').value.trim() : '';
     
     if (!bank || !account || !holder) { showToast('⚠️ Completa los campos obligatorios'); return; }
     
@@ -2135,13 +2144,14 @@
       var m = state.paymentMethods[i];
       html += '<div class="payment-method-item"><div class="method-info"><div class="method-name">' + escapeHtml(m.bank) + '</div>';
       html += '<div class="method-details">' + m.account + ' - ' + escapeHtml(m.holder) + '</div></div>';
-      html += '<button class="delete-btn" onclick="deletePaymentMethod(' + m.id + ')">🗑️</button></div>';
+      html += '<button class="delete-btn" onclick="window.deletePaymentMethod(' + m.id + ')">🗑️</button></div>';
     }
     container.innerHTML = html;
   }
   
   function renderPaymentMethods() {
     var container = document.getElementById('paymentMethodsDisplay');
+    if (!container) return;
     var html = '';
     if (state.paymentMethods.length === 0) {
       html = '<p style="text-align:center;color:rgba(255,255,255,0.5)">Sin métodos configurados</p>';
@@ -2149,7 +2159,7 @@
       for (var i = 0; i < state.paymentMethods.length; i++) {
         var m = state.paymentMethods[i];
         html += '<div class="payment-method"><h4>' + escapeHtml(m.bank) + '</h4>';
-        html += '<p><strong>Cuenta/CLABE:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
+        html += '<p><strong>Cuenta/CLABE:</strong> ' + m.account + ' <button class="copy-btn" onclick="window.copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
         html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + '</p></div>';
       }
     }
@@ -2182,20 +2192,23 @@
   }
   
   function renderExcelSummary() {
-    var total = state.quinielas.length, paid = 0, sent = 0, pending = 0;
+    var total = state.quinielas.length, paid = 0;
     for (var i = 0; i < state.quinielas.length; i++) {
       if (state.quinielas[i].paid) paid++;
-      if (state.quinielas[i].sent) sent++; else pending++;
     }
     var jackpot = calculateJackpot();
-    document.getElementById('excelSummary').innerHTML = 
-      '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total</div></div>' +
-      '<div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div>' +
-      '<div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Premio</div></div>';
+    var el = document.getElementById('excelSummary');
+    if (el) {
+      el.innerHTML = 
+        '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total</div></div>' +
+        '<div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div>' +
+        '<div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Premio</div></div>';
+    }
   }
   
   function renderExcelHeaders() {
     var thead = document.getElementById('excelThead');
+    if (!thead) return;
     var headerHTML = '<tr><th> Folio</th><th>Nombre</th>';
     for (var i = 0; i < state.matches.length; i++) {
       headerHTML += '<th>P' + (i+1) + '</th>';
@@ -2206,6 +2219,7 @@
   
   function renderExcelRows() {
     var tbody = document.getElementById('excelTbody');
+    if (!tbody) return;
     if (state.quinielas.length === 0) {
       tbody.innerHTML = '<tr><td colspan="' + (state.matches.length + 4) + '">Sin quinielas</td></tr>';
       return;
@@ -2220,7 +2234,7 @@
       }
       var paidBtnClass = q.paid ? 'paid-btn paid-yes' : 'paid-btn paid-no';
       var paidBtnText = q.paid ? '✅ PAGADO' : '⬜ Pendiente';
-      html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(\'' + q.id + '\')">' + paidBtnText + '</span></td>';
+      html += '<td><span class="' + paidBtnClass + '" onclick="window.togglePaid(\'' + q.id + '\')">' + paidBtnText + '</span></td>';
       html += '<td>-</td></tr>';
     }
     tbody.innerHTML = html;
@@ -2268,7 +2282,6 @@
     db.collection("configuracion").doc("jornadaActual").update({ whatsappNumber: num });
   }
   
-  // (Funciones administrativas y exportación restantes de Quinielas Los Compas)
   function savePrice() {
     var price = document.getElementById('priceInput').value;
     db.collection("configuracion").doc("jornadaActual").update({ price: price });
@@ -2282,12 +2295,64 @@
       initialJackpot: parseInt(initJ)
     });
   }
+
+  function loadConfigInputs() {
+    var waIn = document.getElementById('whatsappInput');
+    var prIn = document.getElementById('priceInput');
+    var coIn = document.getElementById('commissionPercent');
+    var ijIn = document.getElementById('initialJackpot');
+    if (waIn) waIn.value = state.whatsappNumber;
+    if (prIn) prIn.value = state.price;
+    if (coIn) coIn.value = state.commissionPercent;
+    if (ijIn) ijIn.value = state.initialJackpot;
+  }
+
+  function updateClosingStatus() {
+    var el = document.getElementById('closingStatus');
+    if (!el) return;
+    var info = getClosingInfo();
+    el.textContent = info.closed ? 'Estado: CERRADA (' + info.message + ')' : 'Estado: ABIERTA';
+  }
   
   function copyText(text) { navigator.clipboard.writeText(text).then(function() { showToast('📋 Copiado'); }); }
   function openModal(id) { document.getElementById(id).classList.add('active'); }
   function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-  function showToast(msg) { var toast = document.getElementById('toast'); toast.textContent = msg; toast.style.display = 'block'; setTimeout(function() { toast.style.display = 'none'; }, 3500); }
+  function showToast(msg) { var toast = document.getElementById('toast'); if (toast) { toast.textContent = msg; toast.style.display = 'block'; setTimeout(function() { toast.style.display = 'none'; }, 3500); } }
   
+  // Exponer funciones necesarias al entorno global de forma explícita
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.selectPrediction = selectPrediction;
+  window.clearSelection = clearSelection;
+  window.updateMyQuinielas = updateMyQuinielas;
+  window.addQuiniela = addQuiniela;
+  window.sendAllQuinielasWhatsApp = sendAllQuinielasWhatsApp;
+  window.deleteMyQuiniela = deleteMyQuiniela;
+  window.generatePlayerPDF = generatePlayerPDF;
+  window.checkAdmin = checkAdmin;
+  window.resetCredentials = resetCredentials;
+  window.switchTab = switchTab;
+  window.addMatch = addMatch;
+  window.clearAllMatches = clearAllMatches;
+  window.deleteMatch = deleteMatch;
+  window.setMatchResult = setMatchResult;
+  window.calculateWinners = calculateWinners;
+  window.clearResults = clearResults;
+  window.generateResultsPDF = generateResultsPDF;
+  window.downloadExcel = downloadExcel;
+  window.sendAllAdminQuinielas = sendAllAdminQuinielas;
+  window.clearAllQuinielas = clearAllQuinielas;
+  window.updatePaymentForm = updatePaymentForm;
+  window.addPaymentMethod = addPaymentMethod;
+  window.deletePaymentMethod = deletePaymentMethod;
+  window.saveClosingTime = saveClosingTime;
+  window.closeNow = closeNow;
+  window.reopenQuiniela = reopenQuiniela;
+  window.saveWhatsApp = saveWhatsApp;
+  window.savePrice = savePrice;
+  window.saveJackpotConfig = saveJackpotConfig;
+  window.copyText = copyText;
+
   init();
 })();
 </script>
