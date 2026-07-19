@@ -1,129 +1,140 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quinielas Los Compas</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<style>
-  /* Mantenemos tu diseño original */
-  body { background: linear-gradient(135deg, #0a1f0a 0%, #1a3a1a 50%, #0d2818 100%); min-height: 100vh; color: #fff; font-family: 'Segoe UI', sans-serif; padding-bottom: 40px; }
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-  .modal-overlay.active { display: flex; }
-  .modal { background: #0d2818; border: 2px solid #ffd700; border-radius: 15px; padding: 30px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
-  .excel-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  .excel-table th, .excel-table td { padding: 10px; border: 1px solid #ffd700; text-align: center; }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffd700; color: #0a1f0a; padding: 15px; border-radius: 10px; z-index: 2000; display: none; }
-  .btn-admin { background: linear-gradient(135deg, #ff4444, #cc0000); color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quinielas Los Compas</title>
+    <!-- Firebase SDK v9 Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- ESTILOS COMPLETOS -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, #0a1f0a 0%, #1a3a1a 50%, #0d2818 100%); min-height: 100vh; color: #fff; padding-bottom: 40px; }
+        .header { position: relative; height: 220px; overflow: hidden; border-bottom: 4px solid #ffd700; }
+        .header img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
+        .header-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(10,31,10,0.95) 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .nav-bar { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); padding: 12px 20px; display: flex; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #ffd700; }
+        .nav-btn { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #0a1f0a; border: none; padding: 10px 18px; border-radius: 25px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 15px; padding: 25px; margin-bottom: 25px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #0d2818; border: 2px solid #ffd700; border-radius: 15px; padding: 30px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .excel-table { width: 100%; border-collapse: collapse; color: #fff; }
+        .excel-table th, .excel-table td { padding: 10px; border: 1px solid #ffd700; text-align: center; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ffd700; color: #0a1f0a; padding: 15px; border-radius: 10px; display: none; }
+        .sync-status { padding: 10px; text-align: center; border-radius: 8px; margin-bottom: 10px; }
+        .online { background: #1e5a1e; color: #4caf50; }
+    </style>
 </head>
 <body>
 
+<div class="header">
+    <img src="https://image.qwenlm.ai/public_source/73de5cfe-12cf-4f6c-9137-4c74680acd7a/1004a1730-e7f3-4608-abc5-012a6c9afffa.png" alt="Fútbol">
+    <div class="header-overlay"><h1>⚽ QUINIELAS LOS COMPAS ⚽</h1></div>
+</div>
+
+<div class="nav-bar">
+    <button class="nav-btn" onclick="window.openModal('paymentModal')">💳 Pago</button>
+    <button class="nav-btn" onclick="window.generatePlayerPDF()">📄 PDF</button>
+    <button class="nav-btn" onclick="window.openModal('adminModal')">🔒 Admin</button>
+</div>
+
 <div class="container">
-    <button class="btn-admin" onclick="window.openModal('adminModal')">🔒 Admin</button>
+    <div id="syncStatus" class="sync-status online">✅ Conectado a Firebase</div>
+    <div class="card" id="matchesContainer">Cargando partidos...</div>
+    <div class="card" id="quinielasList">Las quinielas aparecerán aquí.</div>
 </div>
 
 <!-- Modal Admin -->
 <div class="modal-overlay" id="adminModal">
-  <div class="modal">
-    <button onclick="window.closeModal('adminModal')">✕</button>
-    <div id="adminLogin">
-        <h2>🔒 Login Admin</h2>
-        <input type="email" id="adminEmail" placeholder="Correo">
-        <input type="password" id="adminPass" placeholder="Contraseña">
-        <button onclick="window.checkAdmin()">Entrar</button>
-        <!-- EL BOTÓN DE RESET HA SIDO ELIMINADO AQUÍ -->
-    </div>
-    <div id="adminPanel" style="display:none">
-        <button onclick="window.switchTab('excel')">📊 Excel</button>
-        <div id="tab-excel" class="tab-content active">
-            <table class="excel-table"><thead id="excelThead"></thead><tbody id="excelTbody"></tbody></table>
+    <div class="modal">
+        <button onclick="window.closeModal('adminModal')">✕</button>
+        <div id="adminPanel">
+            <button onclick="window.switchTab('excel')">📊 Excel</button>
+            <div id="tab-excel" class="tab-content active">
+                <table class="excel-table"><thead id="excelThead"></thead><tbody id="excelTbody"></tbody></table>
+            </div>
         </div>
     </div>
-  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 (function() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyA9GGiIBo636l7wNt1dXSKvVHaS_jga7rA",
-    authDomain: "quiniela-los-compas.firebaseapp.com",
-    projectId: "quiniela-los-compas",
-    storageBucket: "quiniela-los-compas.firebasestorage.app",
-    messagingSenderId: "885487506648",
-    appId: "1:885487506648:web:f90154096ecf98fb6773ad"
-  };
+    // Configuración Firebase (Tu código original)
+    const firebaseConfig = {
+        apiKey: "AIzaSyA9GGiIBo636l7wNt1dXSKvVHaS_jga7rA",
+        authDomain: "quiniela-los-compas.firebaseapp.com",
+        projectId: "quiniela-los-compas",
+        storageBucket: "quiniela-los-compas.firebasestorage.app",
+        messagingSenderId: "885487506648",
+        appId: "1:885487506648:web:f90154096ecf98fb6773ad"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+    var state = { matches: [], quinielas: [], matchResults: {}, winnersCalculated: false };
 
-  firebase.initializeApp(firebaseConfig);
-  var db = firebase.firestore();
-  var state = { matches: [], quinielas: [], matchResults: {}, winnersCalculated: false };
+    // Exposición global
+    window.openModal = id => document.getElementById(id).classList.add('active');
+    window.closeModal = id => document.getElementById(id).classList.remove('active');
+    window.switchTab = tab => { 
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+    };
 
-  window.openModal = id => document.getElementById(id).classList.add('active');
-  window.closeModal = id => document.getElementById(id).classList.remove('active');
-  window.switchTab = tab => { 
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-  };
-  
-  window.checkAdmin = () => {
-      var email = document.getElementById('adminEmail').value;
-      var pass = document.getElementById('adminPass').value;
-      // Tu lógica de validación aquí...
-      if(email === "silvaadrian2024@outlook.com") {
-          document.getElementById('adminLogin').style.display='none'; 
-          document.getElementById('adminPanel').style.display='block';
-      }
-  };
+    window.renderExcelTable = function() {
+        var tbody = document.getElementById('excelTbody');
+        var thead = document.getElementById('excelThead');
+        if (!tbody || !thead) return;
 
-  window.renderExcelTable = function() {
-    var tbody = document.getElementById('excelTbody');
-    var thead = document.getElementById('excelThead');
-    if (!tbody || !thead) return;
+        var h = '<tr><th>Folio</th><th>Nombre</th>';
+        state.matches.forEach((_, i) => h += '<th>P'+(i+1)+'</th>');
+        h += '<th>Pago</th><th>Aciertos</th></tr>';
+        thead.innerHTML = h;
 
-    var h = '<tr><th>Folio</th><th>Nombre</th>';
-    state.matches.forEach((_, i) => h += '<th>P'+(i+1)+'</th>');
-    h += '<th>Pago</th><th>Aciertos</th></tr>';
-    thead.innerHTML = h;
+        tbody.innerHTML = '';
+        state.quinielas.forEach(function(q) {
+            var preds = q.predictions.split('');
+            var aciertos = 0;
+            if (state.winnersCalculated) {
+                preds.forEach((p, i) => { if (state.matchResults[i] === p) aciertos++; });
+            }
+            var html = '<tr><td>'+q.folio+'</td><td>'+q.name+'</td>';
+            preds.forEach(p => html += '<td>'+p+'</td>');
+            html += '<td><button onclick="window.togglePaid(\''+q.id+'\')">'+(q.paid ? '✅' : '⬜')+'</button></td><td>'+(state.winnersCalculated ? aciertos : '-')+'</td></tr>';
+            tbody.innerHTML += html;
+        });
+    };
 
-    tbody.innerHTML = '';
-    state.quinielas.forEach(function(q) {
-      var preds = q.predictions.split('');
-      var aciertos = 0;
-      if (state.winnersCalculated) {
-        preds.forEach((p, i) => { if (state.matchResults[i] === p) aciertos++; });
-      }
-      var html = '<tr><td>'+q.folio+'</td><td>'+q.name+'</td>';
-      preds.forEach(p => html += '<td>'+p+'</td>');
-      html += '<td><button onclick="window.togglePaid(\''+q.id+'\')">'+(q.paid ? '✅' : '⬜')+'</button></td><td>'+(state.winnersCalculated ? aciertos : '-')+'</td></tr>';
-      tbody.innerHTML += html;
+    window.togglePaid = function(id) {
+        var q = state.quinielas.find(x => x.id === id);
+        if (q) db.collection("quinielas").doc(id).update({ paid: !q.paid });
+    };
+
+    // Listeners
+    db.collection("configuracion").doc("jornadaActual").onSnapshot(doc => {
+        if (doc.exists) {
+            var d = doc.data();
+            state.matches = d.matches || [];
+            state.matchResults = d.matchResults || {};
+            state.winnersCalculated = d.winnersCalculated || false;
+            window.renderExcelTable();
+        }
     });
-  };
 
-  window.togglePaid = function(id) {
-    var q = state.quinielas.find(x => x.id === id);
-    if (q) db.collection("quinielas").doc(id).update({ paid: !q.paid });
-  };
-
-  db.collection("configuracion").doc("jornadaActual").onSnapshot(doc => {
-    if (doc.exists) {
-      var d = doc.data();
-      state.matches = d.matches || [];
-      state.matchResults = d.matchResults || {};
-      state.winnersCalculated = d.winnersCalculated || false;
-      window.renderExcelTable();
-    }
-  });
-
-  db.collection("quinielas").onSnapshot(snap => {
-    state.quinielas = [];
-    snap.forEach(doc => state.quinielas.push({...doc.data(), id: doc.id}));
-    window.renderExcelTable();
-  });
+    db.collection("quinielas").onSnapshot(snap => {
+        state.quinielas = [];
+        snap.forEach(doc => state.quinielas.push({...doc.data(), id: doc.id}));
+        window.renderExcelTable();
+    });
 })();
 </script>
 </body>
