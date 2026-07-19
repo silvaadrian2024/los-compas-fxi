@@ -1,23 +1,228 @@
-{
-  "rules": {
-    "jornadaActual": {
-      ".read": true,
-      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
-    },
-    "quinielas": {
-      ".read": true,
-      ".write": "auth != null",
-      "$id": {
-        ".write": "auth != null && data.child('userId').val() === auth.uid"
-      }
-    },
-    "matchResults": {
-      ".read": true,
-      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
-    },
-    "admins": {
-      ".read": false,
-      ".write": false
-    }
-  }
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quinielas Los Compas - Sistema MecaDev Pro</title>
+    
+    <!-- Librerías de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Firebase SDK (Versión Compat/v8 para un solo archivo) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* CSS de Producción y Diseño Responsivo */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #0a1f0a 0%, #1a3a1a 50%, #0d2818 100%); min-height: 100vh; color: #fff; padding-bottom: 40px; }
+        .header { position: relative; height: 220px; overflow: hidden; border-bottom: 4px solid #ffd700; background: #000; }
+        .header-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(10,31,10,0.95) 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .header-overlay h1 { font-size: 2.5rem; font-weight: 900; color: #ffd700; text-shadow: 3px 3px 6px rgba(0,0,0,0.8); text-align: center; }
+        .nav-bar { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 12px 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #ffd700; }
+        .nav-btn { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #0a1f0a; border: none; padding: 10px 18px; border-radius: 25px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,215,0,0.4); }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .card { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,215,0,0.3); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .section-title { font-size: 1.8rem; color: #ffd700; margin-bottom: 20px; text-align: center; font-weight: 800; }
+        .status-banner { background: rgba(0,0,0,0.5); border-radius: 10px; padding: 15px; text-align: center; border-left: 5px solid #25d366; margin-bottom: 20px; }
+        .name-input { width: 100%; padding: 15px; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,215,0,0.3); border-radius: 10px; color: #fff; font-size: 1.1rem; margin-bottom: 20px; }
+        .name-input:focus { outline: none; border-color: #ffd700; }
+        .match-row { background: rgba(0,0,0,0.4); border-radius: 10px; padding: 15px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; border-left: 4px solid #ffd700; }
+        .team-name { font-weight: 700; font-size: 1.05rem; color: #fff; }
+        .team-name.local { text-align: right; }
+        .team-name.visitante { text-align: left; }
+        .vs-badge { background: #ffd700; color: #0a1f0a; padding: 5px 12px; border-radius: 20px; font-weight: 800; }
+        .selection-buttons { display: flex; gap: 8px; justify-content: center; margin-top: 10px; grid-column: 1 / -1; }
+        .sel-btn { flex: 1; max-width: 120px; padding: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+        .sel-btn.active-L { background: #2d7a2d; border-color: #4caf50; }
+        .sel-btn.active-E { background: #c9a000; border-color: #ffd700; }
+        .sel-btn.active-V { background: #c0392b; border-color: #e74c3c; }
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .btn-send { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .btn-clear { background: linear-gradient(135deg, #7f8c8d, #555); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .btn-send:hover, .btn-clear:hover { transform: translateY(-3px); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-overlay">
+            <h1>Quinielas Los Compas</h1>
+        </div>
+    </header>
+
+    <nav class="nav-bar">
+        <button class="nav-btn" id="btn-mis-quinielas">Ver Mis Quinielas</button>
+        <button class="nav-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white;" id="btn-pdf">Generar PDF</button>
+    </nav>
+
+    <main class="container">
+        
+        <div class="status-banner" id="status-banner">
+            <h3 id="db-status" style="color: #ffd700;">Conectando al Motor de Base de Datos...</h3>
+        </div>
+
+        <section class="card">
+            <h2 class="section-title">Ingresa tu Predicción</h2>
+            <input type="text" class="name-input" id="jugador-nombre" placeholder="Nombre completo o Apodo" required>
+            
+            <div id="partidos-container">
+                <!-- Generado por JS -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-clear" id="btn-limpiar">Limpiar Todo</button>
+                <button class="btn-send" id="btn-enviar">Guardar Quiniela</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- INICIO DE LA LÓGICA CORE (MECADEV PRO) -->
+    <script>
+        // =========================================================================
+        // 1. CONFIGURACIÓN DE SEGURIDAD Y CONEXIÓN A FIREBASE
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicialización Robusta (Singletón)
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        } else {
+            firebase.app(); 
+        }
+
+        const db = firebase.database();
+        const statusUI = document.getElementById('db-status');
+
+        // Monitoreo de conexión en tiempo real
+        db.ref('.info/connected').on('value', function(snap) {
+            if (snap.val() === true) {
+                statusUI.textContent = "Conexión Segura Establecida ✓";
+                document.getElementById('status-banner').style.borderLeftColor = "#25d366";
+            } else {
+                statusUI.textContent = "Desconectado. Verificando red...";
+                document.getElementById('status-banner').style.borderLeftColor = "#c0392b";
+            }
+        });
+
+        // =========================================================================
+        // 2. GENERADOR DE INTERFAZ DE PARTIDOS
+        // =========================================================================
+        const partidos = [
+            { id: 1, local: "América", visitante: "Chivas" },
+            { id: 2, local: "Cruz Azul", visitante: "Pumas" },
+            { id: 3, local: "Tigres", visitante: "Monterrey" },
+            { id: 4, local: "Toluca", visitante: "Pachuca" }
+        ];
+
+        const contenedorPartidos = document.getElementById('partidos-container');
+
+        partidos.forEach(partido => {
+            const html = `
+                <div class="match-row" data-id="${partido.id}">
+                    <div class="team-name local">${partido.local}</div>
+                    <div class="vs-badge">VS</div>
+                    <div class="team-name visitante">${partido.visitante}</div>
+                    <div class="selection-buttons">
+                        <button class="sel-btn" data-val="L">L</button>
+                        <button class="sel-btn" data-val="E">E</button>
+                        <button class="sel-btn" data-val="V">V</button>
+                    </div>
+                </div>
+            `;
+            contenedorPartidos.insertAdjacentHTML('beforeend', html);
+        });
+
+        // Manejo de selecciones deportivas
+        contenedorPartidos.addEventListener('click', (e) => {
+            if (e.target.classList.contains('sel-btn')) {
+                const fila = e.target.closest('.selection-buttons');
+                fila.querySelectorAll('.sel-btn').forEach(btn => {
+                    btn.classList.remove('active-L', 'active-E', 'active-V');
+                });
+                const valor = e.target.dataset.val;
+                e.target.classList.add(`active-${valor}`);
+            }
+        });
+
+        // =========================================================================
+        // 3. MOTOR DE VALIDACIÓN Y SUBIDA DE DATOS
+        // =========================================================================
+        document.getElementById('btn-enviar').addEventListener('click', () => {
+            const nombre = document.getElementById('jugador-nombre').value.trim();
+            const boton = document.getElementById('btn-enviar');
+
+            // Sanitización y reglas de negocio
+            if (nombre.length < 3) {
+                alert("Error de validación: Ingresa un nombre válido.");
+                return;
+            }
+
+            const selecciones = {};
+            let formularioCompleto = true;
+
+            document.querySelectorAll('.match-row').forEach(row => {
+                const idPartido = row.dataset.id;
+                const botonActivo = row.querySelector('.sel-btn[class*="active-"]');
+                
+                if (botonActivo) {
+                    selecciones[`partido_${idPartido}`] = botonActivo.dataset.val;
+                } else {
+                    formularioCompleto = false;
+                }
+            });
+
+            if (!formularioCompleto) {
+                alert("Alerta: Debes predecir todos los partidos para enviar la quiniela.");
+                return;
+            }
+
+            // Obtener Timestamp sincronizado para control estricto de horarios
+            const opcionesZonaHoraria = { timeZone: 'America/Ciudad_Juarez', hour12: true, dateStyle: 'short', timeStyle: 'short' };
+            const timestampLocal = new Date().toLocaleString('es-MX', opcionesZonaHoraria);
+
+            boton.disabled = true;
+            boton.textContent = "Procesando...";
+
+            // Inserción en base de datos
+            const quinielasRef = db.ref('quinielas_jornada');
+            const nuevoRegistro = quinielasRef.push();
+
+            nuevoRegistro.set({
+                jugador: nombre,
+                predicciones: selecciones,
+                fecha_registro_mdt: timestampLocal,
+                estado: "Activo"
+            }).then(() => {
+                alert("¡Transacción Exitosa! Quiniela guardada en el servidor.");
+                limpiarFormulario();
+            }).catch((error) => {
+                console.error("Fallo de seguridad o conexión:", error);
+                alert("Fallo al enviar. Revisa tu conexión o las reglas de Firebase.");
+            }).finally(() => {
+                boton.disabled = false;
+                boton.textContent = "Guardar Quiniela";
+            });
+        });
+
+        function limpiarFormulario() {
+            document.getElementById('jugador-nombre').value = '';
+            document.querySelectorAll('.sel-btn').forEach(btn => {
+                btn.classList.remove('active-L', 'active-E', 'active-V');
+            });
+        }
+
+        document.getElementById('btn-limpiar').addEventListener('click', limpiarFormulario);
+    </script>
+</body>
+</html>
