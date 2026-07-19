@@ -21,7 +21,7 @@
 <title>Quinielas Los Compas</title>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <!-- jsPDF para PDFs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -58,7 +58,7 @@
   .important-notes ul { list-style: none; padding: 0; }
   .important-notes li { padding: 8px 0; padding-left: 30px; position: relative; color: #fff; line-height: 1.5; border-bottom: 1px solid rgba(255,193,7,0.2); }
   .important-notes li:last-child { border-bottom: none; }
-  .important-notes li::before { content: '⚠️'; position: absolute; left: 0; top: 8px; }
+  .important-notes li::before { content: '️'; position: absolute; left: 0; top: 8px; }
   .important-notes li strong { color: #ffd700; }
   .match-row { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; border-left: 4px solid #ffd700; transition: all 0.3s; }
   .match-row:hover { background: rgba(0,0,0,0.5); transform: translateX(3px); }
@@ -209,6 +209,7 @@
   .sync-status { background: rgba(33,150,243,0.2); border: 1px solid #2196f3; border-radius: 8px; padding: 8px 12px; margin-bottom: 15px; font-size: 0.85rem; color: #2196f3; display: flex; align-items: center; gap: 8px; }
   .sync-status.online { background: rgba(76,175,80,0.2); border-color: #4caf50; color: #4caf50; }
   .sync-status.offline { background: rgba(244,67,54,0.2); border-color: #f44336; color: #f44336; }
+  .sync-status.loading { background: rgba(255,193,7,0.2); border-color: #ffc107; color: #ffc107; }
   @media (max-width: 600px) {
     .header-overlay h1 { font-size: 1.8rem; }
     .action-buttons { grid-template-columns: 1fr; }
@@ -226,20 +227,20 @@
 <div class="header">
   <img src="https://image.qwenlm.ai/public_source/73de5cfe-12cf-4f6c-9137-4c74680acd7a/1004a1730-e7f3-4608-abc5-012a6c9afffa.png" alt="Fútbol">
   <div class="header-overlay">
-    <h1>⚽ QUINIELAS LOS COMPAS ⚽</h1>
+    <h1> QUINIELAS LOS COMPAS ⚽</h1>
     <p>¡Pronostica, gana y diviértete con tus amigos!</p>
   </div>
 </div>
 
 <div class="nav-bar">
-  <button class="nav-btn" onclick="openModal('paymentModal')">💳 Pago</button>
+  <button class="nav-btn" onclick="openModal('paymentModal')"> Pago</button>
   <button class="nav-btn pdf" onclick="generatePlayerPDF()">📄 PDF</button>
-  <button class="nav-btn admin" onclick="openModal('adminModal')">🔒 Admin</button>
+  <button class="nav-btn admin" onclick="openModal('adminModal')"> Admin</button>
   <button class="nav-btn" onclick="openModal('infoModal')">ℹ️ Info</button>
 </div>
 
 <div class="container">
-  <div class="sync-status offline" id="syncStatus">⏳ Conectando a la base de datos...</div>
+  <div class="sync-status loading" id="syncStatus">⏳ Conectando a Firebase...</div>
   
   <div class="jackpot-banner" id="jackpotBanner">
     <h3>🏆 BOLSA ACUMULADA 🏆</h3>
@@ -253,7 +254,7 @@
     <div class="jornada-info">
       <div>
         <h3 id="jornadaTitle">Jornada 1</h3>
-        <p id="jornadaDate">Semana del 18 de Julio, 2026</p>
+        <p id="jornadaDate">Cargando...</p>
       </div>
       <div style="text-align:right">
         <p style="color:#ffd700;font-weight:700">Partidos: <span id="matchCount">0</span>/9</p>
@@ -282,7 +283,7 @@
     </div>
     
     <div id="matchesContainer">
-      <div class="empty-state"><p>⚠️ Sin partidos disponibles. El admin debe agregarlos.</p></div>
+      <div class="empty-state"><p>⏳ Cargando partidos...</p></div>
     </div>
     
     <input type="text" id="playerName" class="name-input" placeholder="✍️ Escribe tu nombre aquí..." maxlength="30" oninput="updateMyQuinielas()">
@@ -314,7 +315,7 @@
       <div id="myQuinielasList"></div>
       <div class="send-all-container" id="sendAllContainer" style="display:none">
         <div class="send-all-info">Tienes <strong id="totalToSend">0</strong> quiniela(s) lista(s) para enviar.</div>
-        <button class="action-btn btn-send-all" style="width:100%" onclick="sendAllQuinielasWhatsApp()">📱 Enviar Todas mis Quinielas por WhatsApp</button>
+        <button class="action-btn btn-send-all" style="width:100%" onclick="sendAllQuinielasWhatsApp()"> Enviar Todas mis Quinielas por WhatsApp</button>
       </div>
     </div>
     
@@ -328,7 +329,7 @@
   
   <div class="card">
     <div id="quinielasList">
-      <div class="empty-state"><p>🔒 Las quinielas son privadas. Solo el administrador puede ver los pronósticos.</p></div>
+      <div class="empty-state"><p> Las quinielas son privadas. Solo el administrador puede ver los pronósticos.</p></div>
     </div>
   </div>
 </div>
@@ -341,19 +342,19 @@
     <div class="price-tag" id="priceDisplay">💰 Costo por Quiniela: $20 MXN</div>
     <div id="paymentMethodsDisplay"></div>
     <div class="important-notes" style="margin-top:20px">
-      <h3>📋 Notas</h3>
+      <h3> Notas</h3>
       <ul>
         <li><strong>Comisión del 20%</strong> por administración.</li>
         <li><strong>Quiniela no pagada NO participa.</strong></li>
         <li><strong>Incluye tu folio</strong> al enviar comprobante.</li>
       </ul>
     </div>
-    <h3> Enviar Comprobante</h3>
+    <h3>📤 Enviar Comprobante</h3>
     <div class="share-info-box">
-      <strong>️ Cómo enviar:</strong><br><br>
+      <strong>⚠️ Cómo enviar:</strong><br><br>
       <strong>Paso 1:</strong> Sube tu captura<br>
-      <strong>Paso 2:</strong> Presiona " Compartir con Imagen"<br>
-      <strong>Paso 3:</strong> Si no funciona, usa "📱 Abrir WhatsApp"<br>
+      <strong>Paso 2:</strong> Presiona "📤 Compartir con Imagen"<br>
+      <strong>Paso 3:</strong> Si no funciona, usa " Abrir WhatsApp"<br>
       <strong>Paso 4:</strong> <strong>INCLUYE TU FOLIO</strong>
     </div>
     <div class="upload-area" onclick="document.getElementById('receiptUpload').click()">
@@ -363,7 +364,7 @@
     </div>
     <img id="receiptPreview" class="receipt-preview" alt="Preview">
     <div class="share-options">
-      <button class="action-btn btn-share" id="shareWithImageButton" onclick="shareReceiptWithImage()" style="display:none">📤 Compartir con Imagen</button>
+      <button class="action-btn btn-share" id="shareWithImageButton" onclick="shareReceiptWithImage()" style="display:none"> Compartir con Imagen</button>
       <a id="whatsappReceiptLink" class="whatsapp-link" href="#" target="_blank" rel="noopener">📱 Abrir WhatsApp</a>
     </div>
   </div>
@@ -381,7 +382,7 @@
         <input type="email" id="adminEmail" placeholder="Ingresa tu correo" autocomplete="off">
         <label>🔐 Contraseña:</label>
         <input type="password" id="adminPass" placeholder="Ingresa la contraseña" autocomplete="off">
-        <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()">🔓 Entrar</button>
+        <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()"> Entrar</button>
         <div class="login-hint">💡 Si no puedes entrar, presiona "Reset de Fábrica"</div>
         <button class="action-btn btn-reset" style="width:100%" onclick="resetCredentials()">🔄 Reset de Fábrica</button>
       </div>
@@ -393,10 +394,10 @@
         <button class="tab-btn" onclick="switchTab('results', this)">🎯 Resultados</button>
         <button class="tab-btn" onclick="switchTab('excel', this)">📊 Excel</button>
         <button class="tab-btn" onclick="switchTab('payments', this)">💳 Pagos</button>
-        <button class="tab-btn" onclick="switchTab('history', this)"> Historial</button>
+        <button class="tab-btn" onclick="switchTab('history', this)">📚 Historial</button>
         <button class="tab-btn" onclick="switchTab('jackpot', this)">🏆 Bolsa</button>
         <button class="tab-btn" onclick="switchTab('closing', this)">⏰ Cierre</button>
-        <button class="tab-btn" onclick="switchTab('config', this)">⚙️ Config</button>
+        <button class="tab-btn" onclick="switchTab('config', this)">️ Config</button>
         <button class="tab-btn" onclick="switchTab('security', this)">🛡️ Seguridad</button>
       </div>
       
@@ -425,7 +426,7 @@
         <div class="excel-summary" id="excelSummary"></div>
         <div class="excel-container"><table class="excel-table" id="excelTable"><thead id="excelThead"></thead><tbody id="excelTbody"></tbody></table></div>
         <div class="excel-actions">
-          <button class="action-btn btn-excel" onclick="downloadExcel()">📥 Descargar Excel</button>
+          <button class="action-btn btn-excel" onclick="downloadExcel()"> Descargar Excel</button>
           <button class="action-btn btn-send-all" onclick="sendAllAdminQuinielas()">📱 Enviar Todas</button>
           <button class="action-btn btn-clear" onclick="clearAllQuinielas()">🗑️ Eliminar Todas</button>
         </div>
@@ -435,7 +436,7 @@
         <h3>💳 Métodos de Pago</h3>
         <p style="color:#fff;margin-bottom:15px;text-align:center">Agrega múltiples opciones de pago para tus jugadores.</p>
         <div class="config-section">
-          <h4>➕ Agregar Nuevo Método de Pago</h4>
+          <h4> Agregar Nuevo Método de Pago</h4>
           <div class="admin-form">
             <label>Tipo de método:</label>
             <select id="paymentMethodType" onchange="updatePaymentForm()">
@@ -455,11 +456,11 @@
               <label>Notas adicionales (opcional):</label>
               <textarea id="pmNotes" rows="2" placeholder="Instrucciones especiales"></textarea>
             </div>
-            <button class="action-btn btn-add" style="width:100%" onclick="addPaymentMethod()">➕ Agregar Método de Pago</button>
+            <button class="action-btn btn-add" style="width:100%" onclick="addPaymentMethod()"> Agregar Método de Pago</button>
           </div>
         </div>
         <div class="config-section">
-          <h4>📋 Métodos de Pago Actuales</h4>
+          <h4> Métodos de Pago Actuales</h4>
           <div class="payment-methods-list" id="paymentMethodsList"><p style="color:rgba(255,255,255,0.5);text-align:center">No hay métodos de pago configurados</p></div>
         </div>
       </div>
@@ -487,9 +488,9 @@
       </div>
       
       <div class="tab-content" id="tab-closing">
-        <h3>⏰ Hora de Cierre</h3>
+        <h3> Hora de Cierre</h3>
         <div class="config-section">
-          <h4> Fecha y Hora</h4>
+          <h4>📅 Fecha y Hora</h4>
           <div class="admin-form">
             <label>Fecha:</label><input type="date" id="closingDate">
             <label>Hora:</label><input type="time" id="closingTime">
@@ -529,7 +530,7 @@
       
       <div class="tab-content" id="tab-security">
         <h3>🛡️ Seguridad</h3>
-        <div class="security-badge">🔐 Anti clic derecho: <span id="secRightClick">Activa</span></div>
+        <div class="security-badge"> Anti clic derecho: <span id="secRightClick">Activa</span></div>
         <div class="security-badge">🔍 Anti DevTools: <span id="secDevtools">Activa</span></div>
         <div class="security-badge">📋 Anti copiar: <span id="secCopy">Activa</span></div>
         <div class="security-badge">🖼️ Anti iframes: <span id="secFrame">Activa</span></div>
@@ -562,12 +563,12 @@
     <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
     <h2>ℹ️ ¿Cómo Funciona?</h2>
     <div style="color:#fff;line-height:1.8">
-      <p><strong style="color:#ffd700">1️</strong> Selecciona pronóstico: <span style="color:#4caf50">L</span>, <span style="color:#ffd700">E</span> o <span style="color:#e74c3c">V</span></p>
+      <p><strong style="color:#ffd700">1️⃣</strong> Selecciona pronóstico: <span style="color:#4caf50">L</span>, <span style="color:#ffd700">E</span> o <span style="color:#e74c3c">V</span></p>
       <p><strong style="color:#ffd700">2️⃣</strong> Escribe tu nombre</p>
       <p><strong style="color:#ffd700">3️⃣</strong> Presiona <strong>Agregar</strong> para recibir folio</p>
-      <p><strong style="color:#ffd700">4️⃣</strong> Agrega más quinielas si quieres</p>
+      <p><strong style="color:#ffd700">4️</strong> Agrega más quinielas si quieres</p>
       <p><strong style="color:#ffd700">5️⃣</strong> Presiona <strong>Enviar</strong> cuando tengas todas</p>
-      <p><strong style="color:#ffd700">6️⃣</strong> Paga $<span id="infoPrice">20</span> MXN y envía comprobante con folio</p>
+      <p><strong style="color:#ffd700">6️</strong> Paga $<span id="infoPrice">20</span> MXN y envía comprobante con folio</p>
       <div class="important-notes" style="margin-top:15px">
         <h3>📋 Notas</h3>
         <ul>
@@ -584,31 +585,30 @@
 
 <script>
 // ============================================
-// ⚠️⚠️️ PEGA AQUÍ TUS CREDENCIALES DE FIREBASE ⚠️️⚠️
+// ⚠️⚠️⚠️ PEGA AQUÍ TUS CREDENCIALES DE FIREBASE ⚠️⚠️⚠️
 // ============================================
 var FIREBASE_CONFIG = {
   apiKey: "PEGA_TU_API_KEY_AQUI",
   authDomain: "TU_PROYECTO.firebaseapp.com",
-  databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
   projectId: "TU_PROYECTO",
   storageBucket: "TU_PROYECTO.appspot.com",
   messagingSenderId: "123456789",
   appId: "1:123456789:web:abc123"
 };
 
-// Detectar si Firebase está configurado
-var firebaseEnabled = FIREBASE_CONFIG.apiKey !== "PEGA_TU_API_KEY_AQUI";
+// Inicializar Firebase
 var db = null;
+var firebaseReady = false;
 
-if (firebaseEnabled) {
-  try {
+try {
+  if (FIREBASE_CONFIG.apiKey !== "PEGA_TU_API_KEY_AQUI") {
     firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.database();
-    console.log('✅ Firebase conectado');
-  } catch (e) {
-    console.error(' Error Firebase:', e);
-    firebaseEnabled = false;
+    db = firebase.firestore();
+    firebaseReady = true;
+    console.log('✅ Firebase Firestore conectado');
   }
+} catch (e) {
+  console.error('❌ Error Firebase:', e);
 }
 
 // ============================================
@@ -742,7 +742,7 @@ var MAX_MATCHES = 9;
 // ============================================
 var state = {
   matches: [], quinielas: [],
-  jornada: { name: 'Jornada 1', date: 'Semana del 18 de Julio, 2026' },
+  jornada: { name: 'Jornada 1', date: 'Cargando...' },
   currentSelection: {},
   whatsappNumber: DEFAULTS.whatsapp,
   adminEmail: DEFAULTS.email,
@@ -761,154 +761,169 @@ var state = {
 };
 
 // ============================================
-// SINCRONIZACIÓN CON FIREBASE
+// FUNCIONES FIRESTORE
 // ============================================
-function updateSyncStatus(online) {
-  var status = document.getElementById('syncStatus');
-  if (!status) return;
-  if (firebaseEnabled && online) {
-    status.className = 'sync-status online';
-    status.innerHTML = '✅ Conectado a la nube - Los datos se sincronizan en tiempo real entre todos los dispositivos';
-  } else if (firebaseEnabled && !online) {
-    status.className = 'sync-status offline';
-    status.innerHTML = '⚠️ Sin conexión - Usando datos locales';
+function updateSyncStatus(status) {
+  var el = document.getElementById('syncStatus');
+  if (!el) return;
+  if (status === 'online') {
+    el.className = 'sync-status online';
+    el.innerHTML = '✅ Conectado a Firebase - Los datos se sincronizan en tiempo real entre todos los dispositivos';
+  } else if (status === 'offline') {
+    el.className = 'sync-status offline';
+    el.innerHTML = '⚠️ Sin conexión - Usando datos locales';
+  } else if (status === 'loading') {
+    el.className = 'sync-status loading';
+    el.innerHTML = ' Conectando a Firebase...';
   } else {
-    status.className = 'sync-status offline';
-    status.innerHTML = '⚠️ Firebase NO configurado - Los datos son SOLO de este dispositivo. Configura Firebase para compartir datos entre jugadores.';
+    el.className = 'sync-status offline';
+    el.innerHTML = '⚠️ Firebase NO configurado - Los datos son SOLO de este dispositivo. Configura Firebase para compartir datos entre jugadores.';
   }
 }
 
-function saveToFirebase(path, data) {
-  if (firebaseEnabled && db) {
-    try { db.ref(path).set(data); } catch (e) { console.error('Error Firebase:', e); }
+async function saveToFirestore(collection, docId, data) {
+  if (firebaseReady && db) {
+    try {
+      await db.collection(collection).doc(docId).set(data, { merge: true });
+    } catch (e) { console.error('Error Firestore:', e); }
   }
 }
 
-function setupFirebaseSync() {
-  if (!firebaseEnabled || !db) { updateSyncStatus(false); return; }
+async function deleteFromFirestore(collection, docId) {
+  if (firebaseReady && db) {
+    try {
+      await db.collection(collection).doc(docId).delete();
+    } catch (e) { console.error('Error Firestore:', e); }
+  }
+}
+
+function setupFirestoreListeners() {
+  if (!firebaseReady || !db) { updateSyncStatus('no-config'); return; }
   
-  updateSyncStatus(true);
+  updateSyncStatus('loading');
   state.firebaseReady = true;
   
-  // Escuchar cambios en partidos
-  db.ref('quinielas/matches').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.matches = data;
-      storage.setItem('qlc_matches', JSON.stringify(state.matches));
-      renderMatches();
-      updateJornadaInfo();
-      renderMyQuinielas();
-      if (document.getElementById('adminPanel').style.display === 'block') {
-        renderAdminMatches();
+  // Escuchar cambios en jornadaActual (partidos, settings)
+  db.collection('configuracion').doc('jornadaActual').onSnapshot(function(doc) {
+    if (doc.exists) {
+      var data = doc.data();
+      console.log('📥 Datos recibidos de Firestore:', data);
+      
+      if (data.matches) {
+        state.matches = data.matches;
+        storage.setItem('qlc_matches', JSON.stringify(state.matches));
+        renderMatches();
+        updateJornadaInfo();
+        renderMyQuinielas();
+        if (document.getElementById('adminPanel').style.display === 'block') {
+          renderAdminMatches();
+        }
       }
-    }
-  });
-  
-  // Escuchar cambios en jornada
-  db.ref('quinielas/jornada').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.jornada = data;
-      storage.setItem('qlc_jornada', JSON.stringify(state.jornada));
-      updateJornadaInfo();
-    }
-  });
-  
-  // Escuchar cambios en quinielas
-  db.ref('quinielas/quinielas').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.quinielas = data;
-      storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-      renderMyQuinielas();
+      
+      if (data.jornadaName) {
+        state.jornada.name = data.jornadaName;
+        storage.setItem('qlc_jornada', JSON.stringify(state.jornada));
+        updateJornadaInfo();
+      }
+      
+      if (data.nextFolio) {
+        state.nextFolio = data.nextFolio;
+        storage.setItem('qlc_nextfolio', data.nextFolio.toString());
+      }
+      
+      if (data.price) {
+        state.price = data.price;
+        storage.setItem('qlc_price', data.price);
+        document.getElementById('priceDisplay').textContent = '💰 Costo: $' + data.price + ' MXN';
+        document.getElementById('notePrice').textContent = data.price;
+        document.getElementById('infoPrice').textContent = data.price;
+      }
+      
+      if (data.quinielaClosed !== undefined) {
+        state.quinielaClosed = data.quinielaClosed;
+        storage.setItem('qlc_closed', String(data.quinielaClosed));
+      }
+      
+      if (data.closingDateTime) {
+        state.closingDateTime = data.closingDateTime;
+        storage.setItem('qlc_closing', data.closingDateTime);
+      }
+      
+      if (data.matchResults) {
+        state.matchResults = data.matchResults;
+        storage.setItem('qlc_results', JSON.stringify(data.matchResults));
+      }
+      
+      if (data.winnersCalculated !== undefined) {
+        state.winnersCalculated = data.winnersCalculated;
+        storage.setItem('qlc_winners', String(data.winnersCalculated));
+      }
+      
+      if (data.accumulatedJackpot !== undefined) {
+        state.accumulatedJackpot = data.accumulatedJackpot;
+        storage.setItem('qlc_accumulated', data.accumulatedJackpot.toString());
+      }
+      
+      if (data.commissionPercent) {
+        state.commissionPercent = data.commissionPercent;
+        storage.setItem('qlc_commission', data.commissionPercent.toString());
+      }
+      
+      updateClosingDisplay();
       updateJackpotDisplay();
       renderRanking();
-      if (document.getElementById('adminPanel').style.display === 'block') {
-        renderExcelTable();
-      }
-    }
-  });
-  
-  // Escuchar cambios en folio
-  db.ref('quinielas/nextFolio').on('value', function(snapshot) {
-    var val = snapshot.val();
-    if (val) {
-      state.nextFolio = val;
-      storage.setItem('qlc_nextfolio', val.toString());
-    }
-  });
-  
-  // Escuchar cambios en cierre
-  db.ref('quinielas/closing').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.closingDateTime = data.dateTime;
-      state.quinielaClosed = data.closed;
-      storage.setItem('qlc_closing', state.closingDateTime || '');
-      storage.setItem('qlc_closed', String(state.quinielaClosed));
-      updateClosingDisplay();
-    }
-  });
-  
-  // Escuchar cambios en resultados
-  db.ref('quinielas/results').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.matchResults = data.matchResults || {};
-      state.winnersCalculated = data.winnersCalculated || false;
-      storage.setItem('qlc_results', JSON.stringify(state.matchResults));
-      storage.setItem('qlc_winners', String(state.winnersCalculated));
-      renderRanking();
+      
       if (document.getElementById('adminPanel').style.display === 'block') {
         renderExcelTable();
         renderResultsForm();
       }
+      
+      updateSyncStatus('online');
+    } else {
+      console.log('⚠️ No hay documento jornadaActual');
+      updateSyncStatus('online');
     }
+  }, function(error) {
+    console.error('Error escuchando jornadaActual:', error);
+    updateSyncStatus('offline');
   });
   
-  // Escuchar cambios en historial
-  db.ref('quinielas/history').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.history = data;
-      storage.setItem('qlc_history', JSON.stringify(state.history));
-      if (document.getElementById('adminPanel').style.display === 'block') {
-        renderHistory();
-      }
+  // Escuchar cambios en quinielas (colección)
+  db.collection('quinielas').onSnapshot(function(snapshot) {
+    var quinielas = [];
+    snapshot.forEach(function(doc) {
+      var data = doc.data();
+      data.id = doc.id;
+      quinielas.push(data);
+    });
+    
+    // Ordenar por timestamp
+    quinielas.sort(function(a, b) { return (a.timestamp || '').localeCompare(b.timestamp || ''); });
+    
+    state.quinielas = quinielas;
+    storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+    
+    renderMyQuinielas();
+    updateJackpotDisplay();
+    renderRanking();
+    
+    if (document.getElementById('adminPanel').style.display === 'block') {
+      renderExcelTable();
     }
+    
+    console.log('📥 Quinielas recibidas:', quinielas.length);
+  }, function(error) {
+    console.error('Error escuchando quinielas:', error);
   });
   
-  // Escuchar cambios en jackpot
-  db.ref('quinielas/jackpot').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      state.accumulatedJackpot = data.accumulated || 0;
-      storage.setItem('qlc_accumulated', state.accumulatedJackpot.toString());
-      updateJackpotDisplay();
+  // Escuchar cambios en configuración general
+  db.collection('configuracion').doc('general').onSnapshot(function(doc) {
+    if (doc.exists) {
+      var data = doc.data();
+      if (data.whatsappNumber) { state.whatsappNumber = data.whatsappNumber; storage.setItem('qlc_whatsapp', data.whatsappNumber); updateWhatsAppReceiptLink(); }
+      if (data.paymentMethods) { state.paymentMethods = data.paymentMethods; storage.setItem('qlc_paymentmethods', JSON.stringify(data.paymentMethods)); renderPaymentMethods(); }
+      if (data.adminEmail) { state.adminEmail = data.adminEmail; storage.setItem('qlc_adminemail', data.adminEmail); }
     }
-  });
-  
-  // Escuchar cambios en config
-  db.ref('quinielas/config').on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      if (data.whatsappNumber) { state.whatsappNumber = data.whatsappNumber; storage.setItem('qlc_whatsapp', data.whatsappNumber); }
-      if (data.price) { state.price = data.price; storage.setItem('qlc_price', data.price); }
-      if (data.commissionPercent) { state.commissionPercent = data.commissionPercent; storage.setItem('qlc_commission', data.commissionPercent); }
-      if (data.paymentMethods) { state.paymentMethods = data.paymentMethods; storage.setItem('qlc_paymentmethods', JSON.stringify(data.paymentMethods)); }
-      document.getElementById('priceDisplay').textContent = ' Costo: $' + state.price + ' MXN';
-      document.getElementById('notePrice').textContent = state.price;
-      document.getElementById('infoPrice').textContent = state.price;
-      renderPaymentMethods();
-      updateWhatsAppReceiptLink();
-      updateJackpotDisplay();
-    }
-  });
-  
-  // Manejar desconexión
-  db.ref('.info/connected').on('value', function(snapshot) {
-    updateSyncStatus(snapshot.val());
   });
 }
 
@@ -931,14 +946,6 @@ function loadState() {
     var initJ = storage.getItem('qlc_initialjackpot'); if (initJ) state.initialJackpot = parseInt(initJ);
     var pm = storage.getItem('qlc_paymentmethods');
     if (pm) { state.paymentMethods = JSON.parse(pm); }
-    else {
-      var oldPay = storage.getItem('qlc_payment');
-      if (oldPay) {
-        var oldData = JSON.parse(oldPay);
-        state.paymentMethods = [{ id: 1, type: 'bank', typeLabel: '🏦 Transferencia Bancaria', bank: oldData.institution || '', account: oldData.clabe || '', holder: oldData.holder || '', notes: oldData.extraNotes || '' }];
-        storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
-      }
-    }
     var ct = storage.getItem('qlc_closing'); if (ct) state.closingDateTime = ct;
     var qc = storage.getItem('qlc_closed'); if (qc) state.quinielaClosed = (qc === 'true');
     var nf = storage.getItem('qlc_nextfolio'); if (nf) state.nextFolio = parseInt(nf);
@@ -954,11 +961,11 @@ function loadState() {
 // ============================================
 // FOLIOS
 // ============================================
-function generateFolio() {
+async function generateFolio() {
   var folio = state.nextFolio;
   state.nextFolio++;
   storage.setItem('qlc_nextfolio', state.nextFolio.toString());
-  saveToFirebase('quinielas/nextFolio', state.nextFolio);
+  await saveToFirestore('configuracion', 'jornadaActual', { nextFolio: state.nextFolio });
   return '#' + String(folio).padStart(3, '0');
 }
 
@@ -1058,30 +1065,34 @@ function getWinners() {
   return winners;
 }
 
-function calculateWinners() {
-  if (Object.keys(state.matchResults).length < state.matches.length) { showToast('⚠️ Ingresa resultados para todos los partidos'); return; }
+async function calculateWinners() {
+  if (Object.keys(state.matchResults).length < state.matches.length) { showToast('️ Ingresa resultados para todos los partidos'); return; }
   state.winnersCalculated = true; storage.setItem('qlc_winners', 'true');
-  saveToFirebase('quinielas/results', { matchResults: state.matchResults, winnersCalculated: true });
+  await saveToFirestore('configuracion', 'jornadaActual', { matchResults: state.matchResults, winnersCalculated: true });
   var winners = getWinners(); var jackpot = calculateJackpot();
   if (winners.length > 0) {
     var prizePerWinner = Math.floor(jackpot.total / winners.length);
     showToast('🏆 ' + winners.length + ' ganador(es) con ' + winners[0].hits + ' aciertos. Premio: $' + prizePerWinner.toLocaleString() + ' MXN c/u');
     SecuritySystem.logActivity('🏆 Ganadores: ' + winners.length);
-    saveToHistory(winners, jackpot);
+    await saveToHistory(winners, jackpot);
   } else {
     state.accumulatedJackpot = jackpot.total; storage.setItem('qlc_accumulated', state.accumulatedJackpot.toString());
-    saveToFirebase('quinielas/jackpot', { accumulated: state.accumulatedJackpot });
+    await saveToFirestore('configuracion', 'jornadaActual', { accumulatedJackpot: state.accumulatedJackpot });
     showToast('⚠️ Sin ganadores. Bolsa de $' + jackpot.total.toLocaleString() + ' acumulada');
-    SecuritySystem.logActivity('⚠️ Sin ganadores. Bolsa acumulada');
-    saveToHistory([], jackpot);
+    SecuritySystem.logActivity('️ Sin ganadores. Bolsa acumulada');
+    await saveToHistory([], jackpot);
   }
   renderRanking(); updateJackpotDisplay();
 }
 
-function saveToHistory(winners, jackpot) {
+async function saveToHistory(winners, jackpot) {
   var historyEntry = { jornada: state.jornada.name, date: new Date().toLocaleString('es-MX'), totalQuinielas: state.quinielas.length, paidQuinielas: jackpot.paidCount, jackpot: jackpot.total, winners: winners, matchResults: Object.assign({}, state.matchResults), matches: JSON.parse(JSON.stringify(state.matches)) };
   state.history.unshift(historyEntry); storage.setItem('qlc_history', JSON.stringify(state.history));
-  saveToFirebase('quinielas/history', state.history);
+  if (firebaseReady && db) {
+    try {
+      await db.collection('historial').add(historyEntry);
+    } catch (e) { console.error('Error guardando historial:', e); }
+  }
 }
 
 function renderRanking() {
@@ -1097,19 +1108,19 @@ function renderRanking() {
   section.style.display = 'block'; jornadaSpan.textContent = state.jornada.name;
   var html = '';
   for (var i = 0; i < winners.length; i++) {
-    var w = winners[i]; var medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : '🥉'); var prizeClass = i === 0 ? 'gold' : (i === 1 ? 'silver' : 'bronze');
+    var w = winners[i]; var medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : ''); var prizeClass = i === 0 ? 'gold' : (i === 1 ? 'silver' : 'bronze');
     html += '<div class="ranking-item ' + prizeClass + '"><div class="ranking-position">' + medal + '</div><div class="ranking-name">' + escapeHtml(w.name) + ' <span style="font-size:0.8rem;color:#ffd700">' + w.folio + '</span></div><div class="ranking-hits">' + w.hits + '/' + state.matches.length + '</div><div class="ranking-prize">$' + prizePerWinner.toLocaleString() + '</div></div>';
   }
   list.innerHTML = html;
 }
 
-function clearResults() {
+async function clearResults() {
   if (confirm('¿Limpiar resultados?')) {
     state.matchResults = {}; state.winnersCalculated = false;
     storage.setItem('qlc_results', '{}'); storage.setItem('qlc_winners', 'false');
-    saveToFirebase('quinielas/results', { matchResults: {}, winnersCalculated: false });
+    await saveToFirestore('configuracion', 'jornadaActual', { matchResults: {}, winnersCalculated: false });
     renderResultsForm(); renderRanking(); updateJackpotDisplay();
-    showToast('🗑️ Resultados limpiados');
+    showToast('️ Resultados limpiados');
   }
 }
 
@@ -1122,14 +1133,14 @@ function init() {
   document.getElementById('notePrice').textContent = state.price;
   document.getElementById('infoPrice').textContent = state.price;
   updateClosingDisplay(); updateMyQuinielas(); updateJackpotDisplay(); renderRanking();
-  setupFirebaseSync();
+  setupFirestoreListeners();
   setInterval(updateClosingDisplay, 1000);
 }
 
 function renderMatches() {
   var container = document.getElementById('matchesContainer');
   document.getElementById('matchCount').textContent = state.matches.length;
-  if (state.matches.length === 0) { container.innerHTML = '<div class="empty-state"><p>⚠️ Sin partidos disponibles.</p></div>'; return; }
+  if (state.matches.length === 0) { container.innerHTML = '<div class="empty-state"><p>⚠️ Sin partidos disponibles. El admin debe agregarlos.</p></div>'; return; }
   var html = '';
   for (var i = 0; i < state.matches.length; i++) {
     var match = state.matches[i];
@@ -1162,37 +1173,38 @@ function renderMyQuinielas() {
   for (var i = 0; i < state.quinielas.length; i++) { var q = state.quinielas[i]; if (q.name.toLowerCase() === state.currentPlayerName.toLowerCase() && !q.sent) myPending.push(q); }
   countBadge.textContent = myPending.length + ' quiniela' + (myPending.length !== 1 ? 's' : '');
   if (myPending.length === 0) {
-    section.style.display = 'block'; list.innerHTML = '<div class="no-pending"><div class="no-pending-icon">📭</div><p>Aún no has registrado quinielas.</p></div>';
+    section.style.display = 'block'; list.innerHTML = '<div class="no-pending"><div class="no-pending-icon"></div><p>Aún no has registrado quinielas.</p></div>';
     sendContainer.style.display = 'none'; if (mainSendBtn) mainSendBtn.disabled = true; return;
   }
   section.style.display = 'block'; var html = '';
   for (var i = 0; i < myPending.length; i++) {
     var q = myPending[i]; var preds = q.predictions.split('');
-    html += '<div class="my-quiniela-card"><div class="my-quiniela-card-header"><span class="my-quiniela-folio"> ' + q.folio + '</span><span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span><button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(' + q.id + ')">🗑️</button></div><div class="my-quiniela-preds">';
+    html += '<div class="my-quiniela-card"><div class="my-quiniela-card-header"><span class="my-quiniela-folio"> ' + q.folio + '</span><span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span><button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(\'' + q.id + '\')">🗑️</button></div><div class="my-quiniela-preds">';
     for (var j = 0; j < state.matches.length; j++) {
       var pred = preds[j] || '-'; var match = state.matches[j];
       var shortName = (match.local.length > 8 ? match.local.substring(0, 8) + '..' : match.local) + ' vs ' + (match.visitante.length > 8 ? match.visitante.substring(0, 8) + '..' : match.visitante);
       html += '<div class="my-pred-item"><span class="pred-letter ' + pred + '">' + pred + '</span><span style="font-size:0.7rem;opacity:0.8">' + escapeHtml(shortName) + '</span></div>';
     }
-    html += '</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:right">📅 ' + q.timestamp + '</div></div>';
+    html += '</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:right"> ' + q.timestamp + '</div></div>';
   }
   list.innerHTML = html; sendContainer.style.display = 'block'; totalToSend.textContent = myPending.length;
-  if (mainSendBtn) { mainSendBtn.disabled = false; mainSendBtn.innerHTML = ' Enviar ' + myPending.length; }
+  if (mainSendBtn) { mainSendBtn.disabled = false; mainSendBtn.innerHTML = '📱 Enviar ' + myPending.length; }
 }
 
-function deleteMyQuiniela(quinielaId) {
+async function deleteMyQuiniela(quinielaId) {
   if (!confirm('¿Eliminar esta quiniela?')) return;
   for (var i = 0; i < state.quinielas.length; i++) {
     if (state.quinielas[i].id === quinielaId) {
-      var deleted = state.quinielas.splice(i, 1)[0]; storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-      saveToFirebase('quinielas/quinielas', state.quinielas);
+      var deleted = state.quinielas.splice(i, 1)[0];
+      storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+      await deleteFromFirestore('quinielas', quinielaId);
       showToast('🗑️ Quiniela ' + deleted.folio + ' eliminada'); SecuritySystem.logActivity('🗑️ Quiniela ' + deleted.folio + ' eliminada');
       renderMyQuinielas(); break;
     }
   }
 }
 
-function addQuiniela() {
+async function addQuiniela() {
   if (isQuinielaClosed()) { showToast('🔒 Quiniela cerrada'); return; }
   var name = document.getElementById('playerName').value.trim();
   if (!name) { showToast('⚠️ Escribe tu nombre'); return; }
@@ -1200,21 +1212,33 @@ function addQuiniela() {
   if (state.matches.length === 0) { showToast('⚠️ Sin partidos'); return; }
   if (Object.keys(state.currentSelection).length < state.matches.length) { showToast('⚠️ Selecciona todos los pronósticos'); return; }
   var predictions = ''; for (var i = 0; i < state.matches.length; i++) predictions += state.currentSelection[i];
-  var folio = generateFolio();
-  var quiniela = { id: Date.now(), folio: folio, name: name, predictions: predictions, jornada: state.jornada.name, timestamp: new Date().toLocaleString('es-MX'), paid: false, sent: false, sentAt: null };
-  state.quinielas.push(quiniela); storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-  saveToFirebase('quinielas/quinielas', state.quinielas);
+  var folio = await generateFolio();
+  var quiniela = { folio: folio, name: name, predictions: predictions, jornada: state.jornada.name, timestamp: new Date().toLocaleString('es-MX'), paid: false, sent: false, sentAt: null };
+  
+  // Guardar en Firestore
+  if (firebaseReady && db) {
+    try {
+      var docRef = await db.collection('quinielas').add(quiniela);
+      quiniela.id = docRef.id;
+    } catch (e) { console.error('Error guardando quiniela:', e); quiniela.id = Date.now().toString(); }
+  } else {
+    quiniela.id = Date.now().toString();
+  }
+  
+  state.quinielas.push(quiniela);
+  storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+  
   var folioDisplay = document.getElementById('folioDisplay'); document.getElementById('folioNumber').textContent = folio; folioDisplay.classList.add('active');
   showToast('✅ Quiniela ' + folio + ' registrada'); SecuritySystem.logActivity('🎫 Quiniela ' + folio + ' registrada por ' + name);
   state.currentSelection = {}; renderMatches(); renderMyQuinielas(); updateJackpotDisplay();
   setTimeout(function() { folioDisplay.classList.remove('active'); }, 8000);
 }
 
-function sendAllQuinielasWhatsApp() {
+async function sendAllQuinielasWhatsApp() {
   try {
     var myPending = [];
     for (var i = 0; i < state.quinielas.length; i++) { var q = state.quinielas[i]; if (q.name.toLowerCase() === state.currentPlayerName.toLowerCase() && !q.sent) myPending.push(q); }
-    if (myPending.length === 0) { showToast(' Sin quinielas pendientes'); return; }
+    if (myPending.length === 0) { showToast('📱 Sin quinielas pendientes'); return; }
     if (state.matches.length === 0) { showToast('⚠️ Sin partidos'); return; }
     var message = '⚽ QUINIELAS LOS COMPAS ⚽\n━━━━━━━━━━━━━━━━━━━━\n🏆 Jornada: ' + state.jornada.name + '\n📅 Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n👤 Jugador: ' + state.currentPlayerName + '\n📊 Total: ' + myPending.length + ' quiniela(s)\n━━━━━━━━━━━━━━━━━━━━\n\n';
     for (var i = 0; i < myPending.length; i++) {
@@ -1232,9 +1256,13 @@ function sendAllQuinielasWhatsApp() {
     var newWindow = window.open(url, '_blank');
     if (newWindow) {
       showToast('📱 WhatsApp abierto con ' + myPending.length + ' quiniela(s)');
-      for (var i = 0; i < myPending.length; i++) { myPending[i].sent = true; myPending[i].sentAt = new Date().toLocaleString('es-MX'); }
-      storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-      saveToFirebase('quinielas/quinielas', state.quinielas);
+      // Marcar como enviadas en Firestore
+      for (var i = 0; i < myPending.length; i++) {
+        myPending[i].sent = true; myPending[i].sentAt = new Date().toLocaleString('es-MX');
+        if (firebaseReady && db) {
+          try { await db.collection('quinielas').doc(myPending[i].id).update({ sent: true, sentAt: myPending[i].sentAt }); } catch (e) { console.error('Error actualizando:', e); }
+        }
+      }
       renderMyQuinielas();
       SecuritySystem.logActivity('📱 ' + myPending.length + ' quiniela(s) de ' + state.currentPlayerName + ' enviada(s)');
     } else {
@@ -1244,14 +1272,14 @@ function sendAllQuinielasWhatsApp() {
   } catch (err) { showToast('❌ Error: ' + err.message); }
 }
 
-function sendAllAdminQuinielas() {
+async function sendAllAdminQuinielas() {
   try {
     var pending = []; for (var i = 0; i < state.quinielas.length; i++) { if (!state.quinielas[i].sent) pending.push(state.quinielas[i]); }
     if (pending.length === 0) { showToast('📱 Sin quinielas pendientes'); return; }
-    var message = '⚽ QUINIELAS LOS COMPAS ⚽\n━━━━━━━━━━━━━━━━━━━━\n🏆 Jornada: ' + state.jornada.name + '\n📅 Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n📊 Total: ' + pending.length + ' quiniela(s)\n━━━━━━━━━━━━━━━━━━━━\n\n';
+    var message = '⚽ QUINIELAS LOS COMPAS ⚽\n━━━━━━━━━━━━━━━━━━━━\n🏆 Jornada: ' + state.jornada.name + '\n📅 Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n Total: ' + pending.length + ' quiniela(s)\n━━━━━━━━━━━━━━━━━━━━\n\n';
     for (var i = 0; i < pending.length; i++) {
-      var q = pending[i]; var status = q.paid ? '✅ PAGADO' : ' PENDIENTE';
-      message += ' ' + q.folio + ' - ' + q.name + ' (' + status + ')\n'; var preds = q.predictions.split('');
+      var q = pending[i]; var status = q.paid ? '✅ PAGADO' : '⏳ PENDIENTE';
+      message += '🎫 ' + q.folio + ' - ' + q.name + ' (' + status + ')\n'; var preds = q.predictions.split('');
       for (var j = 0; j < state.matches.length; j++) { var match = state.matches[j]; message += '  • ' + match.local + ' vs ' + match.visitante + ': ' + (preds[j] || '-') + '\n'; }
       message += '\n';
     }
@@ -1261,9 +1289,12 @@ function sendAllAdminQuinielas() {
     var newWindow = window.open(url, '_blank');
     if (newWindow) {
       showToast('📱 WhatsApp abierto');
-      for (var i = 0; i < pending.length; i++) { pending[i].sent = true; pending[i].sentAt = new Date().toLocaleString('es-MX'); }
-      storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-      saveToFirebase('quinielas/quinielas', state.quinielas);
+      for (var i = 0; i < pending.length; i++) {
+        pending[i].sent = true; pending[i].sentAt = new Date().toLocaleString('es-MX');
+        if (firebaseReady && db) {
+          try { await db.collection('quinielas').doc(pending[i].id).update({ sent: true, sentAt: pending[i].sentAt }); } catch (e) { console.error('Error:', e); }
+        }
+      }
       renderExcelTable();
       SecuritySystem.logActivity('📱 Admin envió ' + pending.length + ' quiniela(s)');
     }
@@ -1285,7 +1316,7 @@ function generatePlayerPDF() {
     var jackpot = calculateJackpot();
     doc.setFillColor(255, 215, 0); doc.rect(margin, y, pageWidth - (margin * 2), 18, 'F');
     doc.setTextColor(10, 31, 10); doc.setFontSize(16); doc.setFont(undefined, 'bold');
-    doc.text('🏆 PREMIO: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
+    doc.text(' PREMIO: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
     y += 25;
     doc.setTextColor(0, 0, 0); doc.setFontSize(14); doc.setFont(undefined, 'bold');
     doc.text('📋 PARTIDOS DE LA JORNADA', margin, y); y += 8;
@@ -1332,7 +1363,7 @@ function generatePlayerPDF() {
       var winners = getWinners();
       if (y > pageHeight - 60) { doc.addPage(); y = margin; }
       doc.setTextColor(0, 0, 0); doc.setFontSize(14); doc.setFont(undefined, 'bold');
-      doc.text('🏆 RANKING DE GANADORES', margin, y); y += 8;
+      doc.text(' RANKING DE GANADORES', margin, y); y += 8;
       if (winners.length === 0) {
         doc.setTextColor(255, 0, 0); doc.setFontSize(12);
         doc.text('⚠️ Sin ganadores - La bolsa se acumula para la siguiente jornada', pageWidth / 2, y + 5, { align: 'center' });
@@ -1351,15 +1382,15 @@ function generatePlayerPDF() {
     if (y > pageHeight - 50) { doc.addPage(); y = margin; }
     doc.setFillColor(255, 193, 7); doc.rect(margin, y, pageWidth - (margin * 2), 8, 'F');
     doc.setTextColor(10, 31, 10); doc.setFontSize(12); doc.setFont(undefined, 'bold');
-    doc.text(' NOTAS IMPORTANTES', margin + 3, y + 5.5); y += 12;
+    doc.text('📋 NOTAS IMPORTANTES', margin + 3, y + 5.5); y += 12;
     doc.setFontSize(9); doc.setFont(undefined, 'normal');
     var notes = ['• Costo: $' + state.price + ' MXN por quiniela', '• Quiniela no pagada NO participa en el sorteo', '• Si no hay ganador, la bolsa se acumula para la siguiente jornada', '• El premio se reparte entre los jugadores con más aciertos', '• Premio total: $' + jackpot.total.toLocaleString() + ' MXN'];
     for (var i = 0; i < notes.length; i++) { doc.text(notes[i], margin + 3, y); y += 5; }
     doc.setFontSize(8); doc.setTextColor(128, 128, 128);
     doc.text('Documento generado el ' + new Date().toLocaleString('es-MX') + ' | Quinielas Los Compas', pageWidth / 2, pageHeight - 8, { align: 'center' });
     doc.save('quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.pdf');
-    showToast(' PDF generado con ' + paidQuinielas.length + ' participantes pagados');
-    SecuritySystem.logActivity('📄 PDF generado con participantes');
+    showToast('📄 PDF generado con ' + paidQuinielas.length + ' participantes pagados');
+    SecuritySystem.logActivity(' PDF generado con participantes');
   } catch (err) { console.error('Error generando PDF:', err); showToast('❌ Error al generar PDF: ' + err.message); }
 }
 
@@ -1401,7 +1432,7 @@ function generateResultsPDF() {
       doc.text('Premio por ganador: $' + prizePerWinner.toLocaleString() + ' MXN', margin, y + 5); y += 12;
       var rankingData = [];
       for (var i = 0; i < winners.length; i++) {
-        var w = winners[i]; var medal = i === 0 ? '🥇 1°' : (i === 1 ? ' 2°' : '🥉 3°');
+        var w = winners[i]; var medal = i === 0 ? '🥇 1°' : (i === 1 ? '🥈 2°' : '🥉 3°');
         rankingData.push([medal, w.name, w.folio, w.hits + '/' + state.matches.length, '$' + prizePerWinner.toLocaleString()]);
       }
       doc.autoTable({ startY: y, head: [['Posición', 'Nombre', 'Folio', 'Aciertos', 'Premio']], body: rankingData, theme: 'grid', headStyles: { fillColor: [255, 215, 0], textColor: [10, 31, 10], fontSize: 10, fontStyle: 'bold' }, bodyStyles: { fontSize: 10 }, columnStyles: { 0: { cellWidth: 25, halign: 'center' }, 1: { halign: 'left', fontStyle: 'bold' }, 2: { cellWidth: 20, halign: 'center', textColor: [33, 150, 243] }, 3: { cellWidth: 25, halign: 'center' }, 4: { cellWidth: 30, halign: 'center', textColor: [76, 175, 80], fontStyle: 'bold' } }, margin: { left: margin, right: margin } });
@@ -1411,7 +1442,7 @@ function generateResultsPDF() {
   } catch (err) { showToast('❌ Error: ' + err.message); }
 }
 
-function checkAdmin() {
+async function checkAdmin() {
   var rateCheck = SecuritySystem.checkRateLimit();
   if (!rateCheck.allowed) { showToast(rateCheck.message); return; }
   var emailInput = document.getElementById('adminEmail').value.trim();
@@ -1429,7 +1460,7 @@ function checkAdmin() {
   } else {
     SecuritySystem.recordLoginAttempt(false);
     var remaining = SecuritySystem.maxLoginAttempts - SecuritySystem.loginAttempts;
-    showToast('❌ Credenciales incorrectas. Intentos: ' + remaining);
+    showToast(' Credenciales incorrectas. Intentos: ' + remaining);
   }
 }
 
@@ -1458,40 +1489,49 @@ function switchTab(tab, btn) {
   if (tab === 'payments') renderPaymentMethodsList();
 }
 
-function addMatch() {
+async function addMatch() {
   try {
     var localInput = document.getElementById('localTeam'); var visitanteInput = document.getElementById('visitanteTeam'); var jornadaInput = document.getElementById('jornadaName');
-    if (!localInput || !visitanteInput) { showToast('⚠️ Error'); return; }
+    if (!localInput || !visitanteInput) { showToast('️ Error'); return; }
     var local = localInput.value.trim(); var visitante = visitanteInput.value.trim(); var jornadaName = jornadaInput ? jornadaInput.value.trim() : '';
     if (!local || !visitante) { showToast('⚠️ Completa ambos equipos'); return; }
-    if (state.matches.length >= MAX_MATCHES) { showToast('⚠️ Máximo 9 partidos'); return; }
-    if (jornadaName) { state.jornada.name = jornadaName; storage.setItem('qlc_jornada', JSON.stringify(state.jornada)); saveToFirebase('quinielas/jornada', state.jornada); }
-    state.matches.push({ local: local, visitante: visitante }); storage.setItem('qlc_matches', JSON.stringify(state.matches));
-    saveToFirebase('quinielas/matches', state.matches);
+    if (state.matches.length >= MAX_MATCHES) { showToast('️ Máximo 9 partidos'); return; }
+    
+    state.matches.push({ local: local, visitante: visitante });
+    storage.setItem('qlc_matches', JSON.stringify(state.matches));
+    
+    if (jornadaName) { state.jornada.name = jornadaName; storage.setItem('qlc_jornada', JSON.stringify(state.jornada)); }
+    
+    // Guardar en Firestore
+    await saveToFirestore('configuracion', 'jornadaActual', { 
+      matches: state.matches, 
+      jornadaName: state.jornada.name 
+    });
+    
     localInput.value = ''; visitanteInput.value = ''; localInput.focus();
     renderAdminMatches(); renderMatches(); updateJornadaInfo(); renderMyQuinielas();
     var remaining = MAX_MATCHES - state.matches.length;
     showToast('✅ Partido agregado (' + state.matches.length + '/9) - Faltan ' + remaining);
-    SecuritySystem.logActivity(' Partido: ' + local + ' vs ' + visitante);
+    SecuritySystem.logActivity('⚽ Partido: ' + local + ' vs ' + visitante);
   } catch (err) { showToast('❌ Error: ' + err.message); }
 }
 
 function renderAdminMatches() {
   var container = document.getElementById('adminMatchList'); var countSpan = document.getElementById('adminMatchCount'); var addBtn = document.getElementById('addMatchBtn');
   if (countSpan) countSpan.textContent = state.matches.length;
-  if (addBtn) { if (state.matches.length >= MAX_MATCHES) { addBtn.disabled = true; addBtn.innerHTML = '⛔ Completa (9/9)'; } else { addBtn.disabled = false; addBtn.innerHTML = '➕ Agregar (' + state.matches.length + '/9)'; } }
+  if (addBtn) { if (state.matches.length >= MAX_MATCHES) { addBtn.disabled = true; addBtn.innerHTML = ' Completa (9/9)'; } else { addBtn.disabled = false; addBtn.innerHTML = '➕ Agregar (' + state.matches.length + '/9)'; } }
   if (state.matches.length === 0) { container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">Sin partidos</p>'; return; }
   var html = ''; for (var i = 0; i < state.matches.length; i++) { var m = state.matches[i]; html += '<div class="match-admin-item"><span><strong>' + (i + 1) + '.</strong> ' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '</span><button class="delete-btn" onclick="deleteMatch(' + i + ')">🗑️</button></div>'; }
   container.innerHTML = html;
 }
 
-function deleteMatch(idx) { state.matches.splice(idx, 1); storage.setItem('qlc_matches', JSON.stringify(state.matches)); saveToFirebase('quinielas/matches', state.matches); renderAdminMatches(); renderMatches(); updateJornadaInfo(); renderMyQuinielas(); showToast('🗑️ Partido eliminado'); }
+async function deleteMatch(idx) { state.matches.splice(idx, 1); storage.setItem('qlc_matches', JSON.stringify(state.matches)); await saveToFirestore('configuracion', 'jornadaActual', { matches: state.matches }); renderAdminMatches(); renderMatches(); updateJornadaInfo(); renderMyQuinielas(); showToast('🗑️ Partido eliminado'); }
 
-function clearAllMatches() {
+async function clearAllMatches() {
   if (confirm('¿Eliminar todos los partidos?')) {
     state.matches = []; state.currentSelection = {}; storage.setItem('qlc_matches', JSON.stringify(state.matches));
-    saveToFirebase('quinielas/matches', state.matches);
-    renderAdminMatches(); renderMatches(); updateJornadaInfo(); renderMyQuinielas(); showToast('️ Partidos eliminados');
+    await saveToFirestore('configuracion', 'jornadaActual', { matches: [] });
+    renderAdminMatches(); renderMatches(); updateJornadaInfo(); renderMyQuinielas(); showToast('🗑️ Partidos eliminados');
   }
 }
 
@@ -1506,7 +1546,7 @@ function renderResultsForm() {
   container.innerHTML = html;
 }
 
-function setMatchResult(idx, value) { if (value) state.matchResults[idx] = value; else delete state.matchResults[idx]; storage.setItem('qlc_results', JSON.stringify(state.matchResults)); saveToFirebase('quinielas/results', { matchResults: state.matchResults, winnersCalculated: state.winnersCalculated }); }
+async function setMatchResult(idx, value) { if (value) state.matchResults[idx] = value; else delete state.matchResults[idx]; storage.setItem('qlc_results', JSON.stringify(state.matchResults)); await saveToFirestore('configuracion', 'jornadaActual', { matchResults: state.matchResults }); }
 
 function renderHistory() {
   var container = document.getElementById('historyList'); if (!container) return;
@@ -1523,7 +1563,7 @@ function renderHistory() {
   container.innerHTML = html;
 }
 
-function clearHistory() { if (confirm('¿Limpiar historial?')) { state.history = []; storage.setItem('qlc_history', '[]'); saveToFirebase('quinielas/history', []); renderHistory(); showToast('🗑️ Historial limpiado'); } }
+async function clearHistory() { if (confirm('¿Limpiar historial?')) { state.history = []; storage.setItem('qlc_history', '[]'); if (firebaseReady && db) { try { var batch = db.batch(); db.collection('historial').get().then(function(snap) { snap.forEach(function(doc) { batch.delete(doc.ref); }); return batch.commit(); }); } catch (e) {} } renderHistory(); showToast('️ Historial limpiado'); } }
 
 function updatePaymentForm() {
   var type = document.getElementById('paymentMethodType').value; var fields = document.getElementById('paymentFormFields');
@@ -1536,7 +1576,7 @@ function updatePaymentForm() {
   fields.innerHTML = html;
 }
 
-function addPaymentMethod() {
+async function addPaymentMethod() {
   var type = document.getElementById('paymentMethodType').value;
   var bank = document.getElementById('pmBank').value.trim(); var account = document.getElementById('pmAccount').value.trim();
   var holder = document.getElementById('pmHolder').value.trim(); var notes = document.getElementById('pmNotes').value.trim();
@@ -1544,17 +1584,17 @@ function addPaymentMethod() {
   var typeLabels = { 'bank': '🏦 Transferencia Bancaria', 'card': '💳 Tarjeta', 'mercadopago': '📱 Mercado Pago', 'oxxo': '🏪 OXXO Pay', 'other': '📝 Otro' };
   var newMethod = { id: Date.now(), type: type, typeLabel: typeLabels[type] || type, bank: bank, account: account, holder: holder, notes: notes };
   state.paymentMethods.push(newMethod); storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
-  saveToFirebase('quinielas/config', { paymentMethods: state.paymentMethods });
+  await saveToFirestore('configuracion', 'general', { paymentMethods: state.paymentMethods });
   document.getElementById('pmBank').value = ''; document.getElementById('pmAccount').value = ''; document.getElementById('pmHolder').value = ''; document.getElementById('pmNotes').value = '';
   renderPaymentMethodsList(); renderPaymentMethods(); showToast('✅ Método de pago agregado'); SecuritySystem.logActivity('💳 Método de pago agregado: ' + typeLabels[type]);
 }
 
-function deletePaymentMethod(id) {
+async function deletePaymentMethod(id) {
   if (!confirm('¿Eliminar este método de pago?')) return;
   state.paymentMethods = state.paymentMethods.filter(function(m) { return m.id !== id; });
   storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
-  saveToFirebase('quinielas/config', { paymentMethods: state.paymentMethods });
-  renderPaymentMethodsList(); renderPaymentMethods(); showToast('️ Método de pago eliminado');
+  await saveToFirestore('configuracion', 'general', { paymentMethods: state.paymentMethods });
+  renderPaymentMethodsList(); renderPaymentMethods(); showToast('🗑️ Método de pago eliminado');
 }
 
 function renderPaymentMethodsList() {
@@ -1569,7 +1609,7 @@ function renderPaymentMethodsList() {
     else if (m.type === 'mercadopago') { html += 'Contacto: ' + m.account + ' | Titular: ' + escapeHtml(m.holder); }
     else { html += escapeHtml(m.account) + ' | ' + escapeHtml(m.holder); }
     if (m.notes) html += '<br>📝 ' + escapeHtml(m.notes);
-    html += '</div></div><button class="delete-btn" onclick="deletePaymentMethod(' + m.id + ')">️</button></div>';
+    html += '</div></div><button class="delete-btn" onclick="deletePaymentMethod(' + m.id + ')">🗑️</button></div>';
   }
   container.innerHTML = html;
 }
@@ -1582,10 +1622,10 @@ function renderPaymentMethods() {
       var m = state.paymentMethods[i];
       html += '<div class="payment-method"><h4>' + m.typeLabel + ' - ' + escapeHtml(m.bank) + ' <span class="method-type">' + m.typeLabel + '</span></h4>';
       if (m.type === 'bank') { html += '<p><strong>CLABE:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p><p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')">📋 Copiar</button></p>'; }
-      else if (m.type === 'card') { html += '<p><strong>Tarjeta:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p><p><strong>Titular:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')"> Copiar</button></p>'; }
+      else if (m.type === 'card') { html += '<p><strong>Tarjeta:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p><p><strong>Titular:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')">📋 Copiar</button></p>'; }
       else if (m.type === 'mercadopago') { html += '<p><strong>Contacto:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>'; if (m.bank) html += '<p><strong>Alias:</strong> ' + escapeHtml(m.bank) + '</p>'; html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + '</p>'; }
-      else if (m.type === 'oxxo') { html += '<p><strong>Referencia:</strong> ' + m.bank + ' <button class="copy-btn" onclick="copyText(\'' + m.bank + '\')"> Copiar</button></p><p><strong>Monto:</strong> ' + m.account + '</p>'; }
-      else { html += '<p><strong>Datos:</strong> ' + escapeHtml(m.account) + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')"> Copiar</button></p><p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + '</p>'; }
+      else if (m.type === 'oxxo') { html += '<p><strong>Referencia:</strong> ' + m.bank + ' <button class="copy-btn" onclick="copyText(\'' + m.bank + '\')">📋 Copiar</button></p><p><strong>Monto:</strong> ' + m.account + '</p>'; }
+      else { html += '<p><strong>Datos:</strong> ' + escapeHtml(m.account) + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p><p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + '</p>'; }
       if (m.notes) { html += '<p style="margin-top:8px;color:#ffd700"><strong>📝 Notas:</strong> ' + escapeHtml(m.notes) + '</p>'; }
       html += '</div>';
     }
@@ -1607,20 +1647,20 @@ function updateClosingStatus() {
   statusDiv.innerHTML = html;
 }
 
-function saveClosingTime() {
+async function saveClosingTime() {
   var dateVal = document.getElementById('closingDate').value; var timeVal = document.getElementById('closingTime').value;
   if (!dateVal || !timeVal) { showToast('⚠️ Completa fecha y hora'); return; }
   var closingDate = new Date(dateVal + 'T' + timeVal);
   if (closingDate <= new Date()) { showToast('⚠️ Debe ser en el futuro'); return; }
   state.closingDateTime = closingDate.toISOString(); state.quinielaClosed = false;
   storage.setItem('qlc_closing', state.closingDateTime); storage.setItem('qlc_closed', 'false');
-  saveToFirebase('quinielas/closing', { dateTime: state.closingDateTime, closed: false });
+  await saveToFirestore('configuracion', 'jornadaActual', { closingDateTime: state.closingDateTime, quinielaClosed: false });
   updateClosingDisplay(); updateClosingStatus(); showToast('✅ Hora de cierre guardada'); SecuritySystem.logActivity('⏰ Cierre: ' + closingDate.toLocaleString('es-MX'));
 }
 
-function closeNow() { if (confirm('¿Cerrar quiniela AHORA?')) { state.quinielaClosed = true; storage.setItem('qlc_closed', 'true'); saveToFirebase('quinielas/closing', { dateTime: state.closingDateTime, closed: true }); updateClosingDisplay(); updateClosingStatus(); showToast('🔒 Quiniela cerrada'); } }
+async function closeNow() { if (confirm('¿Cerrar quiniela AHORA?')) { state.quinielaClosed = true; storage.setItem('qlc_closed', 'true'); await saveToFirestore('configuracion', 'jornadaActual', { quinielaClosed: true }); updateClosingDisplay(); updateClosingStatus(); showToast('🔒 Quiniela cerrada'); } }
 
-function reopenQuiniela() { if (confirm('¿Reabrir quiniela?')) { state.quinielaClosed = false; state.closingDateTime = null; storage.setItem('qlc_closed', 'false'); storage.removeItem('qlc_closing'); saveToFirebase('quinielas/closing', { dateTime: null, closed: false }); updateClosingDisplay(); updateClosingStatus(); showToast('🔓 Quiniela reabierta'); } }
+async function reopenQuiniela() { if (confirm('¿Reabrir quiniela?')) { state.quinielaClosed = false; state.closingDateTime = null; storage.setItem('qlc_closed', 'false'); storage.removeItem('qlc_closing'); await saveToFirestore('configuracion', 'jornadaActual', { quinielaClosed: false, closingDateTime: null }); updateClosingDisplay(); updateClosingStatus(); showToast('🔓 Quiniela reabierta'); } }
 
 function renderExcelTable() { renderExcelSummary(); renderExcelHeaders(); renderExcelRows(); }
 
@@ -1628,7 +1668,7 @@ function renderExcelSummary() {
   var total = state.quinielas.length, paid = 0, sent = 0, pending = 0;
   for (var i = 0; i < state.quinielas.length; i++) { if (state.quinielas[i].paid) paid++; if (state.quinielas[i].sent) sent++; else pending++; }
   var jackpot = calculateJackpot();
-  document.getElementById('excelSummary').innerHTML = '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total</div></div><div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div><div class="stat"><div class="stat-value" style="color:#2196f3">' + sent + '</div><div class="stat-label">📱 Enviadas</div></div><div class="stat"><div class="stat-value" style="color:#ff9800">' + pending + '</div><div class="stat-label">⏳ Pendientes</div></div><div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label"> Premio</div></div><div class="stat"><div class="stat-value" style="color:#2196f3">' + getNextFolioPreview() + '</div><div class="stat-label"> Folio</div></div>';
+  document.getElementById('excelSummary').innerHTML = '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total</div></div><div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div><div class="stat"><div class="stat-value" style="color:#2196f3">' + sent + '</div><div class="stat-label">📱 Enviadas</div></div><div class="stat"><div class="stat-value" style="color:#ff9800">' + pending + '</div><div class="stat-label">⏳ Pendientes</div></div><div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Premio</div></div><div class="stat"><div class="stat-value" style="color:#2196f3">' + getNextFolioPreview() + '</div><div class="stat-label">🎫 Folio</div></div>';
 }
 
 function renderExcelHeaders() {
@@ -1638,7 +1678,7 @@ function renderExcelHeaders() {
     var m = state.matches[i]; var sl = m.local.length > 10 ? m.local.substring(0, 10) + '.' : m.local; var sv = m.visitante.length > 10 ? m.visitante.substring(0, 10) + '.' : m.visitante;
     headerHTML += '<th title="' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '">P' + (i+1) + '<br><small>' + escapeHtml(sl) + '<br>vs<br>' + escapeHtml(sv) + '</small></th>';
   }
-  headerHTML += '<th> Pago</th><th>📱</th><th>Aciertos</th><th></th></tr>';
+  headerHTML += '<th>💰 Pago</th><th></th><th>Aciertos</th><th>📅</th></tr>';
   thead.innerHTML = headerHTML;
 }
 
@@ -1657,19 +1697,21 @@ function renderExcelRows() {
     }
     var paidBtnClass = q.paid ? 'paid-btn paid-yes' : 'paid-btn paid-no';
     var paidBtnText = q.paid ? '✅ PAGADO' : '⬜ Pendiente';
-    html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(' + q.id + ')" title="Click para cambiar estado">' + paidBtnText + '</span></td>';
-    html += '<td style="color:' + (q.sent ? '#4caf50' : '#ff9800') + ';font-weight:700">' + (q.sent ? '✅' : '') + '</td>';
+    html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(\'' + q.id + '\')" title="Click para cambiar estado">' + paidBtnText + '</span></td>';
+    html += '<td style="color:' + (q.sent ? '#4caf50' : '#ff9800') + ';font-weight:700">' + (q.sent ? '✅' : '⏳') + '</td>';
     html += '<td style="font-weight:700;color:#ffd700">' + (state.winnersCalculated ? hits + '/' + state.matches.length : '-') + '</td>';
     html += '<td style="font-size:0.75rem">' + q.timestamp + '</td></tr>';
   }
   tbody.innerHTML = html;
 }
 
-function togglePaid(quinielaId) {
+async function togglePaid(quinielaId) {
   for (var i = 0; i < state.quinielas.length; i++) {
     if (state.quinielas[i].id === quinielaId) {
       state.quinielas[i].paid = !state.quinielas[i].paid; storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-      saveToFirebase('quinielas/quinielas', state.quinielas);
+      if (firebaseReady && db) {
+        try { await db.collection('quinielas').doc(quinielaId).update({ paid: state.quinielas[i].paid }); } catch (e) { console.error('Error:', e); }
+      }
       renderExcelTable(); updateJackpotDisplay();
       var status = state.quinielas[i].paid ? 'PAGADO' : 'PENDIENTE';
       showToast((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
@@ -1680,7 +1722,7 @@ function togglePaid(quinielaId) {
 }
 
 function downloadExcel() {
-  if (state.quinielas.length === 0) { showToast('⚠️ Sin quinielas'); return; }
+  if (state.quinielas.length === 0) { showToast('️ Sin quinielas'); return; }
   var csv = '\uFEFF'; csv += 'Folio,Nombre,';
   for (var i = 0; i < state.matches.length; i++) { var m = state.matches[i]; csv += '"P' + (i+1) + ': ' + m.local + ' vs ' + m.visitante + '",'; }
   csv += 'Pagado,Enviada,Aciertos,Fecha\n';
@@ -1696,10 +1738,10 @@ function downloadExcel() {
   var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url;
   a.download = 'quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  showToast('📥 Excel descargado');
+  showToast(' Excel descargado');
 }
 
-function clearAllQuinielas() { if (confirm('¿Eliminar TODAS las quinielas?')) { state.quinielas = []; storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas)); saveToFirebase('quinielas/quinielas', []); renderExcelTable(); renderMyQuinielas(); updateJackpotDisplay(); showToast('🗑️ Quinielas eliminadas'); } }
+async function clearAllQuinielas() { if (confirm('¿Eliminar TODAS las quinielas?')) { state.quinielas = []; storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas)); if (firebaseReady && db) { try { var batch = db.batch(); db.collection('quinielas').get().then(function(snap) { snap.forEach(function(doc) { batch.delete(doc.ref); }); return batch.commit(); }); } catch (e) {} } renderExcelTable(); renderMyQuinielas(); updateJackpotDisplay(); showToast('🗑️ Quinielas eliminadas'); } }
 
 function updateJornadaInfo() { document.getElementById('jornadaTitle').textContent = state.jornada.name; document.getElementById('jornadaDate').textContent = state.jornada.date; }
 
@@ -1710,7 +1752,7 @@ function loadConfigInputs() {
   document.getElementById('initialJackpot').value = state.initialJackpot;
 }
 
-function changeCredentials() {
+async function changeCredentials() {
   var currentPass = document.getElementById('currentPassVerify').value; var newPass = document.getElementById('newPassword').value; var confirmPass = document.getElementById('confirmPassword').value;
   if (!currentPass) { showToast('⚠️ Ingresa contraseña actual'); return; }
   var currentHash = SecuritySystem.hashPassword(currentPass);
@@ -1723,13 +1765,13 @@ function changeCredentials() {
   showToast('✅ Contraseña actualizada'); SecuritySystem.logActivity('🔐 Contraseña actualizada');
 }
 
-function saveWhatsApp() { var num = document.getElementById('whatsappInput').value.trim(); if (!num || !/^\d{10,15}$/.test(num)) { showToast('️ Número inválido'); return; } state.whatsappNumber = num; storage.setItem('qlc_whatsapp', num); saveToFirebase('quinielas/config', { whatsappNumber: num }); updateWhatsAppReceiptLink(); showToast('✅ WhatsApp guardado'); }
+async function saveWhatsApp() { var num = document.getElementById('whatsappInput').value.trim(); if (!num || !/^\d{10,15}$/.test(num)) { showToast('⚠️ Número inválido'); return; } state.whatsappNumber = num; storage.setItem('qlc_whatsapp', num); await saveToFirestore('configuracion', 'general', { whatsappNumber: num }); updateWhatsAppReceiptLink(); showToast('✅ WhatsApp guardado'); }
 
-function savePrice() { var price = document.getElementById('priceInput').value; if (!price || price < 1) { showToast('⚠️ Precio inválido'); return; } state.price = price; storage.setItem('qlc_price', price); saveToFirebase('quinielas/config', { price: price }); document.getElementById('priceDisplay').textContent = '💰 Costo: $' + price + ' MXN'; document.getElementById('notePrice').textContent = price; document.getElementById('infoPrice').textContent = price; updateJackpotDisplay(); showToast('✅ Precio actualizado'); }
+async function savePrice() { var price = document.getElementById('priceInput').value; if (!price || price < 1) { showToast('⚠️ Precio inválido'); return; } state.price = price; storage.setItem('qlc_price', price); await saveToFirestore('configuracion', 'jornadaActual', { price: price }); document.getElementById('priceDisplay').textContent = '💰 Costo: $' + price + ' MXN'; document.getElementById('notePrice').textContent = price; document.getElementById('infoPrice').textContent = price; updateJackpotDisplay(); showToast('✅ Precio actualizado'); }
 
-function saveJackpotConfig() {
+async function saveJackpotConfig() {
   var comm = document.getElementById('commissionPercent').value; var initJ = document.getElementById('initialJackpot').value;
-  if (comm && comm >= 0 && comm <= 50) { state.commissionPercent = parseInt(comm); storage.setItem('qlc_commission', comm); saveToFirebase('quinielas/config', { commissionPercent: state.commissionPercent }); }
+  if (comm && comm >= 0 && comm <= 50) { state.commissionPercent = parseInt(comm); storage.setItem('qlc_commission', comm); await saveToFirestore('configuracion', 'jornadaActual', { commissionPercent: state.commissionPercent }); }
   if (initJ && initJ >= 0) { state.initialJackpot = parseInt(initJ); storage.setItem('qlc_initialjackpot', initJ); }
   updateJackpotDisplay(); showToast('✅ Configuración guardada');
 }
@@ -1741,17 +1783,17 @@ function exportConfig() {
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'quinielas-config-' + Date.now() + '.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  showToast(' Configuración exportada');
+  showToast('📤 Configuración exportada');
 }
 
 function importConfig(event) {
   var file = event.target.files[0]; if (!file) return;
   var reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     try {
       var data = JSON.parse(e.target.result);
-      if (data.matches) { state.matches = data.matches; storage.setItem('qlc_matches', JSON.stringify(data.matches)); saveToFirebase('quinielas/matches', data.matches); }
-      if (data.jornada) { state.jornada = data.jornada; storage.setItem('qlc_jornada', JSON.stringify(data.jornada)); saveToFirebase('quinielas/jornada', data.jornada); }
+      if (data.matches) { state.matches = data.matches; storage.setItem('qlc_matches', JSON.stringify(data.matches)); await saveToFirestore('configuracion', 'jornadaActual', { matches: data.matches }); }
+      if (data.jornada) { state.jornada = data.jornada; storage.setItem('qlc_jornada', JSON.stringify(data.jornada)); await saveToFirestore('configuracion', 'jornadaActual', { jornadaName: data.jornada.name }); }
       if (data.whatsappNumber) { state.whatsappNumber = data.whatsappNumber; storage.setItem('qlc_whatsapp', data.whatsappNumber); }
       if (data.adminEmail) { state.adminEmail = data.adminEmail; storage.setItem('qlc_adminemail', data.adminEmail); }
       if (data.price) { state.price = data.price; storage.setItem('qlc_price', data.price); }
@@ -1770,7 +1812,7 @@ function importConfig(event) {
 
 function clearActivityLog() { if (confirm('¿Limpiar registro?')) { SecuritySystem.activityLog = []; SecuritySystem.updateActivityLogDisplay(); showToast('🗑️ Registro limpiado'); } }
 
-function updateWhatsAppReceiptLink() { var link = document.getElementById('whatsappReceiptLink'); var message = '🧾 Comprobante - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n⚠️ Incluye tu folio.'; link.href = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message); }
+function updateWhatsAppReceiptLink() { var link = document.getElementById('whatsappReceiptLink'); var message = '🧾 Comprobante - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n️ Incluye tu folio.'; link.href = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message); }
 
 function shareReceiptWithImage() {
   try {
@@ -1897,17 +1939,14 @@ window.addEventListener('load', function() {
 
 
               <script>
-                              const firebaseConfig = {
-  apiKey: "AIzaSyXXXXXXXXXXXXX",
-  authDomain: "quinielas-compas.firebaseapp.com",
-  databaseURL: "https://quinielas-compas-default-rtdb.firebaseio.com",
-  projectId: "quinielas-compas",
-  storageBucket: "quinielas-compas.appspot.com",
+                              var FIREBASE_CONFIG = {
+  apiKey: "PEGA_TU_API_KEY_AQUI",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  projectId: "TU_PROYECTO",
+  storageBucket: "TU_PROYECTO.appspot.com",
   messagingSenderId: "123456789",
   appId: "1:123456789:web:abc123"
 };
-
-var FIREBASE_CONFIG = {
 
 
               </script>
