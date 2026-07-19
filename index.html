@@ -65,6 +65,10 @@
     z-index: 100;
     border-bottom: 2px solid #ffd700;
   }
+  .nav-bar button a {
+    color: inherit;
+    text-decoration: none;
+  }
   .nav-btn {
     background: linear-gradient(135deg, #ffd700, #ffaa00);
     color: #0a1f0a;
@@ -292,6 +296,7 @@
   .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 8px 12px; font-size: 0.85rem; }
   .btn-pdf { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
   .btn-results { background: linear-gradient(135deg, #9c27b0, #6a1b9a); color: #fff; }
+  .btn-small { padding: 8px 12px; font-size: 0.85rem; }
   .action-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
   .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   
@@ -410,8 +415,9 @@
   .modal-close { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #ffd700; font-size: 1.5rem; cursor: pointer; }
   
   .payment-method { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #ffd700; }
-  .payment-method h4 { color: #ffd700; margin-bottom: 5px; }
+  .payment-method h4 { color: #ffd700; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
   .payment-method p { color: #fff; font-size: 0.95rem; word-break: break-all; }
+  .payment-method .method-type { font-size: 0.75rem; background: rgba(255,215,0,0.2); padding: 2px 8px; border-radius: 10px; color: #ffd700; }
   
   .upload-area {
     border: 2px dashed rgba(255,215,0,0.5);
@@ -430,7 +436,7 @@
   
   .price-tag { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #0a1f0a; padding: 15px; border-radius: 10px; text-align: center; font-size: 1.5rem; font-weight: 900; margin: 15px 0; }
   
-  .admin-form input, .admin-form textarea {
+  .admin-form input, .admin-form textarea, .admin-form select {
     width: 100%;
     padding: 12px;
     background: rgba(0,0,0,0.4);
@@ -441,7 +447,7 @@
     font-size: 1rem;
     font-family: inherit;
   }
-  .admin-form input:focus, .admin-form textarea:focus { outline: none; border-color: #ffd700; }
+  .admin-form input:focus, .admin-form textarea:focus, .admin-form select:focus { outline: none; border-color: #ffd700; }
   .admin-form label { display: block; color: #ffd700; margin-bottom: 5px; font-weight: 600; }
   .admin-form .form-group { margin-bottom: 12px; }
   
@@ -519,10 +525,45 @@
   .excel-table .pred-V { color: #e74c3c; }
   .excel-table .correct { background: rgba(76,175,80,0.3) !important; }
   .excel-table .incorrect { background: rgba(244,67,54,0.2) !important; }
-  .paid-check { cursor: pointer; font-size: 1.3rem; user-select: none; display: inline-block; }
-  .paid-check:hover { transform: scale(1.3); }
-  .paid-yes { color: #4caf50; }
-  .paid-no { color: rgba(255,255,255,0.3); }
+  
+  /* Botón de pago en Excel corregido */
+  .paid-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .paid-btn.paid-yes {
+    background: rgba(76,175,80,0.2);
+    border-color: #4caf50;
+    color: #4caf50;
+  }
+  .paid-btn.paid-no {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+  }
+  .paid-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .paid-btn.paid-yes:hover {
+    background: rgba(244,67,54,0.2);
+    border-color: #f44336;
+    color: #f44336;
+  }
+  .paid-btn.paid-no:hover {
+    background: rgba(76,175,80,0.2);
+    border-color: #4caf50;
+    color: #4caf50;
+  }
   
   .excel-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
   .excel-actions .action-btn { flex: 1; min-width: 150px; }
@@ -557,20 +598,22 @@
   .ranking-hits { background: #ffd700; color: #0a1f0a; padding: 5px 12px; border-radius: 20px; font-weight: 700; }
   .ranking-prize { color: #4caf50; font-weight: 700; margin-left: 10px; }
   
-  .pdf-preview-info {
-    background: linear-gradient(135deg, rgba(231,76,60,0.2), rgba(192,57,43,0.1));
-    border: 2px solid #e74c3c;
-    border-radius: 12px;
-    padding: 15px;
-    margin: 15px 0;
-    color: #fff;
-    font-size: 0.9rem;
-    line-height: 1.6;
+  .payment-methods-list { margin-top: 10px; }
+  .payment-method-item {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .pdf-preview-info strong { color: #e74c3c; }
-  .pdf-preview-info ul { list-style: none; padding-left: 10px; margin-top: 8px; }
-  .pdf-preview-info li { padding: 3px 0; }
-  .pdf-preview-info li::before { content: '✓ '; color: #4caf50; font-weight: bold; }
+  .payment-method-item .method-info { flex: 1; }
+  .payment-method-item .method-name { color: #ffd700; font-weight: 700; }
+  .payment-method-item .method-details { color: rgba(255,255,255,0.7); font-size: 0.85rem; }
   
   @media (max-width: 600px) {
     .header-overlay h1 { font-size: 1.8rem; }
@@ -603,7 +646,7 @@
 
 <div class="container">
   <div class="jackpot-banner" id="jackpotBanner">
-    <h3> BOLSA ACUMULADA 🏆</h3>
+    <h3>🏆 BOLSA ACUMULADA 🏆</h3>
     <div class="jackpot-amount" id="jackpotAmount">$0 MXN</div>
     <div class="jackpot-info" id="jackpotInfo">Se acumula si no hay ganador</div>
   </div>
@@ -642,30 +685,18 @@
       </ul>
     </div>
     
-    <div class="pdf-preview-info">
-      <strong>📄 ¿Qué incluye el PDF?</strong>
-      <ul>
-        <li>Lista completa de partidos de la jornada</li>
-        <li><strong>Todos los participantes que YA PAGARON</strong> con su folio</li>
-        <li>Predicciones de cada participante (L, E, V)</li>
-        <li>Conteo de aciertos (si ya hay resultados)</li>
-        <li>Ranking de ganadores</li>
-        <li>Información de la bolsa acumulada</li>
-      </ul>
-    </div>
-    
     <div id="matchesContainer">
       <div class="empty-state">
-        <p>️ Sin partidos disponibles. El admin debe agregarlos.</p>
+        <p>⚠️ Sin partidos disponibles. El admin debe agregarlos.</p>
       </div>
     </div>
     
     <input type="text" id="playerName" class="name-input" placeholder="✍️ Escribe tu nombre aquí..." maxlength="30" oninput="updateMyQuinielas()">
     
     <div class="action-buttons">
-      <button class="action-btn btn-clear" onclick="clearSelection()">️ Limpiar</button>
+      <button class="action-btn btn-clear" onclick="clearSelection()">🗑️ Limpiar</button>
       <button class="action-btn btn-add" id="addQuinielaBtn" onclick="addQuiniela()">➕ Agregar</button>
-      <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()" id="mainSendBtn" disabled> Enviar</button>
+      <button class="action-btn btn-send-all" onclick="sendAllQuinielasWhatsApp()" id="mainSendBtn" disabled>📱 Enviar</button>
     </div>
     
     <div class="folio-display" id="folioDisplay">
@@ -703,12 +734,12 @@
     </div>
   </div>
   
-  <h2 class="section-title">📋 Estado de la Jornada</h2>
+  <h2 class="section-title"> Estado de la Jornada</h2>
   
   <div class="card">
     <div id="quinielasList">
       <div class="empty-state">
-        <p> Las quinielas son privadas. Solo el administrador puede ver los pronósticos.</p>
+        <p>🔒 Las quinielas son privadas. Solo el administrador puede ver los pronósticos.</p>
       </div>
     </div>
   </div>
@@ -722,16 +753,16 @@
     <div class="price-tag" id="priceDisplay">💰 Costo por Quiniela: $20 MXN</div>
     <div id="paymentMethodsDisplay"></div>
     <div class="important-notes" style="margin-top:20px">
-      <h3>📋 Notas</h3>
+      <h3> Notas</h3>
       <ul>
         <li><strong>Comisión del 20%</strong> por administración.</li>
         <li><strong>Quiniela no pagada NO participa.</strong></li>
         <li><strong>Incluye tu folio</strong> al enviar comprobante.</li>
       </ul>
     </div>
-    <h3> Enviar Comprobante</h3>
+    <h3>📤 Enviar Comprobante</h3>
     <div class="share-info-box">
-      <strong>⚠️ Cómo enviar:</strong><br><br>
+      <strong>️ Cómo enviar:</strong><br><br>
       <strong>Paso 1:</strong> Sube tu captura<br>
       <strong>Paso 2:</strong> Presiona " Compartir con Imagen"<br>
       <strong>Paso 3:</strong> Si no funciona, usa "📱 Abrir WhatsApp"<br>
@@ -739,7 +770,7 @@
     </div>
     <div class="upload-area" onclick="document.getElementById('receiptUpload').click()">
       <input type="file" id="receiptUpload" accept="image/*" onchange="handleReceipt(event)">
-      <p style="font-size:2rem"></p>
+      <p style="font-size:2rem">📸</p>
       <p id="uploadText">Toca para subir tu captura</p>
     </div>
     <img id="receiptPreview" class="receipt-preview" alt="Preview">
@@ -764,7 +795,7 @@
         <input type="password" id="adminPass" placeholder="Ingresa la contraseña" autocomplete="off">
         <button class="action-btn btn-add" style="width:100%" onclick="checkAdmin()">🔓 Entrar</button>
         <div class="login-hint">💡 Si no puedes entrar, presiona "Reset de Fábrica"</div>
-        <button class="action-btn btn-reset" style="width:100%" onclick="resetCredentials()"> Reset de Fábrica</button>
+        <button class="action-btn btn-reset" style="width:100%" onclick="resetCredentials()">🔄 Reset de Fábrica</button>
       </div>
     </div>
     
@@ -773,11 +804,12 @@
         <button class="tab-btn active" onclick="switchTab('matches', this)">⚽ Partidos</button>
         <button class="tab-btn" onclick="switchTab('results', this)">🎯 Resultados</button>
         <button class="tab-btn" onclick="switchTab('excel', this)">📊 Excel</button>
+        <button class="tab-btn" onclick="switchTab('payments', this)"> Pagos</button>
         <button class="tab-btn" onclick="switchTab('history', this)">📚 Historial</button>
         <button class="tab-btn" onclick="switchTab('jackpot', this)">🏆 Bolsa</button>
         <button class="tab-btn" onclick="switchTab('closing', this)">⏰ Cierre</button>
-        <button class="tab-btn" onclick="switchTab('config', this)">️ Config</button>
-        <button class="tab-btn" onclick="switchTab('security', this)">🛡️ Seguridad</button>
+        <button class="tab-btn" onclick="switchTab('config', this)">⚙️ Config</button>
+        <button class="tab-btn" onclick="switchTab('security', this)">️ Seguridad</button>
       </div>
       
       <div class="tab-content active" id="tab-matches">
@@ -822,6 +854,45 @@
           <button class="action-btn btn-excel" onclick="downloadExcel()">📥 Descargar Excel</button>
           <button class="action-btn btn-send-all" onclick="sendAllAdminQuinielas()">📱 Enviar Todas</button>
           <button class="action-btn btn-clear" onclick="clearAllQuinielas()">🗑️ Eliminar Todas</button>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="tab-payments">
+        <h3>💳 Métodos de Pago</h3>
+        <p style="color:#fff;margin-bottom:15px;text-align:center">Agrega múltiples opciones de pago para tus jugadores.</p>
+        
+        <div class="config-section">
+          <h4>➕ Agregar Nuevo Método de Pago</h4>
+          <div class="admin-form">
+            <label>Tipo de método:</label>
+            <select id="paymentMethodType" onchange="updatePaymentForm()">
+              <option value="bank">🏦 Transferencia Bancaria (CLABE)</option>
+              <option value="card">💳 Tarjeta de Débito/Crédito</option>
+              <option value="mercadopago"> Mercado Pago</option>
+              <option value="oxxo">🏪 OXXO Pay</option>
+              <option value="other">📝 Otro</option>
+            </select>
+            
+            <div id="paymentFormFields">
+              <label>Nombre del banco/institución:</label>
+              <input type="text" id="pmBank" placeholder="Ej: BBVA, Banorte, Mercado Pago">
+              <label>CLABE / Número de cuenta:</label>
+              <input type="text" id="pmAccount" placeholder="CLABE o número">
+              <label>Nombre del beneficiario:</label>
+              <input type="text" id="pmHolder" placeholder="Nombre completo">
+              <label>Notas adicionales (opcional):</label>
+              <textarea id="pmNotes" rows="2" placeholder="Instrucciones especiales"></textarea>
+            </div>
+            
+            <button class="action-btn btn-add" style="width:100%" onclick="addPaymentMethod()">➕ Agregar Método de Pago</button>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h4>📋 Métodos de Pago Actuales</h4>
+          <div class="payment-methods-list" id="paymentMethodsList">
+            <p style="color:rgba(255,255,255,0.5);text-align:center">No hay métodos de pago configurados</p>
+          </div>
         </div>
       </div>
       
@@ -870,8 +941,8 @@
         </div>
         <div class="config-section">
           <h4>⚡ Acciones</h4>
-          <button class="action-btn btn-clear" style="width:100%;margin-bottom:10px" onclick="closeNow()"> Cerrar AHORA</button>
-          <button class="action-btn btn-add" style="width:100%" onclick="reopenQuiniela()"> Reabrir</button>
+          <button class="action-btn btn-clear" style="width:100%;margin-bottom:10px" onclick="closeNow()">🔒 Cerrar AHORA</button>
+          <button class="action-btn btn-add" style="width:100%" onclick="reopenQuiniela()">🔓 Reabrir</button>
         </div>
       </div>
       
@@ -884,39 +955,25 @@
           </div>
         </div>
         <div class="config-section">
-          <h4>💰 Precio</h4>
+          <h4> Precio</h4>
           <div class="admin-form">
             <input type="number" id="priceInput" placeholder="20" min="1">
             <button class="action-btn btn-add" style="width:100%" onclick="savePrice()">💾 Guardar</button>
           </div>
         </div>
-        <div class="config-section">
-          <h4>🏦 Datos Bancarios</h4>
-          <div class="admin-form">
-            <label>CLABE:</label>
-            <input type="text" id="bankClabe" placeholder="CLABE" maxlength="18">
-            <label>Beneficiario:</label>
-            <input type="text" id="bankHolder" placeholder="Nombre">
-            <label>Institución:</label>
-            <input type="text" id="bankInstitution" placeholder="Ej: Mercado Pago W">
-            <label>Notas:</label>
-            <textarea id="extraNotes" rows="3"></textarea>
-          </div>
-        </div>
-        <button class="action-btn btn-add" style="width:100%;margin-top:15px" onclick="savePaymentInfo()"> Guardar Datos</button>
-        <button class="action-btn btn-config" style="width:100%;margin-top:10px" onclick="exportConfig()">📤 Exportar</button>
-        <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="document.getElementById('importFile').click()"> Importar</button>
+        <button class="action-btn btn-config" style="width:100%;margin-top:10px" onclick="exportConfig()">📤 Exportar Config</button>
+        <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="document.getElementById('importFile').click()">📥 Importar</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importConfig(event)">
       </div>
       
       <div class="tab-content" id="tab-security">
         <h3>🛡️ Seguridad</h3>
-        <div class="security-badge">🔐 Anti clic derecho: <span id="secRightClick">Activa</span></div>
+        <div class="security-badge"> Anti clic derecho: <span id="secRightClick">Activa</span></div>
         <div class="security-badge">🔍 Anti DevTools: <span id="secDevtools">Activa</span></div>
-        <div class="security-badge"> Anti copiar: <span id="secCopy">Activa</span></div>
-        <div class="security-badge">🖼️ Anti iframes: <span id="secFrame">Activa</span></div>
+        <div class="security-badge">📋 Anti copiar: <span id="secCopy">Activa</span></div>
+        <div class="security-badge">️ Anti iframes: <span id="secFrame">Activa</span></div>
         <div class="security-badge">🔑 Contraseña hasheada: <span id="secHash">Activa</span></div>
-        <div class="security-badge">️ Rate limiting: <span id="secRate">Activa</span></div>
+        <div class="security-badge">⏱️ Rate limiting: <span id="secRate">Activa</span></div>
         <div class="config-section" style="margin-top:20px">
           <h4>🔐 Cambiar Contraseña</h4>
           <div class="admin-form">
@@ -930,9 +987,9 @@
           </div>
         </div>
         <div class="config-section">
-          <h4> Registro</h4>
+          <h4>📊 Registro</h4>
           <div id="activityLog" style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:0.8rem;font-family:monospace;color:#4caf50">Sistema iniciado...</div>
-          <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="clearActivityLog()">🗑️ Limpiar</button>
+          <button class="action-btn btn-clear" style="width:100%;margin-top:10px" onclick="clearActivityLog()">️ Limpiar</button>
         </div>
       </div>
       
@@ -944,15 +1001,15 @@
 <!-- Modal Info -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('infoModal')"></button>
+    <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
     <h2>ℹ️ ¿Cómo Funciona?</h2>
     <div style="color:#fff;line-height:1.8">
       <p><strong style="color:#ffd700">1️⃣</strong> Selecciona pronóstico: <span style="color:#4caf50">L</span>, <span style="color:#ffd700">E</span> o <span style="color:#e74c3c">V</span></p>
       <p><strong style="color:#ffd700">2️⃣</strong> Escribe tu nombre</p>
       <p><strong style="color:#ffd700">3️⃣</strong> Presiona <strong>Agregar</strong> para recibir folio</p>
-      <p><strong style="color:#ffd700">4️</strong> Agrega más quinielas si quieres</p>
+      <p><strong style="color:#ffd700">4️⃣</strong> Agrega más quinielas si quieres</p>
       <p><strong style="color:#ffd700">5️⃣</strong> Presiona <strong>Enviar</strong> cuando tengas todas</p>
-      <p><strong style="color:#ffd700">6️</strong> Paga $<span id="infoPrice">20</span> MXN y envía comprobante con folio</p>
+      <p><strong style="color:#ffd700">6️⃣</strong> Paga $<span id="infoPrice">20</span> MXN y envía comprobante con folio</p>
       <div class="important-notes" style="margin-top:15px">
         <h3>📋 Notas</h3>
         <ul>
@@ -971,9 +1028,6 @@
 (function() {
   'use strict';
   
-  // ============================================
-  // SISTEMA DE SEGURIDAD
-  // ============================================
   var SecuritySystem = {
     loginAttempts: 0,
     maxLoginAttempts: 5,
@@ -1071,9 +1125,6 @@
     }
   };
   
-  // ============================================
-  // ALMACENAMIENTO
-  // ============================================
   var storageAvailable = false;
   var memoryStorage = {};
   
@@ -1108,9 +1159,6 @@
     removeItem: function(key) { try { sessionStorage.removeItem(key); } catch (e) {} }
   };
   
-  // ============================================
-  // DATOS POR DEFECTO
-  // ============================================
   var DEFAULTS = {
     email: 'silvaadrian2024@outlook.com',
     password: 'Nokia5530#',
@@ -1118,19 +1166,20 @@
     price: '20',
     commission: 20,
     initialJackpot: 0,
-    payment: {
-      clabe: '722969046229019912',
-      holder: 'Adrian Silva',
-      institution: 'Mercado Pago W',
-      extraNotes: 'Realiza tu transferencia desde tu app bancaria usando la CLABE.'
-    }
+    paymentMethods: [
+      {
+        id: 1,
+        type: 'bank',
+        bank: 'Mercado Pago W',
+        account: '722969046229019912',
+        holder: 'Adrian Silva',
+        notes: 'Realiza tu transferencia desde tu app bancaria usando la CLABE.'
+      }
+    ]
   };
   
   var MAX_MATCHES = 9;
   
-  // ============================================
-  // ESTADO
-  // ============================================
   var state = {
     matches: [],
     quinielas: [],
@@ -1143,7 +1192,7 @@
     price: DEFAULTS.price,
     commissionPercent: DEFAULTS.commission,
     initialJackpot: DEFAULTS.initialJackpot,
-    paymentInfo: { clabe: DEFAULTS.payment.clabe, holder: DEFAULTS.payment.holder, institution: DEFAULTS.payment.institution, extraNotes: DEFAULTS.payment.extraNotes },
+    paymentMethods: JSON.parse(JSON.stringify(DEFAULTS.paymentMethods)),
     receiptFile: null,
     receiptDataUrl: null,
     closingDateTime: null,
@@ -1173,7 +1222,24 @@
       var pr = storage.getItem('qlc_price'); if (pr) state.price = pr;
       var comm = storage.getItem('qlc_commission'); if (comm) state.commissionPercent = parseInt(comm);
       var initJ = storage.getItem('qlc_initialjackpot'); if (initJ) state.initialJackpot = parseInt(initJ);
-      var pay = storage.getItem('qlc_payment'); if (pay) state.paymentInfo = JSON.parse(pay);
+      var pm = storage.getItem('qlc_paymentmethods');
+      if (pm) {
+        state.paymentMethods = JSON.parse(pm);
+      } else {
+        var oldPay = storage.getItem('qlc_payment');
+        if (oldPay) {
+          var oldData = JSON.parse(oldPay);
+          state.paymentMethods = [{
+            id: 1,
+            type: 'bank',
+            bank: oldData.institution || '',
+            account: oldData.clabe || '',
+            holder: oldData.holder || '',
+            notes: oldData.extraNotes || ''
+          }];
+          storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
+        }
+      }
       var ct = storage.getItem('qlc_closing'); if (ct) state.closingDateTime = ct;
       var qc = storage.getItem('qlc_closed'); if (qc) state.quinielaClosed = (qc === 'true');
       var nf = storage.getItem('qlc_nextfolio'); if (nf) state.nextFolio = parseInt(nf);
@@ -1190,9 +1256,6 @@
     } catch (err) { console.error('Error cargando:', err); }
   }
   
-  // ============================================
-  // FOLIOS
-  // ============================================
   function generateFolio() {
     var folio = state.nextFolio;
     state.nextFolio++;
@@ -1204,9 +1267,6 @@
     return '#' + String(state.nextFolio).padStart(3, '0');
   }
   
-  // ============================================
-  // BOLSA
-  // ============================================
   function calculateJackpot() {
     var paidCount = 0;
     for (var i = 0; i < state.quinielas.length; i++) {
@@ -1232,18 +1292,14 @@
           var prizePerWinner = Math.floor(jackpot.total / winners.length);
           info.textContent = '🏆 ' + winners.length + ' ganador(es) - $' + prizePerWinner.toLocaleString() + ' MXN c/u';
         } else {
-          info.textContent = '⚠️ Sin ganadores - Se acumula para la siguiente jornada';
+          info.textContent = '️ Sin ganadores - Se acumula para la siguiente jornada';
         }
       } else {
-        info.textContent = '💰 ' + jackpot.paidCount + ' pagada(s) • Comisión: ' + state.commissionPercent + '%';
-        if (jackpot.accumulated > 0) info.textContent += ' • Acumulado: $' + jackpot.accumulated.toLocaleString();
+        info.textContent = '💰 ' + jackpot.paidCount + ' pagada(s) • Premio: $' + jackpot.total.toLocaleString() + ' MXN';
       }
     }
   }
   
-  // ============================================
-  // CIERRE
-  // ============================================
   function isQuinielaClosed() {
     if (state.quinielaClosed) return true;
     if (state.closingDateTime) {
@@ -1301,9 +1357,6 @@
     }
   }
   
-  // ============================================
-  // GANADORES
-  // ============================================
   function getWinners() {
     if (!state.winnersCalculated || Object.keys(state.matchResults).length === 0) return [];
     var maxHits = 0;
@@ -1345,7 +1398,7 @@
     } else {
       state.accumulatedJackpot = jackpot.total;
       storage.setItem('qlc_accumulated', state.accumulatedJackpot.toString());
-      showToast('⚠️ Sin ganadores. Bolsa de $' + jackpot.total.toLocaleString() + ' acumulada');
+      showToast('️ Sin ganadores. Bolsa de $' + jackpot.total.toLocaleString() + ' acumulada');
       SecuritySystem.logActivity('⚠️ Sin ganadores. Bolsa acumulada');
       saveToHistory([], jackpot);
     }
@@ -1408,13 +1461,10 @@
       renderResultsForm();
       renderRanking();
       updateJackpotDisplay();
-      showToast('️ Resultados limpiados');
+      showToast('🗑️ Resultados limpiados');
     }
   }
   
-  // ============================================
-  // INICIALIZACIÓN
-  // ============================================
   function init() {
     SecuritySystem.init();
     loadState();
@@ -1432,9 +1482,6 @@
     setInterval(updateClosingDisplay, 1000);
   }
   
-  // ============================================
-  // RENDERIZAR PARTIDOS
-  // ============================================
   function renderMatches() {
     var container = document.getElementById('matchesContainer');
     document.getElementById('matchCount').textContent = state.matches.length;
@@ -1480,9 +1527,6 @@
     showToast('✅ Selección limpiada');
   }
   
-  // ============================================
-  // MIS QUINIELAS
-  // ============================================
   function updateMyQuinielas() {
     var nameInput = document.getElementById('playerName');
     var newName = nameInput.value.trim();
@@ -1533,7 +1577,7 @@
       html += '<div class="my-quiniela-card-header">';
       html += '<span class="my-quiniela-folio">🎫 ' + q.folio + '</span>';
       html += '<span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span>';
-      html += '<button class="action-btn btn-danger" onclick="deleteMyQuiniela(' + q.id + ')">️</button>';
+      html += '<button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(' + q.id + ')">🗑️</button>';
       html += '</div>';
       html += '<div class="my-quiniela-preds">';
       for (var j = 0; j < state.matches.length; j++) {
@@ -1543,7 +1587,7 @@
         html += '<div class="my-pred-item"><span class="pred-letter ' + pred + '">' + pred + '</span><span style="font-size:0.7rem;opacity:0.8">' + escapeHtml(shortName) + '</span></div>';
       }
       html += '</div>';
-      html += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:right"> ' + q.timestamp + '</div>';
+      html += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:right">📅 ' + q.timestamp + '</div>';
       html += '</div>';
     }
     list.innerHTML = html;
@@ -1558,8 +1602,8 @@
       if (state.quinielas[i].id === quinielaId) {
         var deleted = state.quinielas.splice(i, 1)[0];
         storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-        showToast('🗑️ Quiniela ' + deleted.folio + ' eliminada');
-        SecuritySystem.logActivity('🗑️ Quiniela ' + deleted.folio + ' eliminada');
+        showToast('️ Quiniela ' + deleted.folio + ' eliminada');
+        SecuritySystem.logActivity('️ Quiniela ' + deleted.folio + ' eliminada');
         renderMyQuinielas();
         break;
       }
@@ -1567,9 +1611,9 @@
   }
   
   function addQuiniela() {
-    if (isQuinielaClosed()) { showToast('🔒 Quiniela cerrada'); return; }
+    if (isQuinielaClosed()) { showToast(' Quiniela cerrada'); return; }
     var name = document.getElementById('playerName').value.trim();
-    if (!name) { showToast('⚠️ Escribe tu nombre'); return; }
+    if (!name) { showToast('️ Escribe tu nombre'); return; }
     state.currentPlayerName = name;
     session.setItem('qlc_currentplayer', name);
     if (state.matches.length === 0) { showToast('⚠️ Sin partidos'); return; }
@@ -1617,9 +1661,9 @@
       if (myPending.length === 0) { showToast('📱 Sin quinielas pendientes'); return; }
       if (state.matches.length === 0) { showToast('⚠️ Sin partidos'); return; }
       
-      var message = '⚽ QUINIELAS LOS COMPAS ⚽\n━━━━━━━━━━━━━━━━━━━━\n';
+      var message = ' QUINIELAS LOS COMPAS ⚽\n━━━━━━━━━━━━━━━━━━━━\n';
       message += '🏆 Jornada: ' + state.jornada.name + '\n';
-      message += '📅 Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n';
+      message += ' Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n';
       message += '👤 Jugador: ' + state.currentPlayerName + '\n';
       message += '📊 Total: ' + myPending.length + ' quiniela(s)\n━━━━━━━━━━━━━━━━━━━━\n\n';
       
@@ -1640,7 +1684,7 @@
       message += '━━━━━━━━━━━━━━━━━━━━\n';
       message += '💰 Costo: $' + state.price + ' MXN por quiniela\n';
       message += '💵 Total: $' + (myPending.length * parseInt(state.price)) + ' MXN\n';
-      message += '🏆 Bolsa acumulada: $' + jackpot.total.toLocaleString() + ' MXN';
+      message += ' Premio: $' + jackpot.total.toLocaleString() + ' MXN';
       
       var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
       var newWindow = window.open(url, '_blank');
@@ -1674,15 +1718,15 @@
       }
       if (pending.length === 0) { showToast('📱 Sin quinielas pendientes'); return; }
       
-      var message = '⚽ QUINIELAS LOS COMPAS \n━━━━━━━━━━━━━━━━━━━━\n';
-      message += '🏆 Jornada: ' + state.jornada.name + '\n';
+      var message = '⚽ QUINIELAS LOS COMPAS ⚽\n━━━━━━━━━━━━━━━━━━━━\n';
+      message += ' Jornada: ' + state.jornada.name + '\n';
       message += '📅 Fecha: ' + new Date().toLocaleDateString('es-MX') + '\n';
-      message += '📊 Total: ' + pending.length + ' quiniela(s)\n━━━━━━━━━━━━━━━━━━━━\n\n';
+      message += ' Total: ' + pending.length + ' quiniela(s)\n━━━━━━━━━━━━━━━━━━━━\n\n';
       
       for (var i = 0; i < pending.length; i++) {
         var q = pending[i];
-        var status = q.paid ? '✅ PAGADO' : ' PENDIENTE';
-        message += ' ' + q.folio + ' - ' + q.name + ' (' + status + ')\n';
+        var status = q.paid ? '✅ PAGADO' : '⏳ PENDIENTE';
+        message += '🎫 ' + q.folio + ' - ' + q.name + ' (' + status + ')\n';
         var preds = q.predictions.split('');
         for (var j = 0; j < state.matches.length; j++) {
           var match = state.matches[j];
@@ -1694,14 +1738,13 @@
       var jackpot = calculateJackpot();
       message += '━━━━━━━━━━━━━━━━━━━━\n';
       message += '💰 Total: $' + (pending.length * parseInt(state.price)) + ' MXN\n';
-      message += '🏦 Comisión (' + state.commissionPercent + '%): $' + jackpot.commission + ' MXN\n';
-      message += '🏆 Bolsa: $' + jackpot.total.toLocaleString() + ' MXN';
+      message += '🏆 Premio: $' + jackpot.total.toLocaleString() + ' MXN';
       
       var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
       var newWindow = window.open(url, '_blank');
       
       if (newWindow) {
-        showToast(' WhatsApp abierto');
+        showToast('📱 WhatsApp abierto');
         for (var i = 0; i < pending.length; i++) {
           pending[i].sent = true;
           pending[i].sentAt = new Date().toLocaleString('es-MX');
@@ -1713,34 +1756,11 @@
     } catch (err) { showToast('❌ Error: ' + err.message); }
   }
   
-  // ============================================
-  // PDF MEJORADO CON TODOS LOS PARTICIPANTES PAGADOS
-  // ============================================
   function generatePlayerPDF() {
     try {
       var jsPDF = window.jspdf.jsPDF;
       if (!jsPDF) {
-        showToast('⚠️ Generando TXT básico...');
-        var content = 'QUINIELAS LOS COMPAS - ' + state.jornada.name + '\n\n';
-        content += 'PARTIDOS:\n';
-        for (var i = 0; i < state.matches.length; i++) {
-          var m = state.matches[i];
-          content += (i + 1) + '. ' + m.local + ' vs ' + m.visitante + '\n';
-        }
-        content += '\nBOLSA: $' + calculateJackpot().total.toLocaleString() + ' MXN\n\n';
-        content += 'PARTICIPANTES PAGADOS:\n';
-        var paidQuinielas = state.quinielas.filter(function(q) { return q.paid; });
-        for (var i = 0; i < paidQuinielas.length; i++) {
-          var q = paidQuinielas[i];
-          content += q.folio + ' - ' + q.name + ': ' + q.predictions + '\n';
-        }
-        var blob = new Blob([content], { type: 'text/plain' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'quinielas_info.txt';
-        a.click();
-        URL.revokeObjectURL(url);
+        showToast('静态 TXT...');
         return;
       }
       
@@ -1750,13 +1770,12 @@
       var margin = 15;
       var y = margin;
       
-      // ===== HEADER =====
       doc.setFillColor(26, 58, 26);
       doc.rect(0, 0, pageWidth, 35, 'F');
       doc.setTextColor(255, 215, 0);
       doc.setFontSize(24);
       doc.setFont(undefined, 'bold');
-      doc.text(' QUINIELAS LOS COMPAS ⚽', pageWidth / 2, 15, { align: 'center' });
+      doc.text('⚽ QUINIELAS LOS COMPAS ⚽', pageWidth / 2, 15, { align: 'center' });
       doc.setFontSize(14);
       doc.text(state.jornada.name, pageWidth / 2, 25, { align: 'center' });
       doc.setFontSize(10);
@@ -1764,17 +1783,15 @@
       
       y = 45;
       
-      // ===== BOLSA ACUMULADA =====
       var jackpot = calculateJackpot();
       doc.setFillColor(255, 215, 0);
       doc.rect(margin, y, pageWidth - (margin * 2), 18, 'F');
       doc.setTextColor(10, 31, 10);
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
-      doc.text('🏆 BOLSA ACUMULADA: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
+      doc.text('🏆 PREMIO: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
       y += 25;
       
-      // ===== PARTIDOS =====
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(14);
       doc.setFont(undefined, 'bold');
@@ -1807,7 +1824,6 @@
       
       y = doc.lastAutoTable.finalY + 15;
       
-      // ===== PARTICIPANTES PAGADOS =====
       var paidQuinielas = state.quinielas.filter(function(q) { return q.paid; });
       
       if (paidQuinielas.length === 0) {
@@ -1822,19 +1838,16 @@
         doc.text('👥 PARTICIPANTES PAGADOS (' + paidQuinielas.length + ')', margin, y);
         y += 8;
         
-        // Preparar datos de la tabla
         var participantsData = [];
         for (var i = 0; i < paidQuinielas.length; i++) {
           var q = paidQuinielas[i];
           var preds = q.predictions.split('');
           var row = [q.folio, q.name];
           
-          // Agregar cada predicción
           for (var j = 0; j < state.matches.length; j++) {
             row.push(preds[j] || '-');
           }
           
-          // Agregar aciertos si hay resultados
           if (state.winnersCalculated) {
             var hits = 0;
             for (var j = 0; j < state.matches.length; j++) {
@@ -1846,7 +1859,6 @@
           participantsData.push(row);
         }
         
-        // Headers de la tabla
         var headers = ['Folio', 'Nombre'];
         for (var i = 0; i < state.matches.length; i++) {
           headers.push('P' + (i + 1));
@@ -1868,21 +1880,19 @@
           },
           margin: { left: margin, right: margin },
           didParseCell: function(data) {
-            // Colorear celdas de predicciones
             if (data.section === 'body' && data.column.index >= 2 && data.column.index < 2 + state.matches.length) {
               var value = data.cell.raw;
               if (value === 'L') {
                 data.cell.styles.textColor = [76, 175, 80];
                 data.cell.styles.fontStyle = 'bold';
               } else if (value === 'E') {
-                data.cell.styles.textColor = [255, 193, 7];
+                data.cell.styles.textColor = [200, 160, 0];
                 data.cell.styles.fontStyle = 'bold';
               } else if (value === 'V') {
                 data.cell.styles.textColor = [244, 67, 54];
                 data.cell.styles.fontStyle = 'bold';
               }
             }
-            // Colorear aciertos
             if (state.winnersCalculated && data.section === 'body' && data.column.index === headers.length - 1) {
               data.cell.styles.fontStyle = 'bold';
               data.cell.styles.textColor = [255, 215, 0];
@@ -1893,7 +1903,6 @@
         y = doc.lastAutoTable.finalY + 15;
       }
       
-      // ===== RANKING DE GANADORES =====
       if (state.winnersCalculated) {
         var winners = getWinners();
         if (y > pageHeight - 60) {
@@ -1904,7 +1913,7 @@
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
-        doc.text(' RANKING DE GANADORES', margin, y);
+        doc.text('🏆 RANKING DE GANADORES', margin, y);
         y += 8;
         
         if (winners.length === 0) {
@@ -1946,7 +1955,6 @@
         }
       }
       
-      // ===== NOTAS IMPORTANTES =====
       if (y > pageHeight - 50) {
         doc.addPage();
         y = margin;
@@ -1964,11 +1972,10 @@
       doc.setFont(undefined, 'normal');
       var notes = [
         '• Costo: $' + state.price + ' MXN por quiniela',
-        '• Comisión administrativa: ' + state.commissionPercent + '%',
         '• Quiniela no pagada NO participa en el sorteo',
         '• Si no hay ganador, la bolsa se acumula para la siguiente jornada',
         '• El premio se reparte entre los jugadores con más aciertos',
-        '• Total recaudado: $' + jackpot.currentRevenue + ' MXN | Comisión: $' + jackpot.commission + ' MXN | Bolsa: $' + jackpot.currentPrizePool + ' MXN'
+        '• Premio total: $' + jackpot.total.toLocaleString() + ' MXN'
       ];
       
       for (var i = 0; i < notes.length; i++) {
@@ -1976,14 +1983,12 @@
         y += 5;
       }
       
-      // ===== FOOTER =====
       doc.setFontSize(8);
       doc.setTextColor(128, 128, 128);
       doc.text('Documento generado el ' + new Date().toLocaleString('es-MX') + ' | Quinielas Los Compas', pageWidth / 2, pageHeight - 8, { align: 'center' });
       
-      // Guardar PDF
       doc.save('quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.pdf');
-      showToast(' PDF generado con ' + paidQuinielas.length + ' participantes pagados');
+      showToast('📄 PDF generado con ' + paidQuinielas.length + ' participantes pagados');
       SecuritySystem.logActivity('📄 PDF generado con participantes');
     } catch (err) {
       console.error('Error generando PDF:', err);
@@ -1995,7 +2000,7 @@
     try {
       var jsPDF = window.jspdf.jsPDF;
       if (!jsPDF) { showToast('⚠️ jsPDF no disponible'); return; }
-      if (!state.winnersCalculated) { showToast('️ Calcula ganadores primero'); return; }
+      if (!state.winnersCalculated) { showToast('⚠️ Calcula ganadores primero'); return; }
       
       var doc = new jsPDF('landscape', 'mm', 'a4');
       var pageWidth = doc.internal.pageSize.getWidth();
@@ -2007,7 +2012,7 @@
       doc.setTextColor(255, 215, 0);
       doc.setFontSize(24);
       doc.setFont(undefined, 'bold');
-      doc.text(' RESULTADOS OFICIALES', pageWidth / 2, 15, { align: 'center' });
+      doc.text('🏆 RESULTADOS OFICIALES', pageWidth / 2, 15, { align: 'center' });
       doc.setFontSize(14);
       doc.text(state.jornada.name, pageWidth / 2, 25, { align: 'center' });
       doc.setFontSize(10);
@@ -2021,10 +2026,9 @@
       doc.setTextColor(10, 31, 10);
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
-      doc.text('BOLSA: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
+      doc.text('PREMIO: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
       y += 25;
       
-      // Resultados
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(14);
       doc.text('📋 RESULTADOS REALES', margin, y);
@@ -2056,7 +2060,6 @@
       
       y = doc.lastAutoTable.finalY + 15;
       
-      // Ganadores
       var winners = getWinners();
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(14);
@@ -2101,12 +2104,9 @@
       
       doc.save('resultados_' + state.jornada.name.replace(/\s+/g, '_') + '.pdf');
       showToast('📄 PDF de resultados generado');
-    } catch (err) { showToast(' Error: ' + err.message); }
+    } catch (err) { showToast('❌ Error: ' + err.message); }
   }
   
-  // ============================================
-  // ADMIN
-  // ============================================
   function checkAdmin() {
     var rateCheck = SecuritySystem.checkRateLimit();
     if (!rateCheck.allowed) { showToast(rateCheck.message); return; }
@@ -2125,6 +2125,7 @@
       updateClosingStatus();
       renderResultsForm();
       renderHistory();
+      renderPaymentMethodsList();
       updateJackpotDisplay();
       showToast('✅ Bienvenido Admin');
     } else {
@@ -2161,6 +2162,7 @@
     if (tab === 'results') renderResultsForm();
     if (tab === 'history') renderHistory();
     if (tab === 'jackpot') updateJackpotDisplay();
+    if (tab === 'payments') renderPaymentMethodsList();
   }
   
   function addMatch() {
@@ -2168,12 +2170,12 @@
       var localInput = document.getElementById('localTeam');
       var visitanteInput = document.getElementById('visitanteTeam');
       var jornadaInput = document.getElementById('jornadaName');
-      if (!localInput || !visitanteInput) { showToast('️ Error'); return; }
+      if (!localInput || !visitanteInput) { showToast('⚠️ Error'); return; }
       var local = localInput.value.trim();
       var visitante = visitanteInput.value.trim();
       var jornadaName = jornadaInput ? jornadaInput.value.trim() : '';
-      if (!local || !visitante) { showToast('⚠️ Completa ambos equipos'); return; }
-      if (state.matches.length >= MAX_MATCHES) { showToast('️ Máximo 9 partidos'); return; }
+      if (!local || !visitante) { showToast('️ Completa ambos equipos'); return; }
+      if (state.matches.length >= MAX_MATCHES) { showToast('⚠️ Máximo 9 partidos'); return; }
       if (jornadaName) {
         state.jornada.name = jornadaName;
         storage.setItem('qlc_jornada', JSON.stringify(state.jornada));
@@ -2294,8 +2296,195 @@
       state.history = [];
       storage.setItem('qlc_history', '[]');
       renderHistory();
-      showToast('🗑️ Historial limpiado');
+      showToast('🗑️ Historial limpiados');
     }
+  }
+  
+  function updatePaymentForm() {
+    var type = document.getElementById('paymentMethodType').value;
+    var fields = document.getElementById('paymentFormFields');
+    
+    if (type === 'bank') {
+      fields.innerHTML = `
+        <label>Nombre del banco:</label>
+        <input type="text" id="pmBank" placeholder="Ej: BBVA, Banorte, Santander">
+        <label>CLABE (18 dígitos):</label>
+        <input type="text" id="pmAccount" placeholder="CLABE interbancaria" maxlength="18">
+        <label>Nombre del beneficiario:</label>
+        <input type="text" id="pmHolder" placeholder="Nombre completo">
+        <label>Notas (opcional):</label>
+        <textarea id="pmNotes" rows="2" placeholder="Instrucciones especiales"></textarea>
+      `;
+    } else if (type === 'card') {
+      fields.innerHTML = `
+        <label>Banco emisor:</label>
+        <input type="text" id="pmBank" placeholder="Ej: BBVA, Banorte">
+        <label>Número de tarjeta:</label>
+        <input type="text" id="pmAccount" placeholder="Número de tarjeta (16 dígitos)" maxlength="19">
+        <label>Nombre del titular:</label>
+        <input type="text" id="pmHolder" placeholder="Como aparece en la tarjeta">
+        <label>Notas (opcional):</label>
+        <textarea id="pmNotes" rows="2" placeholder="Ej: Solo débito, no crédito"></textarea>
+      `;
+    } else if (type === 'mercadopago') {
+      fields.innerHTML = `
+        <label>Correo o teléfono de Mercado Pago:</label>
+        <input type="text" id="pmBank" placeholder="correo@ejemplo.com o teléfono">
+        <label>Alias (opcional):</label>
+        <input type="text" id="pmAccount" placeholder="Ej: mi.alias.mp">
+        <label>Nombre del titular:</label>
+        <input type="text" id="pmHolder" placeholder="Nombre completo">
+        <label>Notas (opcional):</label>
+        <textarea id="pmNotes" rows="2" placeholder="Instrucciones"></textarea>
+      `;
+    } else if (type === 'oxxo') {
+      fields.innerHTML = `
+        <label>Referencia OXXO:</label>
+        <input type="text" id="pmBank" placeholder="Número de referencia">
+        <label>Monto exacto:</label>
+        <input type="text" id="pmAccount" placeholder="Monto a pagar">
+        <label>Nombre del beneficiario:</label>
+        <input type="text" id="pmHolder" placeholder="Nombre">
+        <label>Notas (opcional):</label>
+        <textarea id="pmNotes" rows="2" placeholder="Instrucciones"></textarea>
+      `;
+    } else {
+      fields.innerHTML = `
+        <label>Nombre del método:</label>
+        <input type="text" id="pmBank" placeholder="Ej: PayPal, Transferencia internacional">
+        <label>Datos:</label>
+        <input type="text" id="pmAccount" placeholder="Información principal">
+        <label>Nombre del beneficiario:</label>
+        <input type="text" id="pmHolder" placeholder="Nombre">
+        <label>Notas:</label>
+        <textarea id="pmNotes" rows="2" placeholder="Instrucciones"></textarea>
+      `;
+    }
+  }
+  
+  function addPaymentMethod() {
+    var type = document.getElementById('paymentMethodType').value;
+    var bank = document.getElementById('pmBank').value.trim();
+    var account = document.getElementById('pmAccount').value.trim();
+    var holder = document.getElementById('pmHolder').value.trim();
+    var notes = document.getElementById('pmNotes').value.trim();
+    
+    if (!bank || !account || !holder) {
+      showToast('⚠️ Completa los campos obligatorios');
+      return;
+    }
+    
+    var typeLabels = {
+      'bank': '🏦 Transferencia Bancaria',
+      'card': '💳 Tarjeta',
+      'mercadopago': ' Mercado Pago',
+      'oxxo': '🏪 OXXO Pay',
+      'other': '📝 Otro'
+    };
+    
+    var newMethod = {
+      id: Date.now(),
+      type: type,
+      typeLabel: typeLabels[type] || type,
+      bank: bank,
+      account: account,
+      holder: holder,
+      notes: notes
+    };
+    
+    state.paymentMethods.push(newMethod);
+    storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
+    
+    document.getElementById('pmBank').value = '';
+    document.getElementById('pmAccount').value = '';
+    document.getElementById('pmHolder').value = '';
+    document.getElementById('pmNotes').value = '';
+    
+    renderPaymentMethodsList();
+    renderPaymentMethods();
+    showToast('✅ Método de pago agregado');
+    SecuritySystem.logActivity('💳 Método de pago agregado: ' + typeLabels[type]);
+  }
+  
+  function deletePaymentMethod(id) {
+    if (!confirm('¿Eliminar este método de pago?')) return;
+    state.paymentMethods = state.paymentMethods.filter(function(m) { return m.id !== id; });
+    storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
+    renderPaymentMethodsList();
+    renderPaymentMethods();
+    showToast('️ Método de pago eliminado');
+  }
+  
+  function renderPaymentMethodsList() {
+    var container = document.getElementById('paymentMethodsList');
+    if (!container) return;
+    
+    if (state.paymentMethods.length === 0) {
+      container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No hay métodos de pago configurados</p>';
+      return;
+    }
+    
+    var html = '';
+    for (var i = 0; i < state.paymentMethods.length; i++) {
+      var m = state.paymentMethods[i];
+      html += '<div class="payment-method-item">';
+      html += '<div class="method-info">';
+      html += '<div class="method-name">' + m.typeLabel + ' - ' + escapeHtml(m.bank) + '</div>';
+      html += '<div class="method-details">';
+      if (m.type === 'bank') {
+        html += 'CLABE: ' + m.account + ' | Titular: ' + escapeHtml(m.holder);
+      } else if (m.type === 'card') {
+        html += 'Tarjeta: ' + m.account + ' | Titular: ' + escapeHtml(m.holder);
+      } else if (m.type === 'mercadopago') {
+        html += 'Contacto: ' + m.account + ' | Titular: ' + escapeHtml(m.holder);
+      } else {
+        html += escapeHtml(m.account) + ' | ' + escapeHtml(m.holder);
+      }
+      if (m.notes) html += '<br>📝 ' + escapeHtml(m.notes);
+      html += '</div></div>';
+      html += '<button class="delete-btn" onclick="deletePaymentMethod(' + m.id + ')">🗑️</button>';
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+  
+  function renderPaymentMethods() {
+    var container = document.getElementById('paymentMethodsDisplay');
+    var html = '';
+    
+    if (state.paymentMethods.length === 0) {
+      html = '<p style="text-align:center;color:rgba(255,255,255,0.5)">El admin aún no ha configurado los métodos de pago</p>';
+    } else {
+      for (var i = 0; i < state.paymentMethods.length; i++) {
+        var m = state.paymentMethods[i];
+        html += '<div class="payment-method">';
+        html += '<h4>' + m.typeLabel + ' - ' + escapeHtml(m.bank) + '</h4>';
+        
+        if (m.type === 'bank') {
+          html += '<p><strong>CLABE:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
+          html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')">📋 Copiar</button></p>';
+        } else if (m.type === 'card') {
+          html += '<p><strong>Tarjeta:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
+          html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')">📋 Copiar</button></p>';
+        } else if (m.type === 'mercadopago') {
+          html += '<p><strong>Contacto:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
+          if (m.bank) html += '<p><strong>Alias:</strong> ' + escapeHtml(m.bank) + '</p>';
+          html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + '</p>';
+        } else if (m.type === 'oxxo') {
+          html += '<p><strong>Referencia:</strong> ' + m.bank + ' <button class="copy-btn" onclick="copyText(\'' + m.bank + '\')">📋 Copiar</button></p>';
+          html += '<p><strong>Monto:</strong> ' + m.account + '</p>';
+        } else {
+          html += '<p><strong>Datos:</strong> ' + escapeHtml(m.account) + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
+          html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + '</p>';
+        }
+        
+        if (m.notes) {
+          html += '<p style="margin-top:8px;color:#ffd700"><strong>📝 Notas:</strong> ' + escapeHtml(m.notes) + '</p>';
+        }
+        html += '</div>';
+      }
+    }
+    container.innerHTML = html;
   }
   
   function updateClosingStatus() {
@@ -2329,7 +2518,7 @@
   function saveClosingTime() {
     var dateVal = document.getElementById('closingDate').value;
     var timeVal = document.getElementById('closingTime').value;
-    if (!dateVal || !timeVal) { showToast('️ Completa fecha y hora'); return; }
+    if (!dateVal || !timeVal) { showToast('⚠️ Completa fecha y hora'); return; }
     var closingDate = new Date(dateVal + 'T' + timeVal);
     if (closingDate <= new Date()) { showToast('⚠️ Debe ser en el futuro'); return; }
     state.closingDateTime = closingDate.toISOString();
@@ -2339,7 +2528,7 @@
     updateClosingDisplay();
     updateClosingStatus();
     showToast('✅ Hora de cierre guardada');
-    SecuritySystem.logActivity('⏰ Cierre: ' + closingDate.toLocaleString('es-MX'));
+    SecuritySystem.logActivity(' Cierre: ' + closingDate.toLocaleString('es-MX'));
   }
   
   function closeNow() {
@@ -2364,9 +2553,6 @@
     }
   }
   
-  // ============================================
-  // EXCEL
-  // ============================================
   function renderExcelTable() {
     renderExcelSummary();
     renderExcelHeaders();
@@ -2383,22 +2569,22 @@
     document.getElementById('excelSummary').innerHTML = 
       '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total</div></div>' +
       '<div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div>' +
-      '<div class="stat"><div class="stat-value" style="color:#2196f3">' + sent + '</div><div class="stat-label">📱 Enviadas</div></div>' +
+      '<div class="stat"><div class="stat-value" style="color:#2196f3">' + sent + '</div><div class="stat-label"> Enviadas</div></div>' +
       '<div class="stat"><div class="stat-value" style="color:#ff9800">' + pending + '</div><div class="stat-label">⏳ Pendientes</div></div>' +
-      '<div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Bolsa</div></div>' +
+      '<div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Premio</div></div>' +
       '<div class="stat"><div class="stat-value" style="color:#2196f3">' + getNextFolioPreview() + '</div><div class="stat-label">🎫 Folio</div></div>';
   }
   
   function renderExcelHeaders() {
     var thead = document.getElementById('excelThead');
-    var headerHTML = '<tr><th>🎫 Folio</th><th>Nombre</th>';
+    var headerHTML = '<tr><th> Folio</th><th>Nombre</th>';
     for (var i = 0; i < state.matches.length; i++) {
       var m = state.matches[i];
       var sl = m.local.length > 10 ? m.local.substring(0, 10) + '.' : m.local;
       var sv = m.visitante.length > 10 ? m.visitante.substring(0, 10) + '.' : m.visitante;
       headerHTML += '<th title="' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '">P' + (i+1) + '<br><small>' + escapeHtml(sl) + '<br>vs<br>' + escapeHtml(sv) + '</small></th>';
     }
-    headerHTML += '<th>💰</th><th></th><th>Aciertos</th><th>📅</th></tr>';
+    headerHTML += '<th>💰 Pago</th><th>📱</th><th>Aciertos</th><th>📅</th></tr>';
     thead.innerHTML = headerHTML;
   }
   
@@ -2430,7 +2616,10 @@
         }
         html += '<td class="' + cellClass + '">' + p + '</td>';
       }
-      html += '<td><span class="paid-check ' + (q.paid ? 'paid-yes' : 'paid-no') + '" onclick="togglePaid(' + q.id + ')">' + (q.paid ? '✅' : '') + '</span></td>';
+      
+      var paidBtnClass = q.paid ? 'paid-btn paid-yes' : 'paid-btn paid-no';
+      var paidBtnText = q.paid ? '✅ PAGADO' : '⬜ Pendiente';
+      html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(' + q.id + ')" title="Click para cambiar estado">' + paidBtnText + '</span></td>';
       html += '<td style="color:' + (q.sent ? '#4caf50' : '#ff9800') + ';font-weight:700">' + (q.sent ? '✅' : '') + '</td>';
       html += '<td style="font-weight:700;color:#ffd700">' + (state.winnersCalculated ? hits + '/' + state.matches.length : '-') + '</td>';
       html += '<td style="font-size:0.75rem">' + q.timestamp + '</td>';
@@ -2444,8 +2633,10 @@
       if (state.quinielas[i].id === quinielaId) {
         state.quinielas[i].paid = !state.quinielas[i].paid;
         storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
+        
         renderExcelTable();
         updateJackpotDisplay();
+        
         var status = state.quinielas[i].paid ? 'PAGADO' : 'PENDIENTE';
         showToast((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
         SecuritySystem.logActivity((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
@@ -2483,11 +2674,7 @@
     csv += '\nRESUMEN\n';
     csv += 'Total:,' + state.quinielas.length + '\n';
     csv += 'Pagadas:,' + jackpot.paidCount + '\n';
-    csv += 'Recaudado:,$' + jackpot.currentRevenue + '\n';
-    csv += 'Comisión (' + state.commissionPercent + '%):,$' + jackpot.commission + '\n';
-    csv += 'Bolsa Actual:,$' + jackpot.currentPrizePool + '\n';
-    csv += 'Acumulado:,$' + jackpot.accumulated + '\n';
-    csv += 'BOLSA TOTAL:,$' + jackpot.total + '\n';
+    csv += 'Premio:,$' + jackpot.total + '\n';
     var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -2507,7 +2694,7 @@
       renderExcelTable();
       renderMyQuinielas();
       updateJackpotDisplay();
-      showToast('🗑️ Quinielas eliminadas');
+      showToast('️ Quinielas eliminadas');
     }
   }
   
@@ -2516,16 +2703,9 @@
     document.getElementById('jornadaDate').textContent = state.jornada.date;
   }
   
-  // ============================================
-  // CONFIG
-  // ============================================
   function loadConfigInputs() {
     document.getElementById('whatsappInput').value = state.whatsappNumber;
     document.getElementById('priceInput').value = state.price;
-    document.getElementById('bankClabe').value = state.paymentInfo.clabe || '';
-    document.getElementById('bankHolder').value = state.paymentInfo.holder || '';
-    document.getElementById('bankInstitution').value = state.paymentInfo.institution || '';
-    document.getElementById('extraNotes').value = state.paymentInfo.extraNotes || '';
     document.getElementById('commissionPercent').value = state.commissionPercent;
     document.getElementById('initialJackpot').value = state.initialJackpot;
   }
@@ -2547,7 +2727,7 @@
     document.getElementById('newPassword').value = '';
     document.getElementById('confirmPassword').value = '';
     showToast('✅ Contraseña actualizada');
-    SecuritySystem.logActivity(' Contraseña actualizada');
+    SecuritySystem.logActivity('🔐 Contraseña actualizada');
   }
   
   function saveWhatsApp() {
@@ -2586,34 +2766,6 @@
     showToast('✅ Configuración guardada');
   }
   
-  function savePaymentInfo() {
-    state.paymentInfo = {
-      clabe: document.getElementById('bankClabe').value.trim(),
-      holder: document.getElementById('bankHolder').value.trim(),
-      institution: document.getElementById('bankInstitution').value.trim(),
-      extraNotes: document.getElementById('extraNotes').value.trim()
-    };
-    storage.setItem('qlc_payment', JSON.stringify(state.paymentInfo));
-    renderPaymentMethods();
-    showToast('✅ Datos de pago guardados');
-  }
-  
-  function renderPaymentMethods() {
-    var container = document.getElementById('paymentMethodsDisplay');
-    var p = state.paymentInfo;
-    var html = '';
-    if (p.clabe || p.holder || p.institution) {
-      html += '<div class="payment-method"><h4>🏦 Transferencia (Mercado Pago)</h4>';
-      if (p.institution) html += '<p><strong>Institución:</strong> ' + escapeHtml(p.institution) + ' <button class="copy-btn" onclick="copyText(\'' + p.institution + '\')">📋</button></p>';
-      if (p.clabe) html += '<p><strong>CLABE:</strong> ' + p.clabe + ' <button class="copy-btn" onclick="copyText(\'' + p.clabe + '\')">📋</button></p>';
-      if (p.holder) html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(p.holder) + ' <button class="copy-btn" onclick="copyText(\'' + p.holder + '\')">📋</button></p>';
-      if (p.extraNotes) html += '<p style="margin-top:8px;color:#ffd700"><strong>📝 Notas:</strong> ' + escapeHtml(p.extraNotes) + '</p>';
-      html += '</div>';
-    }
-    if (!html) html = '<p style="text-align:center;color:rgba(255,255,255,0.5)">Sin métodos configurados</p>';
-    container.innerHTML = html;
-  }
-  
   function copyText(text) {
     navigator.clipboard.writeText(text).then(function() { showToast('📋 Copiado'); }).catch(function() {
       var ta = document.createElement('textarea');
@@ -2630,7 +2782,7 @@
     var data = {
       matches: state.matches, jornada: state.jornada, whatsappNumber: state.whatsappNumber,
       adminEmail: state.adminEmail, price: state.price, commissionPercent: state.commissionPercent,
-      initialJackpot: state.initialJackpot, paymentInfo: state.paymentInfo,
+      initialJackpot: state.initialJackpot, paymentMethods: state.paymentMethods,
       closingDateTime: state.closingDateTime, quinielaClosed: state.quinielaClosed,
       nextFolio: state.nextFolio, accumulatedJackpot: state.accumulatedJackpot,
       exportDate: new Date().toISOString()
@@ -2644,7 +2796,7 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast(' Configuración exportada');
+    showToast('📤 Configuración exportada');
   }
   
   function importConfig(event) {
@@ -2660,7 +2812,7 @@
         if (data.adminEmail) { state.adminEmail = data.adminEmail; storage.setItem('qlc_adminemail', data.adminEmail); }
         if (data.price) { state.price = data.price; storage.setItem('qlc_price', data.price); }
         if (data.commissionPercent) { state.commissionPercent = data.commissionPercent; storage.setItem('qlc_commission', data.commissionPercent); }
-        if (data.paymentInfo) { state.paymentInfo = data.paymentInfo; storage.setItem('qlc_payment', JSON.stringify(data.paymentInfo)); }
+        if (data.paymentMethods) { state.paymentMethods = data.paymentMethods; storage.setItem('qlc_paymentmethods', JSON.stringify(data.paymentMethods)); }
         if (data.closingDateTime) { state.closingDateTime = data.closingDateTime; storage.setItem('qlc_closing', data.closingDateTime); }
         if (data.quinielaClosed !== undefined) { state.quinielaClosed = data.quinielaClosed; storage.setItem('qlc_closed', String(data.quinielaClosed)); }
         if (data.nextFolio) { state.nextFolio = data.nextFolio; storage.setItem('qlc_nextfolio', data.nextFolio.toString()); }
@@ -2668,6 +2820,7 @@
         init();
         loadConfigInputs();
         renderAdminMatches();
+        renderPaymentMethodsList();
         showToast('✅ Configuración importada');
       } catch (err) { showToast('❌ Archivo inválido'); }
     };
@@ -2678,16 +2831,13 @@
     if (confirm('¿Limpiar registro?')) {
       SecuritySystem.activityLog = [];
       SecuritySystem.updateActivityLogDisplay();
-      showToast('🗑️ Registro limpiado');
+      showToast('️ Registro limpiado');
     }
   }
   
-  // ============================================
-  // COMPROBANTE
-  // ============================================
   function updateWhatsAppReceiptLink() {
     var link = document.getElementById('whatsappReceiptLink');
-    var message = '🧾 Comprobante - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n⚠️ Incluye tu folio.';
+    var message = ' Comprobante - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n⚠️ Incluye tu folio.';
     link.href = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
   }
   
@@ -2729,7 +2879,7 @@
   function handleReceipt(event) {
     var file = event.target.files[0];
     if (file) {
-      if (!file.type.startsWith('image/')) { showToast('⚠️ Solo imágenes'); return; }
+      if (!file.type.startsWith('image/')) { showToast('️ Solo imágenes'); return; }
       if (file.size > 10 * 1024 * 1024) { showToast('⚠️ Máximo 10MB'); return; }
       state.receiptFile = file;
       document.getElementById('uploadText').textContent = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
@@ -2749,9 +2899,6 @@
     }
   }
   
-  // ============================================
-  // MODALES
-  // ============================================
   function openModal(id) { document.getElementById(id).classList.add('active'); }
   function closeModal(id) {
     document.getElementById(id).classList.remove('active');
@@ -2788,7 +2935,6 @@
     }
   });
   
-  // Exponer funciones
   window.selectPrediction = selectPrediction;
   window.clearSelection = clearSelection;
   window.addQuiniela = addQuiniela;
@@ -2806,7 +2952,6 @@
   window.changeCredentials = changeCredentials;
   window.saveWhatsApp = saveWhatsApp;
   window.savePrice = savePrice;
-  window.savePaymentInfo = savePaymentInfo;
   window.saveJackpotConfig = saveJackpotConfig;
   window.copyText = copyText;
   window.exportConfig = exportConfig;
@@ -2827,6 +2972,9 @@
   window.clearHistory = clearHistory;
   window.generatePlayerPDF = generatePlayerPDF;
   window.generateResultsPDF = generateResultsPDF;
+  window.addPaymentMethod = addPaymentMethod;
+  window.deletePaymentMethod = deletePaymentMethod;
+  window.updatePaymentForm = updatePaymentForm;
   
   init();
 })();
