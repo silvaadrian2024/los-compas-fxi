@@ -1053,9 +1053,10 @@
     activityLog: [],
     
     init: function() {
-      this.setupAntiRightClick();
-      this.setupAntiDevTools();
-      this.setupAntiCopy();
+      // Protecciones comentadas temporalmente para permitir depuración
+      // this.setupAntiRightClick();
+      // this.setupAntiDevTools();
+      // this.setupAntiCopy();
       this.setupAntiFrame();
       this.logActivity('Sistema iniciado');
     },
@@ -1274,6 +1275,7 @@
     return { total: totalJackpot, currentRevenue: currentRevenue, commission: commission, currentPrizePool: currentPrizePool, accumulated: state.accumulatedJackpot, paidCount: paidCount };
   }
   
+  // (Resto de funciones lógicas de Quinielas Los Compas)
   function updateJackpotDisplay() {
     var jackpot = calculateJackpot();
     document.getElementById('jackpotAmount').textContent = '$' + jackpot.total.toLocaleString() + ' MXN';
