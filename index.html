@@ -67,6 +67,7 @@
   .btn-send { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
   .btn-send-all { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
   .btn-config { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
+  .btn-reset { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-size: 0.85rem; padding: 10px; margin-top: 10px; }
   .btn-excel { background: linear-gradient(135deg, #217346, #185a36); color: #fff; }
   .btn-share { background: linear-gradient(135deg, #ff6b35, #f7931e); color: #fff; }
   .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 8px 12px; font-size: 0.85rem; }
@@ -137,6 +138,7 @@
   .tab-content.active { display: block; }
   .copy-btn { background: rgba(255,215,0,0.2); border: 1px solid #ffd700; color: #ffd700; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-left: 8px; }
   .copy-btn:hover { background: #ffd700; color: #0a1f0a; }
+  .login-hint { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.7); text-align: center; }
   .receipt-instructions { background: rgba(37,211,102,0.1); border: 1px solid rgba(37,211,102,0.4); border-radius: 10px; padding: 15px; margin: 15px 0; color: #fff; font-size: 0.95rem; line-height: 1.6; }
   .receipt-instructions strong { color: #ffd700; }
   .excel-container { overflow-x: auto; margin-top: 15px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.3); }
@@ -565,7 +567,7 @@
 
 <script>
 // ============================================
-// CONFIGURACIÓN DE FIREBASE (YA INYECTADA)
+// FIREBASE CONFIG (TUS DATOS REALES)
 // ============================================
 var FIREBASE_CONFIG = {
   apiKey: "AIzaSyA9GGiIBo636l7wNt1dXSKvVHaS_jga7rA",
@@ -1123,7 +1125,7 @@ function renderMyQuinielas() {
   section.style.display = 'block'; var html = '';
   for (var i = 0; i < myPending.length; i++) {
     var q = myPending[i]; var preds = q.predictions.split('');
-    html += '<div class="my-quiniela-card"><div class="my-quiniela-card-header"><span class="my-quiniela-folio"> ' + q.folio + '</span><span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span><button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(' + q.id + ')">🗑️</button></div><div class="my-quiniela-preds">';
+    html += '<div class="my-quiniela-card"><div class="my-quiniela-card-header"><span class="my-quiniela-folio"> ' + q.folio + '</span><span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span><button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(\'' + q.id + '\')">🗑️</button></div><div class="my-quiniela-preds">';
     for (var j = 0; j < state.matches.length; j++) {
       var pred = preds[j] || '-'; var match = state.matches[j];
       var shortName = (match.local.length > 8 ? match.local.substring(0, 8) + '..' : match.local) + ' vs ' + (match.visitante.length > 8 ? match.visitante.substring(0, 8) + '..' : match.visitante);
@@ -1375,6 +1377,7 @@ function checkAdmin() {
   var inputHash = SecuritySystem.hashPassword(passInput);
   var emailMatch = emailInput.toLowerCase() === state.adminEmail.toLowerCase();
   var passMatch = inputHash === state.adminPasswordHash || passInput === state.adminPassword;
+  
   if (emailMatch && passMatch) {
     SecuritySystem.recordLoginAttempt(true);
     document.getElementById('adminLogin').style.display = 'none';
@@ -1601,7 +1604,7 @@ function renderExcelRows() {
     }
     var paidBtnClass = q.paid ? 'paid-btn paid-yes' : 'paid-btn paid-no';
     var paidBtnText = q.paid ? '✅ PAGADO' : '⬜ Pendiente';
-    html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(' + q.id + ')" title="Click para cambiar estado">' + paidBtnText + '</span></td>';
+    html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(\'' + q.id + '\')" title="Click para cambiar estado">' + paidBtnText + '</span></td>';
     html += '<td style="color:' + (q.sent ? '#4caf50' : '#ff9800') + ';font-weight:700">' + (q.sent ? '✅' : '') + '</td>';
     html += '<td style="font-weight:700;color:#ffd700">' + (state.winnersCalculated ? hits + '/' + state.matches.length : '-') + '</td>';
     html += '<td style="font-size:0.75rem">' + q.timestamp + '</td></tr>';
@@ -1611,7 +1614,7 @@ function renderExcelRows() {
 
 function togglePaid(quinielaId) {
   for (var i = 0; i < state.quinielas.length; i++) {
-    if (state.quinielas[i].id === quinielaId) {
+    if (state.quinielas[i].id == quinielaId) {
       state.quinielas[i].paid = !state.quinielas[i].paid; storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
       saveToFirebase('quinielas/quinielas', state.quinielas);
       renderExcelTable(); updateJackpotDisplay();
@@ -1770,7 +1773,7 @@ function showToast(msg) { var toast = document.getElementById('toast'); toast.te
 document.addEventListener('DOMContentLoaded', function() {
   var overlays = document.querySelectorAll('.modal-overlay');
   for (var i = 0; i < overlays.length; i++) {
-    overllays[i].addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+    overlays[i].addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
   }
 });
 
