@@ -6,6 +6,11 @@
 <title>Quinielas Los Compas</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Librerías de Firebase compatibles para uso directo en HTML -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
   body {
@@ -64,10 +69,6 @@
     top: 0;
     z-index: 100;
     border-bottom: 2px solid #ffd700;
-  }
-  .nav-bar button a {
-    color: inherit;
-    text-decoration: none;
   }
   .nav-btn {
     background: linear-gradient(135deg, #ffd700, #ffaa00);
@@ -287,7 +288,6 @@
   }
   .btn-clear { background: linear-gradient(135deg, #7f8c8d, #555); color: #fff; }
   .btn-add { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
-  .btn-send { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
   .btn-send-all { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
   .btn-config { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
   .btn-reset { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-size: 0.85rem; padding: 10px; margin-top: 10px; }
@@ -526,7 +526,6 @@
   .excel-table .correct { background: rgba(76,175,80,0.3) !important; }
   .excel-table .incorrect { background: rgba(244,67,54,0.2) !important; }
   
-  /* Botón de pago en Excel corregido */
   .paid-btn {
     display: inline-flex;
     align-items: center;
@@ -739,7 +738,7 @@
   <div class="card">
     <div id="quinielasList">
       <div class="empty-state">
-        <p>🔒 Las quinielas son privadas. Solo el administrador puede ver los pronósticos.</p>
+        <p>🔒 Las quinielas son privadas. Las de los compañeros aparecerán aquí en cuanto el administrador las marque como PAGADAS.</p>
       </div>
     </div>
   </div>
@@ -1028,6 +1027,23 @@
 (function() {
   'use strict';
   
+  // ============================================
+  // CONEXIÓN GLOBAL CON FIREBASE CONFIGURADA
+  // ============================================
+  
+  var firebaseConfig = {
+    apiKey: "AIzaSyA9GGiIBo636l7wNt1dXSKvVHaS_jga7rA",
+    authDomain: "quiniela-los-compas.firebaseapp.com",
+    projectId: "quiniela-los-compas",
+    storageBucket: "quiniela-los-compas.firebasestorage.app",
+    messagingSenderId: "885487506648",
+    appId: "1:885487506648:web:f90154096ecf98fb6773ad",
+    measurementId: "G-2BDTHEVDKY"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+  
   var SecuritySystem = {
     loginAttempts: 0,
     maxLoginAttempts: 5,
@@ -1125,40 +1141,6 @@
     }
   };
   
-  var storageAvailable = false;
-  var memoryStorage = {};
-  
-  try {
-    var testKey = '__storage_test__';
-    localStorage.setItem(testKey, 'test');
-    localStorage.removeItem(testKey);
-    storageAvailable = true;
-  } catch (e) { storageAvailable = false; }
-  
-  var storage = {
-    getItem: function(key) {
-      if (storageAvailable) {
-        try { return localStorage.getItem(key); } catch (e) { return memoryStorage[key] || null; }
-      } else { return memoryStorage[key] || null; }
-    },
-    setItem: function(key, value) {
-      if (storageAvailable) {
-        try { localStorage.setItem(key, value); } catch (e) { memoryStorage[key] = value; }
-      } else { memoryStorage[key] = value; }
-    },
-    removeItem: function(key) {
-      if (storageAvailable) {
-        try { localStorage.removeItem(key); } catch (e) { delete memoryStorage[key]; }
-      } else { delete memoryStorage[key]; }
-    }
-  };
-  
-  var session = {
-    getItem: function(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } },
-    setItem: function(key, value) { try { sessionStorage.setItem(key, value); } catch (e) {} },
-    removeItem: function(key) { try { sessionStorage.removeItem(key); } catch (e) {} }
-  };
-  
   var DEFAULTS = {
     email: 'silvaadrian2024@outlook.com',
     password: 'Nokia5530#',
@@ -1205,61 +1187,74 @@
     accumulatedJackpot: 0
   };
   
-  function loadState() {
-    try {
-      var m = storage.getItem('qlc_matches'); if (m) state.matches = JSON.parse(m);
-      var q = storage.getItem('qlc_quinielas'); if (q) state.quinielas = JSON.parse(q);
-      var j = storage.getItem('qlc_jornada'); if (j) state.jornada = JSON.parse(j);
-      var w = storage.getItem('qlc_whatsapp'); if (w) state.whatsappNumber = w;
-      var e = storage.getItem('qlc_adminemail'); if (e) state.adminEmail = e;
-      var p = storage.getItem('qlc_adminpass'); if (p) state.adminPassword = p;
-      var ph = storage.getItem('qlc_adminpasshash');
-      if (ph) state.adminPasswordHash = ph;
-      else {
-        state.adminPasswordHash = SecuritySystem.hashPassword(state.adminPassword);
-        storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
+  function syncWithFirebase() {
+    db.collection("configuracion").doc("jornadaActual").onSnapshot(function(doc) {
+      if (doc.exists) {
+        var data = doc.data();
+        if (data.matches) state.matches = data.matches;
+        if (data.jornada) state.jornada = data.jornada;
+        if (data.price) state.price = data.price;
+        if (data.whatsappNumber) state.whatsappNumber = data.whatsappNumber;
+        if (data.commissionPercent !== undefined) state.commissionPercent = data.commissionPercent;
+        if (data.initialJackpot !== undefined) state.initialJackpot = data.initialJackpot;
+        if (data.paymentMethods) state.paymentMethods = data.paymentMethods;
+        if (data.closingDateTime) state.closingDateTime = data.closingDateTime;
+        if (data.quinielaClosed !== undefined) state.quinielaClosed = data.quinielaClosed;
+        if (data.nextFolio) state.nextFolio = data.nextFolio;
+        if (data.matchResults) state.matchResults = data.matchResults;
+        if (data.winnersCalculated !== undefined) state.winnersCalculated = data.winnersCalculated;
+        if (data.history) state.history = data.history;
+        if (data.accumulatedJackpot !== undefined) state.accumulatedJackpot = data.accumulatedJackpot;
+        
+        renderMatches();
+        updateJornadaInfo();
+        renderPaymentMethods();
+        updateClosingDisplay();
+        updateJackpotDisplay();
+        renderRanking();
+        renderPublicQuinielas();
       }
-      var pr = storage.getItem('qlc_price'); if (pr) state.price = pr;
-      var comm = storage.getItem('qlc_commission'); if (comm) state.commissionPercent = parseInt(comm);
-      var initJ = storage.getItem('qlc_initialjackpot'); if (initJ) state.initialJackpot = parseInt(initJ);
-      var pm = storage.getItem('qlc_paymentmethods');
-      if (pm) {
-        state.paymentMethods = JSON.parse(pm);
-      } else {
-        var oldPay = storage.getItem('qlc_payment');
-        if (oldPay) {
-          var oldData = JSON.parse(oldPay);
-          state.paymentMethods = [{
-            id: 1,
-            type: 'bank',
-            bank: oldData.institution || '',
-            account: oldData.clabe || '',
-            holder: oldData.holder || '',
-            notes: oldData.extraNotes || ''
-          }];
-          storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
-        }
-      }
-      var ct = storage.getItem('qlc_closing'); if (ct) state.closingDateTime = ct;
-      var qc = storage.getItem('qlc_closed'); if (qc) state.quinielaClosed = (qc === 'true');
-      var nf = storage.getItem('qlc_nextfolio'); if (nf) state.nextFolio = parseInt(nf);
-      var mr = storage.getItem('qlc_results'); if (mr) state.matchResults = JSON.parse(mr);
-      var wc = storage.getItem('qlc_winners'); if (wc) state.winnersCalculated = (wc === 'true');
-      var h = storage.getItem('qlc_history'); if (h) state.history = JSON.parse(h);
-      var aj = storage.getItem('qlc_accumulated'); if (aj) state.accumulatedJackpot = parseInt(aj);
-      
-      var playerName = session.getItem('qlc_currentplayer');
-      if (playerName) {
-        state.currentPlayerName = playerName;
-        document.getElementById('playerName').value = playerName;
-      }
-    } catch (err) { console.error('Error cargando:', err); }
+    });
+
+    db.collection("quinielas").orderBy("timestamp", "asc").onSnapshot(function(querySnapshot) {
+      state.quinielas = [];
+      querySnapshot.forEach(function(doc) {
+        var quinielaData = doc.data();
+        quinielaData.id = doc.id;
+        state.quinielas.push(quinielaData);
+      });
+      renderMyQuinielas();
+      renderExcelTable();
+      updateJackpotDisplay();
+      renderPublicQuinielas();
+    });
   }
-  
+
+  function renderPublicQuinielas() {
+    var container = document.getElementById('quinielasList');
+    var paidQuinielas = state.quinielas.filter(function(q) { return q.paid; });
+    
+    if (paidQuinielas.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>🔒 Las quinielas son privadas. Las de los compañeros aparecerán aquí en cuanto el administrador las marque como PAGADAS.</p></div>';
+      return;
+    }
+    
+    var html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+    for (var i = 0; i < paidQuinielas.length; i++) {
+      var q = paidQuinielas[i];
+      html += '<div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid #4caf50; display:flex; justify-content: space-between; align-items:center;">';
+      html += '<span><strong style="color:#ffd700;">' + q.folio + '</strong> - ' + escapeHtml(q.name) + '</span>';
+      html += '<span style="font-family: monospace; letter-spacing: 2px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 4px;">' + q.predictions + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
   function generateFolio() {
     var folio = state.nextFolio;
     state.nextFolio++;
-    storage.setItem('qlc_nextfolio', state.nextFolio.toString());
+    db.collection("configuracion").doc("jornadaActual").update({ nextFolio: state.nextFolio });
     return '#' + String(folio).padStart(3, '0');
   }
   
@@ -1385,7 +1380,6 @@
       return;
     }
     state.winnersCalculated = true;
-    storage.setItem('qlc_winners', 'true');
     
     var winners = getWinners();
     var jackpot = calculateJackpot();
@@ -1397,13 +1391,16 @@
       saveToHistory(winners, jackpot);
     } else {
       state.accumulatedJackpot = jackpot.total;
-      storage.setItem('qlc_accumulated', state.accumulatedJackpot.toString());
       showToast('️ Sin ganadores. Bolsa de $' + jackpot.total.toLocaleString() + ' acumulada');
       SecuritySystem.logActivity('⚠️ Sin ganadores. Bolsa acumulada');
       saveToHistory([], jackpot);
     }
-    renderRanking();
-    updateJackpotDisplay();
+    
+    db.collection("configuracion").doc("jornadaActual").update({
+      winnersCalculated: true,
+      accumulatedJackpot: state.accumulatedJackpot,
+      history: state.history
+    });
   }
   
   function saveToHistory(winners, jackpot) {
@@ -1418,7 +1415,6 @@
       matches: JSON.parse(JSON.stringify(state.matches))
     };
     state.history.unshift(historyEntry);
-    storage.setItem('qlc_history', JSON.stringify(state.history));
   }
   
   function renderRanking() {
@@ -1431,7 +1427,7 @@
     if (winners.length === 0) {
       section.style.display = 'block';
       jornadaSpan.textContent = state.jornada.name;
-      list.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4444"><p style="font-size:1.2rem">⚠️ Sin ganadores</p><p style="margin-top:10px">Bolsa de $' + jackpot.total.toLocaleString() + ' MXN se acumula</p></div>';
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4444"><p style="font-size:1.2rem">⚠️ Sin ganadores</p><p style="margin-top:10px">Bolsa de $' + jackpot.total.toLocaleString() + ' MXN se acuula</p></div>';
       return;
     }
     var prizePerWinner = Math.floor(jackpot.total / winners.length);
@@ -1456,29 +1452,31 @@
     if (confirm('¿Limpiar resultados?')) {
       state.matchResults = {};
       state.winnersCalculated = false;
-      storage.setItem('qlc_results', '{}');
-      storage.setItem('qlc_winners', 'false');
-      renderResultsForm();
-      renderRanking();
-      updateJackpotDisplay();
+      db.collection("configuracion").doc("jornadaActual").update({
+        matchResults: {},
+        winnersCalculated: false
+      });
       showToast('🗑️ Resultados limpiados');
     }
   }
   
   function init() {
     SecuritySystem.init();
-    loadState();
-    renderMatches();
-    updateJornadaInfo();
-    renderPaymentMethods();
-    updateWhatsAppReceiptLink();
-    document.getElementById('priceDisplay').textContent = '💰 Costo: $' + state.price + ' MXN';
-    document.getElementById('notePrice').textContent = state.price;
-    document.getElementById('infoPrice').textContent = state.price;
-    updateClosingDisplay();
-    updateMyQuinielas();
-    updateJackpotDisplay();
-    renderRanking();
+    
+    var ph = storage.getItem('qlc_adminpasshash');
+    if (ph) state.adminPasswordHash = ph;
+    else {
+      state.adminPasswordHash = SecuritySystem.hashPassword(state.adminPassword);
+      storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
+    }
+    
+    var playerName = session.getItem('qlc_currentplayer');
+    if (playerName) {
+      state.currentPlayerName = playerName;
+      document.getElementById('playerName').value = playerName;
+    }
+
+    syncWithFirebase();
     setInterval(updateClosingDisplay, 1000);
   }
   
@@ -1562,7 +1560,7 @@
     
     if (myPending.length === 0) {
       section.style.display = 'block';
-      list.innerHTML = '<div class="no-pending"><div class="no-pending-icon">📭</div><p>Aún no has registrado quinielas.</p></div>';
+      list.innerHTML = '<div class="no-pending"><div class="no-pending-icon">📭</div><p>Aún no has registrado quinielas en esta sesión.</p></div>';
       sendContainer.style.display = 'none';
       if (mainSendBtn) mainSendBtn.disabled = true;
       return;
@@ -1577,7 +1575,7 @@
       html += '<div class="my-quiniela-card-header">';
       html += '<span class="my-quiniela-folio">🎫 ' + q.folio + '</span>';
       html += '<span class="my-quiniela-name">👤 ' + escapeHtml(q.name) + '</span>';
-      html += '<button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(' + q.id + ')">🗑️</button>';
+      html += '<button class="action-btn btn-danger btn-small" onclick="deleteMyQuiniela(\'' + q.id + '\')">🗑️</button>';
       html += '</div>';
       html += '<div class="my-quiniela-preds">';
       for (var j = 0; j < state.matches.length; j++) {
@@ -1597,17 +1595,10 @@
   }
   
   function deleteMyQuiniela(quinielaId) {
-    if (!confirm('¿Eliminar esta quiniela?')) return;
-    for (var i = 0; i < state.quinielas.length; i++) {
-      if (state.quinielas[i].id === quinielaId) {
-        var deleted = state.quinielas.splice(i, 1)[0];
-        storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-        showToast('️ Quiniela ' + deleted.folio + ' eliminada');
-        SecuritySystem.logActivity('️ Quiniela ' + deleted.folio + ' eliminada');
-        renderMyQuinielas();
-        break;
-      }
-    }
+    if (!confirm('¿Eliminar esta quiniela de internet?')) return;
+    db.collection("quinielas").doc(quinielaId).delete().then(function() {
+      showToast('️ Quiniela eliminada con éxito');
+    });
   }
   
   function addQuiniela() {
@@ -1624,7 +1615,6 @@
     
     var folio = generateFolio();
     var quiniela = {
-      id: Date.now(),
       folio: folio,
       name: name,
       predictions: predictions,
@@ -1635,20 +1625,16 @@
       sentAt: null
     };
     
-    state.quinielas.push(quiniela);
-    storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-    
-    var folioDisplay = document.getElementById('folioDisplay');
-    document.getElementById('folioNumber').textContent = folio;
-    folioDisplay.classList.add('active');
-    showToast('✅ Quiniela ' + folio + ' registrada');
-    SecuritySystem.logActivity('🎫 Quiniela ' + folio + ' registrada por ' + name);
-    
-    state.currentSelection = {};
-    renderMatches();
-    renderMyQuinielas();
-    updateJackpotDisplay();
-    setTimeout(function() { folioDisplay.classList.remove('active'); }, 8000);
+    db.collection("quinielas").add(quiniela).then(function() {
+      var folioDisplay = document.getElementById('folioDisplay');
+      document.getElementById('folioNumber').textContent = folio;
+      folioDisplay.classList.add('active');
+      showToast('✅ Quiniela ' + folio + ' subida a la nube');
+      
+      state.currentSelection = {};
+      renderMatches();
+      setTimeout(function() { folioDisplay.classList.remove('active'); }, 8000);
+    });
   }
   
   function sendAllQuinielasWhatsApp() {
@@ -1687,26 +1673,16 @@
       message += ' Premio: $' + jackpot.total.toLocaleString() + ' MXN';
       
       var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
-      var newWindow = window.open(url, '_blank');
       
-      if (newWindow) {
-        showToast(' WhatsApp abierto con ' + myPending.length + ' quiniela(s)');
-        for (var i = 0; i < myPending.length; i++) {
-          myPending[i].sent = true;
-          myPending[i].sentAt = new Date().toLocaleString('es-MX');
-        }
-        storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-        renderMyQuinielas();
-        SecuritySystem.logActivity('📱 ' + myPending.length + ' quiniela(s) de ' + state.currentPlayerName + ' enviada(s)');
-      } else {
-        var link = document.createElement('a');
-        link.href = url;
-        link.target = '_blank';
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(function() { document.body.removeChild(link); }, 100);
-      }
+      myPending.forEach(function(q) {
+        db.collection("quinielas").doc(q.id).update({
+          sent: true,
+          sentAt: new Date().toLocaleString('es-MX')
+        });
+      });
+
+      window.open(url, '_blank');
+      showToast(' WhatsApp abierto');
     } catch (err) { showToast('❌ Error: ' + err.message); }
   }
   
@@ -1741,29 +1717,21 @@
       message += '🏆 Premio: $' + jackpot.total.toLocaleString() + ' MXN';
       
       var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
-      var newWindow = window.open(url, '_blank');
       
-      if (newWindow) {
-        showToast('📱 WhatsApp abierto');
-        for (var i = 0; i < pending.length; i++) {
-          pending[i].sent = true;
-          pending[i].sentAt = new Date().toLocaleString('es-MX');
-        }
-        storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-        renderExcelTable();
-        SecuritySystem.logActivity('📱 Admin envió ' + pending.length + ' quiniela(s)');
-      }
+      pending.forEach(function(q) {
+        db.collection("quinielas").doc(q.id).update({
+          sent: true,
+          sentAt: new Date().toLocaleString('es-MX')
+        });
+      });
+
+      window.open(url, '_blank');
     } catch (err) { showToast('❌ Error: ' + err.message); }
   }
   
   function generatePlayerPDF() {
     try {
       var jsPDF = window.jspdf.jsPDF;
-      if (!jsPDF) {
-        showToast('静态 TXT...');
-        return;
-      }
-      
       var doc = new jsPDF('landscape', 'mm', 'a4');
       var pageWidth = doc.internal.pageSize.getWidth();
       var pageHeight = doc.internal.pageSize.getHeight();
@@ -1855,17 +1823,12 @@
             }
             row.push(hits + '/' + state.matches.length);
           }
-          
           participantsData.push(row);
         }
         
         var headers = ['Folio', 'Nombre'];
-        for (var i = 0; i < state.matches.length; i++) {
-          headers.push('P' + (i + 1));
-        }
-        if (state.winnersCalculated) {
-          headers.push('Aciertos');
-        }
+        for (var i = 0; i < state.matches.length; i++) { headers.push('P' + (i + 1)); }
+        if (state.winnersCalculated) { headers.push('Aciertos'); }
         
         doc.autoTable({
           startY: y,
@@ -1882,20 +1845,10 @@
           didParseCell: function(data) {
             if (data.section === 'body' && data.column.index >= 2 && data.column.index < 2 + state.matches.length) {
               var value = data.cell.raw;
-              if (value === 'L') {
-                data.cell.styles.textColor = [76, 175, 80];
-                data.cell.styles.fontStyle = 'bold';
-              } else if (value === 'E') {
-                data.cell.styles.textColor = [200, 160, 0];
-                data.cell.styles.fontStyle = 'bold';
-              } else if (value === 'V') {
-                data.cell.styles.textColor = [244, 67, 54];
-                data.cell.styles.fontStyle = 'bold';
-              }
-            }
-            if (state.winnersCalculated && data.section === 'body' && data.column.index === headers.length - 1) {
+              if (value === 'L') data.cell.styles.textColor = [76, 175, 80];
+              else if (value === 'E') data.cell.styles.textColor = [200, 160, 0];
+              else if (value === 'V') data.cell.styles.textColor = [244, 67, 54];
               data.cell.styles.fontStyle = 'bold';
-              data.cell.styles.textColor = [255, 215, 0];
             }
           }
         });
@@ -1903,105 +1856,13 @@
         y = doc.lastAutoTable.finalY + 15;
       }
       
-      if (state.winnersCalculated) {
-        var winners = getWinners();
-        if (y > pageHeight - 60) {
-          doc.addPage();
-          y = margin;
-        }
-        
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text('🏆 RANKING DE GANADORES', margin, y);
-        y += 8;
-        
-        if (winners.length === 0) {
-          doc.setTextColor(255, 0, 0);
-          doc.setFontSize(12);
-          doc.text('⚠️ Sin ganadores - La bolsa se acumula para la siguiente jornada', pageWidth / 2, y + 5, { align: 'center' });
-        } else {
-          var prizePerWinner = Math.floor(jackpot.total / winners.length);
-          doc.setTextColor(0, 0, 0);
-          doc.setFontSize(10);
-          doc.text('Premio por ganador: $' + prizePerWinner.toLocaleString() + ' MXN', margin, y + 5);
-          y += 12;
-          
-          var rankingData = [];
-          for (var i = 0; i < winners.length; i++) {
-            var w = winners[i];
-            var medal = i === 0 ? '🥇 1°' : (i === 1 ? '🥈 2°' : '🥉 3°');
-            rankingData.push([medal, w.name, w.folio, w.hits + '/' + state.matches.length, '$' + prizePerWinner.toLocaleString()]);
-          }
-          
-          doc.autoTable({
-            startY: y,
-            head: [['Posición', 'Nombre', 'Folio', 'Aciertos', 'Premio']],
-            body: rankingData,
-            theme: 'grid',
-            headStyles: { fillColor: [255, 215, 0], textColor: [10, 31, 10], fontSize: 10, fontStyle: 'bold' },
-            bodyStyles: { fontSize: 10 },
-            columnStyles: {
-              0: { cellWidth: 25, halign: 'center' },
-              1: { halign: 'left', fontStyle: 'bold' },
-              2: { cellWidth: 20, halign: 'center', textColor: [33, 150, 243] },
-              3: { cellWidth: 25, halign: 'center' },
-              4: { cellWidth: 30, halign: 'center', textColor: [76, 175, 80], fontStyle: 'bold' }
-            },
-            margin: { left: margin, right: margin }
-          });
-          
-          y = doc.lastAutoTable.finalY + 15;
-        }
-      }
-      
-      if (y > pageHeight - 50) {
-        doc.addPage();
-        y = margin;
-      }
-      
-      doc.setFillColor(255, 193, 7);
-      doc.rect(margin, y, pageWidth - (margin * 2), 8, 'F');
-      doc.setTextColor(10, 31, 10);
-      doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
-      doc.text(' NOTAS IMPORTANTES', margin + 3, y + 5.5);
-      y += 12;
-      
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'normal');
-      var notes = [
-        '• Costo: $' + state.price + ' MXN por quiniela',
-        '• Quiniela no pagada NO participa en el sorteo',
-        '• Si no hay ganador, la bolsa se acumula para la siguiente jornada',
-        '• El premio se reparte entre los jugadores con más aciertos',
-        '• Premio total: $' + jackpot.total.toLocaleString() + ' MXN'
-      ];
-      
-      for (var i = 0; i < notes.length; i++) {
-        doc.text(notes[i], margin + 3, y);
-        y += 5;
-      }
-      
-      doc.setFontSize(8);
-      doc.setTextColor(128, 128, 128);
-      doc.text('Documento generado el ' + new Date().toLocaleString('es-MX') + ' | Quinielas Los Compas', pageWidth / 2, pageHeight - 8, { align: 'center' });
-      
-      doc.save('quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.pdf');
-      showToast('📄 PDF generado con ' + paidQuinielas.length + ' participantes pagados');
-      SecuritySystem.logActivity('📄 PDF generado con participantes');
-    } catch (err) {
-      console.error('Error generando PDF:', err);
-      showToast('❌ Error al generar PDF: ' + err.message);
-    }
+      doc.save('quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '.pdf');
+    } catch (err) { showToast('❌ Error al generar PDF'); }
   }
   
   function generateResultsPDF() {
     try {
       var jsPDF = window.jspdf.jsPDF;
-      if (!jsPDF) { showToast('⚠️ jsPDF no disponible'); return; }
-      if (!state.winnersCalculated) { showToast('⚠️ Calcula ganadores primero'); return; }
-      
       var doc = new jsPDF('landscape', 'mm', 'a4');
       var pageWidth = doc.internal.pageSize.getWidth();
       var margin = 15;
@@ -2013,26 +1874,8 @@
       doc.setFontSize(24);
       doc.setFont(undefined, 'bold');
       doc.text('🏆 RESULTADOS OFICIALES', pageWidth / 2, 15, { align: 'center' });
-      doc.setFontSize(14);
-      doc.text(state.jornada.name, pageWidth / 2, 25, { align: 'center' });
-      doc.setFontSize(10);
-      doc.text('Fecha: ' + new Date().toLocaleString('es-MX'), pageWidth / 2, 32, { align: 'center' });
       
       y = 45;
-      
-      var jackpot = calculateJackpot();
-      doc.setFillColor(255, 215, 0);
-      doc.rect(margin, y, pageWidth - (margin * 2), 18, 'F');
-      doc.setTextColor(10, 31, 10);
-      doc.setFontSize(16);
-      doc.setFont(undefined, 'bold');
-      doc.text('PREMIO: $' + jackpot.total.toLocaleString() + ' MXN', pageWidth / 2, y + 12, { align: 'center' });
-      y += 25;
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14);
-      doc.text('📋 RESULTADOS REALES', margin, y);
-      y += 8;
       
       var resultsData = [];
       for (var i = 0; i < state.matches.length; i++) {
@@ -2047,64 +1890,11 @@
         head: [['#', 'Local', 'Visitante', 'Resultado']],
         body: resultsData,
         theme: 'grid',
-        headStyles: { fillColor: [33, 115, 70], textColor: [255, 255, 255], fontSize: 10, fontStyle: 'bold' },
-        bodyStyles: { fontSize: 9 },
-        columnStyles: {
-          0: { cellWidth: 15, halign: 'center' },
-          1: { halign: 'right' },
-          2: { halign: 'left' },
-          3: { cellWidth: 30, halign: 'center', fontStyle: 'bold' }
-        },
-        margin: { left: margin, right: margin }
+        headStyles: { fillColor: [33, 115, 70] }
       });
       
-      y = doc.lastAutoTable.finalY + 15;
-      
-      var winners = getWinners();
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14);
-      doc.text('🏆 GANADORES', margin, y);
-      y += 8;
-      
-      if (winners.length === 0) {
-        doc.setTextColor(255, 0, 0);
-        doc.setFontSize(12);
-        doc.text('⚠️ SIN GANADORES - La bolsa se acumula', pageWidth / 2, y + 5, { align: 'center' });
-      } else {
-        var prizePerWinner = Math.floor(jackpot.total / winners.length);
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        doc.text('Premio por ganador: $' + prizePerWinner.toLocaleString() + ' MXN', margin, y + 5);
-        y += 12;
-        
-        var rankingData = [];
-        for (var i = 0; i < winners.length; i++) {
-          var w = winners[i];
-          var medal = i === 0 ? '🥇 1°' : (i === 1 ? '🥈 2°' : '🥉 3°');
-          rankingData.push([medal, w.name, w.folio, w.hits + '/' + state.matches.length, '$' + prizePerWinner.toLocaleString()]);
-        }
-        
-        doc.autoTable({
-          startY: y,
-          head: [['Posición', 'Nombre', 'Folio', 'Aciertos', 'Premio']],
-          body: rankingData,
-          theme: 'grid',
-          headStyles: { fillColor: [255, 215, 0], textColor: [10, 31, 10], fontSize: 10, fontStyle: 'bold' },
-          bodyStyles: { fontSize: 10 },
-          columnStyles: {
-            0: { cellWidth: 25, halign: 'center' },
-            1: { halign: 'left', fontStyle: 'bold' },
-            2: { cellWidth: 20, halign: 'center', textColor: [33, 150, 243] },
-            3: { cellWidth: 25, halign: 'center' },
-            4: { cellWidth: 30, halign: 'center', textColor: [76, 175, 80], fontStyle: 'bold' }
-          },
-          margin: { left: margin, right: margin }
-        });
-      }
-      
       doc.save('resultados_' + state.jornada.name.replace(/\s+/g, '_') + '.pdf');
-      showToast('📄 PDF de resultados generado');
-    } catch (err) { showToast('❌ Error: ' + err.message); }
+    } catch (err) { showToast('❌ Error'); }
   }
   
   function checkAdmin() {
@@ -2130,21 +1920,18 @@
       showToast('✅ Bienvenido Admin');
     } else {
       SecuritySystem.recordLoginAttempt(false);
-      var remaining = SecuritySystem.maxLoginAttempts - SecuritySystem.loginAttempts;
-      showToast('❌ Credenciales incorrectas. Intentos: ' + remaining);
+      showToast('❌ Credenciales incorrectas');
     }
   }
   
   function resetCredentials() {
-    if (confirm('⚠️ ¿Restaurar credenciales?\n\nCorreo: silvaadrian2024@outlook.com\nContraseña: Nokia5530#')) {
+    if (confirm('⚠️ ¿Restaurar credenciales?')) {
       state.adminEmail = DEFAULTS.email;
       state.adminPassword = DEFAULTS.password;
       state.adminPasswordHash = SecuritySystem.hashPassword(DEFAULTS.password);
       storage.setItem('qlc_adminemail', DEFAULTS.email);
       storage.setItem('qlc_adminpass', DEFAULTS.password);
       storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
-      SecuritySystem.loginAttempts = 0;
-      SecuritySystem.isLocked = false;
       showToast('✅ Credenciales restauradas');
     }
   }
@@ -2157,11 +1944,9 @@
     if (btn) btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
     if (tab === 'excel') renderExcelTable();
-    if (tab === 'security') SecuritySystem.updateActivityLogDisplay();
     if (tab === 'closing') updateClosingStatus();
     if (tab === 'results') renderResultsForm();
     if (tab === 'history') renderHistory();
-    if (tab === 'jackpot') updateJackpotDisplay();
     if (tab === 'payments') renderPaymentMethodsList();
   }
   
@@ -2170,29 +1955,25 @@
       var localInput = document.getElementById('localTeam');
       var visitanteInput = document.getElementById('visitanteTeam');
       var jornadaInput = document.getElementById('jornadaName');
-      if (!localInput || !visitanteInput) { showToast('⚠️ Error'); return; }
       var local = localInput.value.trim();
       var visitante = visitanteInput.value.trim();
       var jornadaName = jornadaInput ? jornadaInput.value.trim() : '';
       if (!local || !visitante) { showToast('️ Completa ambos equipos'); return; }
       if (state.matches.length >= MAX_MATCHES) { showToast('⚠️ Máximo 9 partidos'); return; }
-      if (jornadaName) {
-        state.jornada.name = jornadaName;
-        storage.setItem('qlc_jornada', JSON.stringify(state.jornada));
-      }
+      
+      if (jornadaName) state.jornada.name = jornadaName;
       state.matches.push({ local: local, visitante: visitante });
-      storage.setItem('qlc_matches', JSON.stringify(state.matches));
-      localInput.value = '';
-      visitanteInput.value = '';
-      localInput.focus();
-      renderAdminMatches();
-      renderMatches();
-      updateJornadaInfo();
-      renderMyQuinielas();
-      var remaining = MAX_MATCHES - state.matches.length;
-      showToast('✅ Partido agregado (' + state.matches.length + '/9) - Faltan ' + remaining);
-      SecuritySystem.logActivity('⚽ Partido: ' + local + ' vs ' + visitante);
-    } catch (err) { showToast('❌ Error: ' + err.message); }
+      
+      db.collection("configuracion").doc("jornadaActual").update({
+        matches: state.matches,
+        jornada: state.jornada
+      }).then(function() {
+        localInput.value = '';
+        visitanteInput.value = '';
+        localInput.focus();
+        showToast('✅ Partido subido a Firebase');
+      });
+    } catch (err) { showToast('❌ Error'); }
   }
   
   function renderAdminMatches() {
@@ -2218,24 +1999,12 @@
   
   function deleteMatch(idx) {
     state.matches.splice(idx, 1);
-    storage.setItem('qlc_matches', JSON.stringify(state.matches));
-    renderAdminMatches();
-    renderMatches();
-    updateJornadaInfo();
-    renderMyQuinielas();
-    showToast('🗑️ Partido eliminado');
+    db.collection("configuracion").doc("jornadaActual").update({ matches: state.matches });
   }
   
   function clearAllMatches() {
-    if (confirm('¿Eliminar todos los partidos?')) {
-      state.matches = [];
-      state.currentSelection = {};
-      storage.setItem('qlc_matches', JSON.stringify(state.matches));
-      renderAdminMatches();
-      renderMatches();
-      updateJornadaInfo();
-      renderMyQuinielas();
-      showToast('️ Partidos eliminados');
+    if (confirm('¿Eliminar todos los partidos de la nube?')) {
+      db.collection("configuracion").doc("jornadaActual").update({ matches: [], currentSelection: {} });
     }
   }
   
@@ -2263,7 +2032,7 @@
   function setMatchResult(idx, value) {
     if (value) state.matchResults[idx] = value;
     else delete state.matchResults[idx];
-    storage.setItem('qlc_results', JSON.stringify(state.matchResults));
+    db.collection("configuracion").doc("jornadaActual").update({ matchResults: state.matchResults });
   }
   
   function renderHistory() {
@@ -2278,87 +2047,24 @@
       html += '<span>📊 ' + h.totalQuinielas + '</span>';
       html += '<span>✅ ' + h.paidQuinielas + ' pagadas</span>';
       html += '<span>💰 $' + h.jackpot.toLocaleString() + '</span>';
-      if (h.winners.length > 0) html += '<span> ' + h.winners.length + ' ganador(es)</span>';
-      else html += '<span style="color:#ff4444">⚠️ Sin ganadores</span>';
-      html += '</div>';
-      if (h.winners.length > 0) {
-        html += '<div style="margin-top:8px;font-size:0.85rem;color:#4caf50">';
-        for (var j = 0; j < h.winners.length; j++) html += '🥇 ' + escapeHtml(h.winners[j].name) + ' (' + h.winners[j].hits + ') ';
-        html += '</div>';
-      }
-      html += '</div>';
+      html += '</div></div>';
     }
     container.innerHTML = html;
   }
   
   function clearHistory() {
     if (confirm('¿Limpiar historial?')) {
-      state.history = [];
-      storage.setItem('qlc_history', '[]');
-      renderHistory();
-      showToast('🗑️ Historial limpiados');
+      db.collection("configuracion").doc("jornadaActual").update({ history: [] });
     }
   }
   
   function updatePaymentForm() {
     var type = document.getElementById('paymentMethodType').value;
     var fields = document.getElementById('paymentFormFields');
-    
     if (type === 'bank') {
-      fields.innerHTML = `
-        <label>Nombre del banco:</label>
-        <input type="text" id="pmBank" placeholder="Ej: BBVA, Banorte, Santander">
-        <label>CLABE (18 dígitos):</label>
-        <input type="text" id="pmAccount" placeholder="CLABE interbancaria" maxlength="18">
-        <label>Nombre del beneficiario:</label>
-        <input type="text" id="pmHolder" placeholder="Nombre completo">
-        <label>Notas (opcional):</label>
-        <textarea id="pmNotes" rows="2" placeholder="Instrucciones especiales"></textarea>
-      `;
-    } else if (type === 'card') {
-      fields.innerHTML = `
-        <label>Banco emisor:</label>
-        <input type="text" id="pmBank" placeholder="Ej: BBVA, Banorte">
-        <label>Número de tarjeta:</label>
-        <input type="text" id="pmAccount" placeholder="Número de tarjeta (16 dígitos)" maxlength="19">
-        <label>Nombre del titular:</label>
-        <input type="text" id="pmHolder" placeholder="Como aparece en la tarjeta">
-        <label>Notas (opcional):</label>
-        <textarea id="pmNotes" rows="2" placeholder="Ej: Solo débito, no crédito"></textarea>
-      `;
-    } else if (type === 'mercadopago') {
-      fields.innerHTML = `
-        <label>Correo o teléfono de Mercado Pago:</label>
-        <input type="text" id="pmBank" placeholder="correo@ejemplo.com o teléfono">
-        <label>Alias (opcional):</label>
-        <input type="text" id="pmAccount" placeholder="Ej: mi.alias.mp">
-        <label>Nombre del titular:</label>
-        <input type="text" id="pmHolder" placeholder="Nombre completo">
-        <label>Notas (opcional):</label>
-        <textarea id="pmNotes" rows="2" placeholder="Instrucciones"></textarea>
-      `;
-    } else if (type === 'oxxo') {
-      fields.innerHTML = `
-        <label>Referencia OXXO:</label>
-        <input type="text" id="pmBank" placeholder="Número de referencia">
-        <label>Monto exacto:</label>
-        <input type="text" id="pmAccount" placeholder="Monto a pagar">
-        <label>Nombre del beneficiario:</label>
-        <input type="text" id="pmHolder" placeholder="Nombre">
-        <label>Notas (opcional):</label>
-        <textarea id="pmNotes" rows="2" placeholder="Instrucciones"></textarea>
-      `;
+      fields.innerHTML = `<label>Nombre del banco:</label><input type="text" id="pmBank" placeholder="Ej: BBVA"><label>CLABE (18 dígitos):</label><input type="text" id="pmAccount" placeholder="CLABE" maxlength="18"><label>Nombre del beneficiario:</label><input type="text" id="pmHolder" placeholder="Nombre completo"><label>Notas (opcional):</label><textarea id="pmNotes" rows="2"></textarea>`;
     } else {
-      fields.innerHTML = `
-        <label>Nombre del método:</label>
-        <input type="text" id="pmBank" placeholder="Ej: PayPal, Transferencia internacional">
-        <label>Datos:</label>
-        <input type="text" id="pmAccount" placeholder="Información principal">
-        <label>Nombre del beneficiario:</label>
-        <input type="text" id="pmHolder" placeholder="Nombre">
-        <label>Notas:</label>
-        <textarea id="pmNotes" rows="2" placeholder="Instrucciones"></textarea>
-      `;
+      fields.innerHTML = `<label>Nombre del método:</label><input type="text" id="pmBank" placeholder="Ej: Mercado Pago"><label>Datos:</label><input type="text" id="pmAccount" placeholder="Información principal"><label>Nombre del beneficiario:</label><input type="text" id="pmHolder" placeholder="Nombre"><label>Notas:</label><textarea id="pmNotes" rows="2"></textarea>`;
     }
   }
   
@@ -2369,81 +2075,28 @@
     var holder = document.getElementById('pmHolder').value.trim();
     var notes = document.getElementById('pmNotes').value.trim();
     
-    if (!bank || !account || !holder) {
-      showToast('⚠️ Completa los campos obligatorios');
-      return;
-    }
+    if (!bank || !account || !holder) { showToast('⚠️ Completa los campos obligatorios'); return; }
     
-    var typeLabels = {
-      'bank': '🏦 Transferencia Bancaria',
-      'card': '💳 Tarjeta',
-      'mercadopago': ' Mercado Pago',
-      'oxxo': '🏪 OXXO Pay',
-      'other': '📝 Otro'
-    };
-    
-    var newMethod = {
-      id: Date.now(),
-      type: type,
-      typeLabel: typeLabels[type] || type,
-      bank: bank,
-      account: account,
-      holder: holder,
-      notes: notes
-    };
-    
+    var newMethod = { id: Date.now(), type: type, typeLabel: type, bank: bank, account: account, holder: holder, notes: notes };
     state.paymentMethods.push(newMethod);
-    storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
-    
-    document.getElementById('pmBank').value = '';
-    document.getElementById('pmAccount').value = '';
-    document.getElementById('pmHolder').value = '';
-    document.getElementById('pmNotes').value = '';
-    
-    renderPaymentMethodsList();
-    renderPaymentMethods();
-    showToast('✅ Método de pago agregado');
-    SecuritySystem.logActivity('💳 Método de pago agregado: ' + typeLabels[type]);
+    db.collection("configuracion").doc("jornadaActual").update({ paymentMethods: state.paymentMethods });
   }
   
   function deletePaymentMethod(id) {
-    if (!confirm('¿Eliminar este método de pago?')) return;
     state.paymentMethods = state.paymentMethods.filter(function(m) { return m.id !== id; });
-    storage.setItem('qlc_paymentmethods', JSON.stringify(state.paymentMethods));
-    renderPaymentMethodsList();
-    renderPaymentMethods();
-    showToast('️ Método de pago eliminado');
+    db.collection("configuracion").doc("jornadaActual").update({ paymentMethods: state.paymentMethods });
   }
   
   function renderPaymentMethodsList() {
     var container = document.getElementById('paymentMethodsList');
     if (!container) return;
-    
-    if (state.paymentMethods.length === 0) {
-      container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No hay métodos de pago configurados</p>';
-      return;
-    }
-    
+    if (state.paymentMethods.length === 0) { container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No hay métodos configurados</p>'; return; }
     var html = '';
     for (var i = 0; i < state.paymentMethods.length; i++) {
       var m = state.paymentMethods[i];
-      html += '<div class="payment-method-item">';
-      html += '<div class="method-info">';
-      html += '<div class="method-name">' + m.typeLabel + ' - ' + escapeHtml(m.bank) + '</div>';
-      html += '<div class="method-details">';
-      if (m.type === 'bank') {
-        html += 'CLABE: ' + m.account + ' | Titular: ' + escapeHtml(m.holder);
-      } else if (m.type === 'card') {
-        html += 'Tarjeta: ' + m.account + ' | Titular: ' + escapeHtml(m.holder);
-      } else if (m.type === 'mercadopago') {
-        html += 'Contacto: ' + m.account + ' | Titular: ' + escapeHtml(m.holder);
-      } else {
-        html += escapeHtml(m.account) + ' | ' + escapeHtml(m.holder);
-      }
-      if (m.notes) html += '<br>📝 ' + escapeHtml(m.notes);
-      html += '</div></div>';
-      html += '<button class="delete-btn" onclick="deletePaymentMethod(' + m.id + ')">🗑️</button>';
-      html += '</div>';
+      html += '<div class="payment-method-item"><div class="method-info"><div class="method-name">' + escapeHtml(m.bank) + '</div>';
+      html += '<div class="method-details">' + m.account + ' - ' + escapeHtml(m.holder) + '</div></div>';
+      html += '<button class="delete-btn" onclick="deletePaymentMethod(' + m.id + ')">🗑️</button></div>';
     }
     container.innerHTML = html;
   }
@@ -2451,68 +2104,17 @@
   function renderPaymentMethods() {
     var container = document.getElementById('paymentMethodsDisplay');
     var html = '';
-    
     if (state.paymentMethods.length === 0) {
-      html = '<p style="text-align:center;color:rgba(255,255,255,0.5)">El admin aún no ha configurado los métodos de pago</p>';
+      html = '<p style="text-align:center;color:rgba(255,255,255,0.5)">Sin métodos configurados</p>';
     } else {
       for (var i = 0; i < state.paymentMethods.length; i++) {
         var m = state.paymentMethods[i];
-        html += '<div class="payment-method">';
-        html += '<h4>' + m.typeLabel + ' - ' + escapeHtml(m.bank) + '</h4>';
-        
-        if (m.type === 'bank') {
-          html += '<p><strong>CLABE:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
-          html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')">📋 Copiar</button></p>';
-        } else if (m.type === 'card') {
-          html += '<p><strong>Tarjeta:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
-          html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + ' <button class="copy-btn" onclick="copyText(\'' + m.holder + '\')">📋 Copiar</button></p>';
-        } else if (m.type === 'mercadopago') {
-          html += '<p><strong>Contacto:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
-          if (m.bank) html += '<p><strong>Alias:</strong> ' + escapeHtml(m.bank) + '</p>';
-          html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + '</p>';
-        } else if (m.type === 'oxxo') {
-          html += '<p><strong>Referencia:</strong> ' + m.bank + ' <button class="copy-btn" onclick="copyText(\'' + m.bank + '\')">📋 Copiar</button></p>';
-          html += '<p><strong>Monto:</strong> ' + m.account + '</p>';
-        } else {
-          html += '<p><strong>Datos:</strong> ' + escapeHtml(m.account) + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
-          html += '<p><strong>Beneficiario:</strong> ' + escapeHtml(m.holder) + '</p>';
-        }
-        
-        if (m.notes) {
-          html += '<p style="margin-top:8px;color:#ffd700"><strong>📝 Notas:</strong> ' + escapeHtml(m.notes) + '</p>';
-        }
-        html += '</div>';
+        html += '<div class="payment-method"><h4>' + escapeHtml(m.bank) + '</h4>';
+        html += '<p><strong>Cuenta/CLABE:</strong> ' + m.account + ' <button class="copy-btn" onclick="copyText(\'' + m.account + '\')">📋 Copiar</button></p>';
+        html += '<p><strong>Titular:</strong> ' + escapeHtml(m.holder) + '</p></div>';
       }
     }
     container.innerHTML = html;
-  }
-  
-  function updateClosingStatus() {
-    var statusDiv = document.getElementById('closingStatus');
-    if (!statusDiv) return;
-    var info = getClosingInfo();
-    var html = '';
-    if (info.closed) html += '<div style="color:#ff4444;font-weight:700;margin-bottom:10px">🔒 CERRADA</div>';
-    else html += '<div style="color:#4caf50;font-weight:700;margin-bottom:10px">🟢 ABIERTA</div>';
-    html += '<div style="margin-bottom:8px"><strong>Estado:</strong> ' + info.message + '</div>';
-    if (info.time) {
-      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-      html += '<div><strong>Cierre:</strong> ' + info.time.toLocaleDateString('es-MX', options) + '</div>';
-    }
-    var total = state.quinielas.length, sent = 0, pending = 0;
-    for (var i = 0; i < state.quinielas.length; i++) { if (state.quinielas[i].sent) sent++; else pending++; }
-    html += '<div style="margin-top:15px;padding-top:10px;border-top:1px solid rgba(255,215,0,0.3)">';
-    html += '<div><strong>Total:</strong> ' + total + '</div>';
-    html += '<div><strong>Enviadas:</strong> ' + sent + '</div>';
-    html += '<div><strong>Pendientes:</strong> ' + pending + '</div>';
-    html += '<div style="color:#2196f3"><strong>Próximo folio:</strong> ' + getNextFolioPreview() + '</div></div>';
-    var dateInput = document.getElementById('closingDate');
-    var timeInput = document.getElementById('closingTime');
-    if (dateInput && info.time) {
-      dateInput.value = info.time.toISOString().split('T')[0];
-      timeInput.value = info.time.toTimeString().substring(0, 5);
-    }
-    statusDiv.innerHTML = html;
   }
   
   function saveClosingTime() {
@@ -2520,37 +2122,18 @@
     var timeVal = document.getElementById('closingTime').value;
     if (!dateVal || !timeVal) { showToast('⚠️ Completa fecha y hora'); return; }
     var closingDate = new Date(dateVal + 'T' + timeVal);
-    if (closingDate <= new Date()) { showToast('⚠️ Debe ser en el futuro'); return; }
-    state.closingDateTime = closingDate.toISOString();
-    state.quinielaClosed = false;
-    storage.setItem('qlc_closing', state.closingDateTime);
-    storage.setItem('qlc_closed', 'false');
-    updateClosingDisplay();
-    updateClosingStatus();
-    showToast('✅ Hora de cierre guardada');
-    SecuritySystem.logActivity(' Cierre: ' + closingDate.toLocaleString('es-MX'));
+    db.collection("configuracion").doc("jornadaActual").update({
+      closingDateTime: closingDate.toISOString(),
+      quinielaClosed: false
+    });
   }
   
   function closeNow() {
-    if (confirm('¿Cerrar quiniela AHORA?')) {
-      state.quinielaClosed = true;
-      storage.setItem('qlc_closed', 'true');
-      updateClosingDisplay();
-      updateClosingStatus();
-      showToast(' Quiniela cerrada');
-    }
+    db.collection("configuracion").doc("jornadaActual").update({ quinielaClosed: true });
   }
   
   function reopenQuiniela() {
-    if (confirm('¿Reabrir quiniela?')) {
-      state.quinielaClosed = false;
-      state.closingDateTime = null;
-      storage.setItem('qlc_closed', 'false');
-      storage.removeItem('qlc_closing');
-      updateClosingDisplay();
-      updateClosingStatus();
-      showToast('🔓 Quiniela reabierta');
-    }
+    db.collection("configuracion").doc("jornadaActual").update({ quinielaClosed: false, closingDateTime: null });
   }
   
   function renderExcelTable() {
@@ -2569,416 +2152,104 @@
     document.getElementById('excelSummary').innerHTML = 
       '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Total</div></div>' +
       '<div class="stat"><div class="stat-value" style="color:#4caf50">' + paid + '</div><div class="stat-label">✅ Pagadas</div></div>' +
-      '<div class="stat"><div class="stat-value" style="color:#2196f3">' + sent + '</div><div class="stat-label"> Enviadas</div></div>' +
-      '<div class="stat"><div class="stat-value" style="color:#ff9800">' + pending + '</div><div class="stat-label">⏳ Pendientes</div></div>' +
-      '<div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Premio</div></div>' +
-      '<div class="stat"><div class="stat-value" style="color:#2196f3">' + getNextFolioPreview() + '</div><div class="stat-label">🎫 Folio</div></div>';
+      '<div class="stat"><div class="stat-value">$' + jackpot.total.toLocaleString() + '</div><div class="stat-label">🏆 Premio</div></div>';
   }
   
   function renderExcelHeaders() {
     var thead = document.getElementById('excelThead');
     var headerHTML = '<tr><th> Folio</th><th>Nombre</th>';
     for (var i = 0; i < state.matches.length; i++) {
-      var m = state.matches[i];
-      var sl = m.local.length > 10 ? m.local.substring(0, 10) + '.' : m.local;
-      var sv = m.visitante.length > 10 ? m.visitante.substring(0, 10) + '.' : m.visitante;
-      headerHTML += '<th title="' + escapeHtml(m.local) + ' vs ' + escapeHtml(m.visitante) + '">P' + (i+1) + '<br><small>' + escapeHtml(sl) + '<br>vs<br>' + escapeHtml(sv) + '</small></th>';
+      headerHTML += '<th>P' + (i+1) + '</th>';
     }
-    headerHTML += '<th>💰 Pago</th><th>📱</th><th>Aciertos</th><th>📅</th></tr>';
+    headerHTML += '<th>💰 Pago</th><th>Aciertos</th></tr>';
     thead.innerHTML = headerHTML;
   }
   
   function renderExcelRows() {
     var tbody = document.getElementById('excelTbody');
     if (state.quinielas.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="' + (state.matches.length + 6) + '" style="text-align:center;padding:20px;color:rgba(255,255,255,0.5)">Sin quinielas</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="' + (state.matches.length + 4) + '">Sin quinielas</td></tr>';
       return;
     }
     var html = '';
     for (var rowIdx = 0; rowIdx < state.quinielas.length; rowIdx++) {
       var q = state.quinielas[rowIdx];
       var preds = q.predictions.split('');
-      var hits = 0;
-      if (state.winnersCalculated) {
-        for (var j = 0; j < state.matches.length; j++) {
-          if (state.matchResults[j] && preds[j] === state.matchResults[j]) hits++;
-        }
-      }
-      html += '<tr>';
-      html += '<td class="folio-cell">' + q.folio + '</td>';
-      html += '<td class="player-cell">' + escapeHtml(q.name) + (q.sent ? ' 📱' : '') + '</td>';
+      html += '<tr><td class="folio-cell">' + q.folio + '</td><td class="player-cell">' + escapeHtml(q.name) + '</td>';
       for (var i = 0; i < state.matches.length; i++) {
-        var p = preds[i] || '-';
-        var cellClass = 'pred-cell pred-' + p;
-        if (state.winnersCalculated && state.matchResults[i]) {
-          if (p === state.matchResults[i]) cellClass += ' correct';
-          else cellClass += ' incorrect';
-        }
-        html += '<td class="' + cellClass + '">' + p + '</td>';
+        html += '<td>' + (preds[i] || '-') + '</td>';
       }
-      
       var paidBtnClass = q.paid ? 'paid-btn paid-yes' : 'paid-btn paid-no';
       var paidBtnText = q.paid ? '✅ PAGADO' : '⬜ Pendiente';
-      html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(' + q.id + ')" title="Click para cambiar estado">' + paidBtnText + '</span></td>';
-      html += '<td style="color:' + (q.sent ? '#4caf50' : '#ff9800') + ';font-weight:700">' + (q.sent ? '✅' : '') + '</td>';
-      html += '<td style="font-weight:700;color:#ffd700">' + (state.winnersCalculated ? hits + '/' + state.matches.length : '-') + '</td>';
-      html += '<td style="font-size:0.75rem">' + q.timestamp + '</td>';
-      html += '</tr>';
+      html += '<td><span class="' + paidBtnClass + '" onclick="togglePaid(\'' + q.id + '\')">' + paidBtnText + '</span></td>';
+      html += '<td>-</td></tr>';
     }
     tbody.innerHTML = html;
   }
   
-  function togglePaid(quinielaId) {
-    for (var i = 0; i < state.quinielas.length; i++) {
-      if (state.quinielas[i].id === quinielaId) {
-        state.quinielas[i].paid = !state.quinielas[i].paid;
-        storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-        
-        renderExcelTable();
-        updateJackpotDisplay();
-        
-        var status = state.quinielas[i].paid ? 'PAGADO' : 'PENDIENTE';
-        showToast((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
-        SecuritySystem.logActivity((state.quinielas[i].paid ? '✅ ' : '⏳ ') + state.quinielas[i].folio + ' ' + state.quinielas[i].name + ' -> ' + status);
-        break;
-      }
+  function togglePaid(firebaseId) {
+    var quinielaActual = state.quinielas.find(function(q) { return q.id === firebaseId; });
+    if (quinielaActual) {
+      var nuevoEstadoPago = !quinielaActual.paid;
+      db.collection("quinielas").doc(firebaseId).update({
+        paid: nuevoEstadoPago
+      }).then(function() {
+        showToast('💵 Pago actualizado en la nube');
+      });
     }
   }
   
   function downloadExcel() {
     if (state.quinielas.length === 0) { showToast('⚠️ Sin quinielas'); return; }
     var csv = '\uFEFF';
-    csv += 'Folio,Nombre,';
-    for (var i = 0; i < state.matches.length; i++) {
-      var m = state.matches[i];
-      csv += '"P' + (i+1) + ': ' + m.local + ' vs ' + m.visitante + '",';
-    }
-    csv += 'Pagado,Enviada,Aciertos,Fecha\n';
+    csv += 'Folio,Nombre,Pagado\n';
     for (var i = 0; i < state.quinielas.length; i++) {
       var q = state.quinielas[i];
-      var preds = q.predictions.split('');
-      csv += q.folio + ',"' + q.name + '",';
-      for (var j = 0; j < state.matches.length; j++) csv += (preds[j] || '-') + ',';
-      var hits = 0;
-      if (state.winnersCalculated) {
-        for (var j = 0; j < state.matches.length; j++) {
-          if (state.matchResults[j] && preds[j] === state.matchResults[j]) hits++;
-        }
-      }
-      csv += (q.paid ? 'PAGADO' : 'PENDIENTE') + ',';
-      csv += (q.sent ? 'ENVIADA' : 'PENDIENTE') + ',';
-      csv += hits + ',';
-      csv += '"' + q.timestamp + '"\n';
+      csv += q.folio + ',"' + q.name + '",' + (q.paid ? 'PAGADO' : 'PENDIENTE') + '\n';
     }
-    var jackpot = calculateJackpot();
-    csv += '\nRESUMEN\n';
-    csv += 'Total:,' + state.quinielas.length + '\n';
-    csv += 'Pagadas:,' + jackpot.paidCount + '\n';
-    csv += 'Premio:,$' + jackpot.total + '\n';
     var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url;
-    a.download = 'quinielas_' + state.jornada.name.replace(/\s+/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('📥 Excel descargado');
+    a.href = url; a.download = 'quinielas.csv'; a.click();
   }
   
   function clearAllQuinielas() {
-    if (confirm('¿Eliminar TODAS las quinielas?')) {
-      state.quinielas = [];
-      storage.setItem('qlc_quinielas', JSON.stringify(state.quinielas));
-      renderExcelTable();
-      renderMyQuinielas();
-      updateJackpotDisplay();
-      showToast('️ Quinielas eliminadas');
+    if (confirm('¿Eliminar TODAS las quinielas de internet?')) {
+      db.collection("quinielas").get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          doc.ref.delete();
+        });
+        showToast('Nube limpia de quinielas');
+      });
     }
-  }
-  
-  function updateJornadaInfo() {
-    document.getElementById('jornadaTitle').textContent = state.jornada.name;
-    document.getElementById('jornadaDate').textContent = state.jornada.date;
-  }
-  
-  function loadConfigInputs() {
-    document.getElementById('whatsappInput').value = state.whatsappNumber;
-    document.getElementById('priceInput').value = state.price;
-    document.getElementById('commissionPercent').value = state.commissionPercent;
-    document.getElementById('initialJackpot').value = state.initialJackpot;
-  }
-  
-  function changeCredentials() {
-    var currentPass = document.getElementById('currentPassVerify').value;
-    var newPass = document.getElementById('newPassword').value;
-    var confirmPass = document.getElementById('confirmPassword').value;
-    if (!currentPass) { showToast('️ Ingresa contraseña actual'); return; }
-    var currentHash = SecuritySystem.hashPassword(currentPass);
-    if (currentHash !== state.adminPasswordHash && currentPass !== state.adminPassword) { showToast('❌ Contraseña actual incorrecta'); return; }
-    if (!newPass || newPass.length < 6) { showToast('⚠️ Mínimo 6 caracteres'); return; }
-    if (newPass !== confirmPass) { showToast('❌ No coinciden'); return; }
-    state.adminPassword = newPass;
-    state.adminPasswordHash = SecuritySystem.hashPassword(newPass);
-    storage.setItem('qlc_adminpass', newPass);
-    storage.setItem('qlc_adminpasshash', state.adminPasswordHash);
-    document.getElementById('currentPassVerify').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
-    showToast('✅ Contraseña actualizada');
-    SecuritySystem.logActivity('🔐 Contraseña actualizada');
   }
   
   function saveWhatsApp() {
     var num = document.getElementById('whatsappInput').value.trim();
-    if (!num || !/^\d{10,15}$/.test(num)) { showToast('⚠️ Número inválido'); return; }
-    state.whatsappNumber = num;
-    storage.setItem('qlc_whatsapp', num);
-    updateWhatsAppReceiptLink();
-    showToast('✅ WhatsApp guardado');
+    db.collection("configuracion").doc("jornadaActual").update({ whatsappNumber: num });
   }
   
   function savePrice() {
     var price = document.getElementById('priceInput').value;
-    if (!price || price < 1) { showToast('⚠️ Precio inválido'); return; }
-    state.price = price;
-    storage.setItem('qlc_price', price);
-    document.getElementById('priceDisplay').textContent = '💰 Costo: $' + price + ' MXN';
-    document.getElementById('notePrice').textContent = price;
-    document.getElementById('infoPrice').textContent = price;
-    updateJackpotDisplay();
-    showToast('✅ Precio actualizado');
+    db.collection("configuracion").doc("jornadaActual").update({ price: price });
   }
   
   function saveJackpotConfig() {
     var comm = document.getElementById('commissionPercent').value;
     var initJ = document.getElementById('initialJackpot').value;
-    if (comm && comm >= 0 && comm <= 50) {
-      state.commissionPercent = parseInt(comm);
-      storage.setItem('qlc_commission', comm);
-    }
-    if (initJ && initJ >= 0) {
-      state.initialJackpot = parseInt(initJ);
-      storage.setItem('qlc_initialjackpot', initJ);
-    }
-    updateJackpotDisplay();
-    showToast('✅ Configuración guardada');
-  }
-  
-  function copyText(text) {
-    navigator.clipboard.writeText(text).then(function() { showToast('📋 Copiado'); }).catch(function() {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('📋 Copiado');
+    db.collection("configuracion").doc("jornadaActual").update({
+      commissionPercent: parseInt(comm),
+      initialJackpot: parseInt(initJ)
     });
   }
   
-  function exportConfig() {
-    var data = {
-      matches: state.matches, jornada: state.jornada, whatsappNumber: state.whatsappNumber,
-      adminEmail: state.adminEmail, price: state.price, commissionPercent: state.commissionPercent,
-      initialJackpot: state.initialJackpot, paymentMethods: state.paymentMethods,
-      closingDateTime: state.closingDateTime, quinielaClosed: state.quinielaClosed,
-      nextFolio: state.nextFolio, accumulatedJackpot: state.accumulatedJackpot,
-      exportDate: new Date().toISOString()
-    };
-    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'quinielas-config-' + Date.now() + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('📤 Configuración exportada');
-  }
-  
-  function importConfig(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        var data = JSON.parse(e.target.result);
-        if (data.matches) { state.matches = data.matches; storage.setItem('qlc_matches', JSON.stringify(data.matches)); }
-        if (data.jornada) { state.jornada = data.jornada; storage.setItem('qlc_jornada', JSON.stringify(data.jornada)); }
-        if (data.whatsappNumber) { state.whatsappNumber = data.whatsappNumber; storage.setItem('qlc_whatsapp', data.whatsappNumber); }
-        if (data.adminEmail) { state.adminEmail = data.adminEmail; storage.setItem('qlc_adminemail', data.adminEmail); }
-        if (data.price) { state.price = data.price; storage.setItem('qlc_price', data.price); }
-        if (data.commissionPercent) { state.commissionPercent = data.commissionPercent; storage.setItem('qlc_commission', data.commissionPercent); }
-        if (data.paymentMethods) { state.paymentMethods = data.paymentMethods; storage.setItem('qlc_paymentmethods', JSON.stringify(data.paymentMethods)); }
-        if (data.closingDateTime) { state.closingDateTime = data.closingDateTime; storage.setItem('qlc_closing', data.closingDateTime); }
-        if (data.quinielaClosed !== undefined) { state.quinielaClosed = data.quinielaClosed; storage.setItem('qlc_closed', String(data.quinielaClosed)); }
-        if (data.nextFolio) { state.nextFolio = data.nextFolio; storage.setItem('qlc_nextfolio', data.nextFolio.toString()); }
-        if (data.accumulatedJackpot) { state.accumulatedJackpot = data.accumulatedJackpot; storage.setItem('qlc_accumulated', data.accumulatedJackpot); }
-        init();
-        loadConfigInputs();
-        renderAdminMatches();
-        renderPaymentMethodsList();
-        showToast('✅ Configuración importada');
-      } catch (err) { showToast('❌ Archivo inválido'); }
-    };
-    reader.readAsText(file);
-  }
-  
-  function clearActivityLog() {
-    if (confirm('¿Limpiar registro?')) {
-      SecuritySystem.activityLog = [];
-      SecuritySystem.updateActivityLogDisplay();
-      showToast('️ Registro limpiado');
-    }
-  }
-  
-  function updateWhatsAppReceiptLink() {
-    var link = document.getElementById('whatsappReceiptLink');
-    var message = ' Comprobante - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n⚠️ Incluye tu folio.';
-    link.href = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
-  }
-  
-  function shareReceiptWithImage() {
-    try {
-      if (!state.receiptFile && !state.receiptDataUrl) { showToast('⚠️ Sube tu captura'); return; }
-      var message = '🧾 Comprobante - Quinielas Los Compas\n\n💰 Monto: $' + state.price + ' MXN\n📅 Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n⚠️ Incluye tu folio.';
-      if (navigator.share && navigator.canShare) {
-        var shareData = { text: message, title: 'Comprobante' };
-        if (state.receiptFile) {
-          var filesArray = [state.receiptFile];
-          if (navigator.canShare({ files: filesArray })) shareData.files = filesArray;
-        }
-        navigator.share(shareData).then(function() {
-          showToast('✅ Compartido');
-          SecuritySystem.logActivity('✅ Comprobante compartido');
-        }).catch(function(err) {
-          if (err.name !== 'AbortError') fallbackToWhatsApp(message);
-        });
-      } else { fallbackToWhatsApp(message); }
-    } catch (err) { fallbackToWhatsApp('Comprobante'); }
-  }
-  
-  function fallbackToWhatsApp(message) {
-    var url = 'https://wa.me/' + state.whatsappNumber + '?text=' + encodeURIComponent(message);
-    showToast('📱 WhatsApp abierto. Adjunta la imagen e incluye tu folio.');
-    var newWindow = window.open(url, '_blank');
-    if (!newWindow) {
-      var link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      setTimeout(function() { document.body.removeChild(link); }, 100);
-    }
-  }
-  
-  function handleReceipt(event) {
-    var file = event.target.files[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) { showToast('️ Solo imágenes'); return; }
-      if (file.size > 10 * 1024 * 1024) { showToast('⚠️ Máximo 10MB'); return; }
-      state.receiptFile = file;
-      document.getElementById('uploadText').textContent = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        state.receiptDataUrl = e.target.result;
-        var preview = document.getElementById('receiptPreview');
-        preview.src = e.target.result;
-        preview.classList.add('active');
-        var shareBtn = document.getElementById('shareWithImageButton');
-        if (navigator.share && navigator.canShare) shareBtn.style.display = 'flex';
-        else shareBtn.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-      showToast('📸 Imagen cargada. Usa "Compartir con Imagen".');
-      SecuritySystem.logActivity('📸 Comprobante subido: ' + file.name);
-    }
-  }
-  
+  function copyText(text) { navigator.clipboard.writeText(text).then(function() { showToast('📋 Copiado'); }); }
   function openModal(id) { document.getElementById(id).classList.add('active'); }
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-    if (id === 'adminModal') {
-      document.getElementById('adminLogin').style.display = 'block';
-      document.getElementById('adminPanel').style.display = 'none';
-      document.getElementById('adminEmail').value = '';
-      document.getElementById('adminPass').value = '';
-    }
-  }
-  
-  function showToast(msg) {
-    var toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.style.display = 'block';
-    setTimeout(function() { toast.style.display = 'none'; }, 3500);
-  }
-  
-  var overlays = document.querySelectorAll('.modal-overlay');
-  for (var i = 0; i < overlays.length; i++) {
-    overlays[i].addEventListener('click', function(e) {
-      if (e.target === this) this.classList.remove('active');
-    });
-  }
-  
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && document.getElementById('adminModal').classList.contains('active')) {
-      if (document.getElementById('adminLogin').style.display !== 'none') checkAdmin();
-    }
-    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
-      e.preventDefault();
-      showToast('🔒 Acceso restringido');
-      return false;
-    }
-  });
-  
-  window.selectPrediction = selectPrediction;
-  window.clearSelection = clearSelection;
-  window.addQuiniela = addQuiniela;
-  window.sendAllQuinielasWhatsApp = sendAllQuinielasWhatsApp;
-  window.sendAllAdminQuinielas = sendAllAdminQuinielas;
-  window.checkAdmin = checkAdmin;
-  window.resetCredentials = resetCredentials;
-  window.switchTab = switchTab;
-  window.addMatch = addMatch;
-  window.deleteMatch = deleteMatch;
-  window.clearAllMatches = clearAllMatches;
-  window.togglePaid = togglePaid;
-  window.downloadExcel = downloadExcel;
-  window.clearAllQuinielas = clearAllQuinielas;
-  window.changeCredentials = changeCredentials;
-  window.saveWhatsApp = saveWhatsApp;
-  window.savePrice = savePrice;
-  window.saveJackpotConfig = saveJackpotConfig;
-  window.copyText = copyText;
-  window.exportConfig = exportConfig;
-  window.importConfig = importConfig;
-  window.handleReceipt = handleReceipt;
-  window.shareReceiptWithImage = shareReceiptWithImage;
-  window.openModal = openModal;
-  window.closeModal = closeModal;
-  window.clearActivityLog = clearActivityLog;
-  window.saveClosingTime = saveClosingTime;
-  window.closeNow = closeNow;
-  window.reopenQuiniela = reopenQuiniela;
-  window.deleteMyQuiniela = deleteMyQuiniela;
-  window.updateMyQuinielas = updateMyQuinielas;
-  window.setMatchResult = setMatchResult;
-  window.calculateWinners = calculateWinners;
-  window.clearResults = clearResults;
-  window.clearHistory = clearHistory;
-  window.generatePlayerPDF = generatePlayerPDF;
-  window.generateResultsPDF = generateResultsPDF;
-  window.addPaymentMethod = addPaymentMethod;
-  window.deletePaymentMethod = deletePaymentMethod;
-  window.updatePaymentForm = updatePaymentForm;
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+  function showToast(msg) { var toast = document.getElementById('toast'); toast.textContent = msg; toast.style.display = 'block'; setTimeout(function() { toast.style.display = 'none'; }, 3500); }
   
   init();
 })();
 </script>
-
 </body>
 </html>
