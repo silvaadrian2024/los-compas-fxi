@@ -584,7 +584,7 @@ var db = null;
 
 try {
   firebase.initializeApp(FIREBASE_CONFIG);
-  db = firebase.database();
+  db = firebase.firestore();
   console.log('✅ Firebase conectado');
 } catch (e) {
   console.error('❌ Error Firebase:', e);
