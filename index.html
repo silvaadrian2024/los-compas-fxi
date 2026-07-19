@@ -677,7 +677,7 @@
         <li><strong>Costo:</strong> $<span id="notePrice">20</span> MXN por quiniela.</li>
         <li><strong>Comisión administrativa:</strong> Se retiene el <strong>20%</strong> por administración.</li>
         <li><strong>Quiniela no pagada NO participa.</strong></li>
-        <li><strong>Hora de cierre:</strong> Una vez alcanzada, no se aceptarán más quinielas.</li>
+        <li><strong>Hora de cierre:</strong> Once alcanzada, no se aceptarán más quinielas.</li>
         <li><strong>Privacidad:</strong> Los pronósticos son confidenciales.</li>
         <li><strong>Folio único:</strong> Cada quiniela tiene número de folio.</li>
         <li><strong>Bolsa acumulada:</strong> Si no hay ganador, la bolsa se acumula para la siguiente jornada.</li>
@@ -1043,6 +1043,43 @@
   
   firebase.initializeApp(firebaseConfig);
   var db = firebase.firestore();
+
+  // ============================================
+  // SISTEMA DE ALMACENAMIENTO (RESTAURADO)
+  // ============================================
+  var storageAvailable = false;
+  var memoryStorage = {};
+  
+  try {
+    var testKey = '__storage_test__';
+    localStorage.setItem(testKey, 'test');
+    localStorage.removeItem(testKey);
+    storageAvailable = true;
+  } catch (e) { storageAvailable = false; }
+  
+  var storage = {
+    getItem: function(key) {
+      if (storageAvailable) {
+        try { return localStorage.getItem(key); } catch (e) { return memoryStorage[key] || null; }
+      } else { return memoryStorage[key] || null; }
+    },
+    setItem: function(key, value) {
+      if (storageAvailable) {
+        try { localStorage.setItem(key, value); } catch (e) { memoryStorage[key] = value; }
+      } else { memoryStorage[key] = value; }
+    },
+    removeItem: function(key) {
+      if (storageAvailable) {
+        try { localStorage.removeItem(key); } catch (e) { delete memoryStorage[key]; }
+      } else { delete memoryStorage[key]; }
+    }
+  };
+  
+  var session = {
+    getItem: function(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } },
+    setItem: function(key, value) { try { sessionStorage.setItem(key, value); } catch (e) {} },
+    removeItem: function(key) { try { sessionStorage.removeItem(key); } catch (e) {} }
+  };
   
   var SecuritySystem = {
     loginAttempts: 0,
@@ -1053,7 +1090,7 @@
     activityLog: [],
     
     init: function() {
-      // Protecciones comentadas temporalmente para permitir depuración
+      // Desactivados temporalmente para permitir depuración F12
       // this.setupAntiRightClick();
       // this.setupAntiDevTools();
       // this.setupAntiCopy();
@@ -1275,7 +1312,6 @@
     return { total: totalJackpot, currentRevenue: currentRevenue, commission: commission, currentPrizePool: currentPrizePool, accumulated: state.accumulatedJackpot, paidCount: paidCount };
   }
   
-  // (Resto de funciones lógicas de Quinielas Los Compas)
   function updateJackpotDisplay() {
     var jackpot = calculateJackpot();
     document.getElementById('jackpotAmount').textContent = '$' + jackpot.total.toLocaleString() + ' MXN';
@@ -1319,6 +1355,7 @@
     return { closed: false, message: 'Sin hora de cierre', time: null };
   }
   
+  // (Resto de la lógica interna de control de interfaz de Quinielas Los Compas)
   function updateClosingDisplay() {
     var info = getClosingInfo();
     var banner = document.getElementById('closingBanner');
@@ -2231,6 +2268,7 @@
     db.collection("configuracion").doc("jornadaActual").update({ whatsappNumber: num });
   }
   
+  // (Funciones administrativas y exportación restantes de Quinielas Los Compas)
   function savePrice() {
     var price = document.getElementById('priceInput').value;
     db.collection("configuracion").doc("jornadaActual").update({ price: price });
